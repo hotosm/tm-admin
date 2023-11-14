@@ -38,6 +38,6 @@ compile: $(PBUFS)
 
 clean:
 	@echo "Removing all generated files!"
-	$(RM) -f $(GENP) $(PROTOS)
+	$(RM) -f $(GENP) $(PROTOS) types_pb2.py types.proto
 
 .SUFFIXES: .py .sql
