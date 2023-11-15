@@ -30,10 +30,12 @@ GENP := $(wildcard */*_pb2*.py*)
 
 all: protos compile
 
-protos: $(SQL)
-	./tmadmin-manage.py -v
+protos: $(SQL) services.proto
+	./tmadmin-manage.py -v */*.sql
 
 compile: $(PBUFS)
+	@echo "Build services"
+	-@$(PROTOC) -I. --python_out=. --grpc_python_out=. services.proto
 
 %.py: %.proto
 	@echo "Converting $< to a protobuf file"
@@ -43,7 +45,7 @@ compile: $(PBUFS)
 
 clean:
 	@echo "Removing all generated files!"
-	$(RM) -f $(GENP) $(PYI) $(PROTOS) types_pb2.py types_pb2.pyi types.proto
+	$(RM) -f $(GENP) $(PYI) $(PROTOS) types_pb2* types.proto services_pb2*
 
 realclean: clean
 	@$(RM) -f *~ */*~
