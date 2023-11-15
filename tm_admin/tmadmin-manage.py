@@ -96,7 +96,11 @@ class TmAdminManage(object):
         # sql = "CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS hstore"
         if dburi:
             self.dburi = uriParser(dburi)
-        self.pg(createDB(self.uri))
+        # FIXME: CREATE DATABASE cannot run inside a transaction block
+        # self.pg.createDB(self.dburi)
+        with open(f"{rootdir}/types.sql", 'r') as file:
+            self.pg.dbcursor.execute(file.read())
+
 
     def createTable(self,
                     sqlfile: str,
@@ -111,9 +115,19 @@ class TmAdminManage(object):
         Returns:
             (bool): The table creation status
         """
+        sql = ""
         with open(sqlfile, 'r') as file:
-            sql = file.read()
+            # cleanup the file before submitting
+            for line in file.readlines():
+                if line[:2] != '--' and len(line) > 0:
+                    sql += line
+            file.close()
             return self.pg.createTable(sql)
+
+        path = Path(sqlfile)
+        version = f"INSERT INTO schemas(schema, version) VALUES('{sqlfile.stem}', 1.0)"
+        result = self.pg.dbcursor.execute(version)
+
         return sql
 
     def readDiff(self,
@@ -185,16 +199,18 @@ def main():
 
     # The base class that does all the work
     tm = TmAdminManage(args.uri)
+    tm.createDB()
 
-    # modules to generatihng proto files
+    # modules to generating proto files
     pb = ProtoBuf()
 
     # The default is the current directory in the source tree, so find all
     # the SQL files.
-    result = tm.createTable("schemas.sql")
+    result = tm.createTable(f"{rootdir}/schemas.sql")
+
     # This defines all the enums needed to compile the proto files
-    types = pb.createProto("types.sql")
-    with open('types.proto', 'w') as file:
+    types = pb.createProto(f"{rootdir}/types.sql")
+    with open(f'types.proto', 'w') as file:
         file.writelines(str(i)+'\n' for i in types[0])
         file.close()
 
