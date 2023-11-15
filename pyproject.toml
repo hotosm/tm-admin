@@ -17,7 +17,7 @@ dependencies = [
 ]
 requires-python = ">=3.10"
 readme = "README.md"
-license = "GPL-3.0-only"
+license = "AGPL-3.0-only"
 keywords = ["hot"]
 classifiers = [
     "Topic :: Utilities",
@@ -45,7 +45,7 @@ pythonpath = "tm_admin"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.2rc0"
+version = "0.1.0"
 version_files = [
     "pyproject.toml:version",
     "tm_admin/__version__.py",
@@ -75,6 +75,9 @@ docs = [
     "mkdocs-exclude>=1.0.2",
 ]
 
+# [tool.setuptools.package-data]
+# myModule = ["*.py"]
+
 [tool.black]
 line-length = 132
 target-versions = ["py310", "py311"]
@@ -97,5 +100,5 @@ exclude = [
 [tool.ruff.pydocstyle]
 convention = "google"
 
-# [project.scripts]
-# geofabrik = "osm_rawdata.geofabrik:main"
+#[project.scripts]
+# tmadmin-manage = "tm_admin.tmadmin-manage"
