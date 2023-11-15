@@ -27,7 +27,6 @@ from sys import argv
 from osm_rawdata.postgres import uriParser, PostgresClient
 from tm_admin.proto import ProtoBuf
 
-
 # Instantiate logger
 log = logging.getLogger("tm-admin")
 

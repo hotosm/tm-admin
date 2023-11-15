@@ -1,0 +1,10 @@
+- test:
+    - localhost: 50050
+- fmtm:
+    - localhost: 50051
+- taskingmanager:
+    - localhost: 50052
+- fair:
+    - localhost: 50053
+- exporttool:
+    - localhost: 50054
