@@ -1,0 +1,49 @@
+//  Copyright (c) 2022, 2023 Humanitarian OpenStreetMap Team
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU Affero General Public License as
+//  published by the Free Software Foundation, either version 3 of the
+//  License, or (at your option) any later version.
+
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Affero General Public License for more details.
+
+//  You should have received a copy of the GNU Affero General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+//  Humanitarian OpenStreetmap Team
+//  1100 13th Street NW Suite 800 Washington, D.C. 20005
+//  <info@hotosm.org>
+
+syntax = "proto3";
+
+package tmadmin;
+
+// Include all the data structures
+import "users/users.proto";
+import "projects/projects.proto";
+import "tasks/tasks.proto";
+import "teams/teams.proto";
+
+// The greeting service definition.
+service TMAdmin {
+  // Sends a greeting
+  rpc SendUser (users) returns (users) {}
+
+  rpc SayHelloStreamReply (HelloRequest) returns (stream HelloReply) {}
+
+  rpc SayHelloBidiStream (stream HelloRequest) returns (stream HelloReply) {}
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  int32 id = 1;
+  string message = 2;
+}
