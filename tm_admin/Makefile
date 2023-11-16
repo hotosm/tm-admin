@@ -40,8 +40,8 @@ compile: $(PBUFS)
 %.py: %.proto
 	@echo "Converting $< to a protobuf file"
 	-@$(PROTOC) -I. --python_out=. --grpc_python_out=. types.proto  $*.proto
-	# FIXME: --pyi_out= seems to have been replaced by --grpc_python_out
-	#-@$(PROTOC) -I. --python_out=. --pyi_out=. types.proto $*.proto
+	@# FIXME: --pyi_out= seems to have been replaced by --grpc_python_out
+	@#-@$(PROTOC) -I. --python_out=. --pyi_out=. types.proto $*.proto
 
 clean:
 	@echo "Removing all generated files!"
