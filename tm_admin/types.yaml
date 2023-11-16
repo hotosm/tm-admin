@@ -1,0 +1,49 @@
+---
+- projectpriority:
+    - URGENT
+    - HIGH
+    - MEDIUM
+    - LOW
+
+- public.permissions:
+    - ANY
+    - LEVEL
+    - TEAMS
+    - TEAMS_LEVEL
+
+- taskcreationmode:
+    - GRID
+    - ROADS
+    - UPLOAD
+
+- organisationtype:
+    - FREE
+    - DISCOUNTED
+    - FULL_FEE
+
+- teamvisibility:
+    - PUBLIC
+    - PRIVATE
+
+- taskaction:
+    - RELEASED_FOR_MAPPING
+    - LOCKED_FOR_MAPPING
+    - MARKED_MAPPED
+    - LOCKED_FOR_VALIDATION
+    - VALIDATED
+    - MARKED_INVALID
+    - MARKED_BAD
+    - SPLIT_NEEDED
+    - RECREATED
+    - COMMENT
+
+- taskstatus:
+    - READY
+    - TASK_LOCKED_FOR_MAPPING
+    - MAPPED
+    - TASK_LOCKED_FOR_VALIDATION
+    - TASK_VALIDATED
+    - TASK_INVALIDATED
+    - BAD
+    - SPLIT
+    - TASK_ARCHIVED
