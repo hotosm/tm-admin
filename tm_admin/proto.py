@@ -37,6 +37,15 @@ class ProtoBuf(object):
                 ):
         self.sqlfile = sqlfile
 
+    def convertType(self):
+        pass
+        # double
+        # float
+        # int32 (int)
+        # int64 (long)
+        # bool
+        # bytes
+        # string
     def createProto(self,
                     sqlfile: str,
                     ):
@@ -184,11 +193,48 @@ class ProtoBuf(object):
                             # log.debug(f"Got a geometry for {k1}")
                             out.append(f"\t{optional}  bytes {k1} = {index};")
                     else:
-                        out.append(f"\t{optional} {repeated} {convert[v1]} {k1} = {index};")
+                        out.append(f"\t{optional}  {repeated} {convert[v1]} {k1} = {index};")
                     index += 1
             out += f"}}";
 
         return out
+
+    def protoToDict(self,
+                    filespec: str,
+                    ):
+        inblock = False
+        array = False
+        dataout = dict()
+        convert = {'int32': 'int', 'int64': 'long', 'string': 'str'}
+        with open(filespec, 'r') as file:
+            for line in file.readlines():
+                if line[:6] == 'syntax' or line[:6] == 'import' or line[:2] == '//':
+                    continue
+                elif line[0] == '}':
+                    inblock = False
+                    continue
+                elif line[:7] == 'message':
+                    name = line.strip().split(' ')[1]
+                    inblock = True
+                    continue
+                elif inblock:
+                    keyword = None
+                    datatype = None
+                    tmp = line.strip().split(' ')
+                    if tmp[0] == 'repeated':
+                        array = True
+                        datatype = tmp[1]
+                        keyword = tmp[2]
+                    elif tmp[0] == 'optional':
+                        datatype = tmp[1]
+                        keyword = tmp[2]
+                    else:
+                        datatype = tmp[0]
+                        keyword = tmp[1]
+                    
+                    dataout[keyword] = None
+                    
+        return dataout
 
 def main():
     """This main function lets this class be run standalone by a bash script."""
@@ -220,6 +266,9 @@ def main():
     for table in known:
         out1, out2 = tm.createProto(table)
         name = table.replace('.sql', '.proto')
+        pyfile = table.replace('.sql', '.py')
+        # xx = tm.protoToDict(name)
+        
         if len(out1) > 0:
             with open(name, 'w') as file:
                 file.writelines([str(i)+'\n' for i in out1])
