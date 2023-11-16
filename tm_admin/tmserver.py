@@ -25,6 +25,7 @@ import sys
 from pathlib import Path
 from sys import argv
 from osm_rawdata.postgres import uriParser, PostgresClient
+from  protobuf_serialization import serialize_to_protobuf, protobuf_to_dict
 from concurrent import futures
 from threading import Lock
 import time
@@ -49,15 +50,22 @@ rootdir = tma.__path__[0]
 semaphore = Lock()
 
 class _UserServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
-    def SayHello(self, request, context):
-        return tm_admin.services_pb2.HelloReply(
-            message="Hello, {}!".format(request.name)
-        )
+    def SendUser(self, request, context):
+        foo = protobuf_to_dict(request)
+
+        # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
+        # print(f"FOOBAR: {foobar}")
+        bar = tm_admin.users.users_pb2.users(**foo)
+        return(bar)
+
+        # return tm_admin.services_pb2.HelloReply(
+        #     message="Hello, {}!".format(request.name), id=3,
+        # )
     
 # class _{ProjectServicer(route_guide_pb2_grpc.RouteGuideServicer):
 #     """Provides methods that implement functionality of route guide server."""
 
-#     def __init__(self):
+
 #         self.db = route_guide_resources.read_route_guide_database()
 
 
@@ -65,6 +73,15 @@ class TMServer(object):
     def __init__(self,
                  target: str,
                  ):
+        """
+        Instantiate a server
+
+        Args:
+            target (str): The name of the target program
+
+        Returns:
+            (TMServer): An instance of this class
+        """
         self.hosts = YamlFile(f"{rootdir}/services.yaml")
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         tm_admin.services_pb2_grpc.add_TMAdminServicer_to_server(
@@ -88,8 +105,17 @@ class TMServer(object):
     def getTarget(self,
                 target: str,
                 ):
+        """
+        Get the target hostname and IP port number
+
+        Args:
+            target (str): The name of the target program
+
+        Returns:
+            (dict): the hostname and IP port for this target program
+        """
         return self.hosts.yaml[0][target][0]
-    
+
 def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser(
@@ -126,14 +152,6 @@ def main():
     # route_guide_pb2_grpc.add_RouteGuideServicer_to_server(
     #     _RouteGuideServicer(), server
     # )
-    SERVICE_NAMES = (
-        tm_admin.services_pb2.DESCRIPTOR.services_by_name['TMAdmin'].full_name,
-        reflection.SERVICE_NAME,
-    )
-    # reflection.enable_server_reflection(SERVICE_NAMES, server)
-    # server.add_insecure_port("[::]:50051")
-    # server.start()
-    # server.wait_for_termination()
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""

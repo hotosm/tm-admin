@@ -25,7 +25,7 @@ import sys
 from sys import argv
 #from __future__ import print_function
 import grpc
-
+from  protobuf_serialization import serialize_to_protobuf, protobuf_to_dict
 import tm_admin.services_pb2
 import tm_admin.services_pb2_grpc
 import tm_admin.types_pb2
@@ -44,18 +44,56 @@ class TMClient(object):
     def __init__(self,
                 target: str,
                 ):
+        """
+        Instantiate a client
+
+        Args:
+            target (str): The name of the target program
+
+        Returns:
+            (TMClient): An instance of this class
+        """
+        # the services.yaml file defines the hostname and ports for all programs.
         self.hosts = YamlFile(f"{rootdir}/services.yaml")
         target = self.getTarget(target)
         [[host, port]] = target.items()
         self.hosts = YamlFile(f"{rootdir}/services.yaml")
         channel = grpc.insecure_channel(f"{host}:{port}")
-        stub = tm_admin.services_pb2_grpc.TMAdminStub(channel)
-        response = stub.SayHello(tm_admin.services_pb2.HelloRequest(name='you'))
-        print(f"TMAdmin client received: {response}")
+        self.stub = tm_admin.services_pb2_grpc.TMAdminStub(channel)
+
+    def sendMsg(self,
+                msg: str,
+                ):
+        """
+        Send data to the target program
+
+        Args:
+            msg (str): The message to send
+
+        Returns:
+           (dict): The response from the server
+        """
+        foo = {'id': 1, 'username': msg, 'name': msg}
+
+        bar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
+
+        response = self.stub.SendUser(bar)
+        # response = self.stub.SayHello(tm_admin.services_pb2.HelloRequest(name=msg))
+        #print(f"TMAdmin client received: {response}")
+        return response
 
     def getTarget(self,
                 target: str,
                 ):
+        """
+        Get the target hostname and IP port number
+
+        Args:
+            target (str): The name of the target program
+
+        Returns:
+            (dict): the hostname and IP port for this target program
+        """
         return self.hosts.yaml[0][target][0]
     
 def main():
@@ -69,6 +107,7 @@ def main():
         """,
     )
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
+    parser.add_argument("-m", "--msg", default='who', help="string to send")
     args = parser.parse_args()
 
     if len(argv) <= 1:
@@ -86,12 +125,8 @@ def main():
 
     tm = TMClient('test')
 
-    # target = tm.getTarget('test')
-    # [[host, port]] = target.items()
-    # channel = grpc.insecure_channel(f"{host}:{port}")
-    # stub = tm_admin.services_pb2_grpc.TMAdminStub(channel)
-    # response = stub.SayHello(tm_admin.services_pb2.HelloRequest(name='you'))
-    # print(f"TMAdmin client received: {response}")
+    response = tm.sendMsg(args.msg)
+    print(f"TMAdmin client received: {response}")
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
