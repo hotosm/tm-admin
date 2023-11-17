@@ -45,7 +45,7 @@ compile: $(PBUFS)
 
 clean:
 	@echo "Removing all generated files!"
-	$(RM) -f $(GENP) $(PYI) $(PROTOS) types_pb2* types.proto services_pb2*
+	$(RM) -f $(GENP) $(PYI) $(PROTOS) types_pb2* types_tm.* services_pb2*
 
 realclean: clean
 	@$(RM) -f *~ */*~
