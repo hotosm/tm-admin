@@ -34,20 +34,30 @@ rootdir = tma.__path__[0]
 
 class Generator(object):
     def __init__(self,
-                filespec: str = f"{rootdir}/types.yaml",
+                filespec: str = None,
                 ):
+        self.filespec = None
+        self.yaml = None
+        if filespec:
+            self.filespec = Path(filespec)
+            self.yaml = YamlFile(filespec)
+        self.createTypes()
+
+    def readConfig(self,
+                    filespec: str,
+                    ):
         self.filespec = Path(filespec)
         self.yaml = YamlFile(filespec)
 
     def createTypes(self):
-        gen = Generator(f'types.yaml')
-        out = gen.createSQLEnums()
+        gen = self.readConfig(f'types.yaml')
+        out = self.createSQLEnums()
         with open('types_tm.sql', 'w') as file:
             file.write(out)
-        out = gen.createProtoEnums()
+        out = self.createProtoEnums()
         with open('types_tm.proto', 'w') as file:
             file.write(out)
-        out = gen.createPyEnums()
+        out = self.createPyEnums()
         with open('types_tm.py', 'w') as file:
             file.write(out)
 
@@ -94,6 +104,7 @@ class Generator(object):
             [[table, values]] = entry.items()
             out += f"message {table} {{"
             for line in values:
+                print(line)
                 [[k, v]] = line.items()
                 required = ""
                 array = ""
@@ -127,25 +138,20 @@ class Generator(object):
                    'bytes': 'bytea',
                    'timestamp': 'timestamp without time zone',
                    }
+        sequence = list()
         for entry in self.yaml.yaml:
             [[table, values]] = entry.items()
             out += f"DROP TABLE IF EXISTS public.{table} CASCADE;\n"
             out += f"CREATE TABLE public.{table} (\n"
-            sequence = ""
             for line in values:
                 [[k, v]] = line.items()
                 required = ""
                 array = ""
                 public = False
-                if type(v) == bool:
-                    if k == 'Sequence' and v:
-                        sequence = True
-                        continue
                 for item in v:
-                    print(item)
                     if type(item) == dict:
                         if 'sequence' in item and item['sequence']:
-                            sequence = True
+                            sequence.append(k)
                         if 'required' in item and item['required']:
                             required = ' NOT NULL'
                         if 'array' in item and item['array']:
@@ -163,17 +169,17 @@ class Generator(object):
             out = out[:-2]
             out += "\n);\n"
 
-            if sequence:
-                out += f"""CREATE SEQUENCE public.users_{k}_seq;
-                START WITH 1
-                INCREMENT BY 1
-                NO MINVALUE
-                NO MAXVALUE
-                CACHE 1;
-                """
-                out += "};\n"
-                sequence = False
-
+            if len(sequence) > 0:
+                for key in sequence:
+                    out += f"""
+DROP SEQUENCE IF EXISTS public.users_{key}_seq CASCADE;
+CREATE SEQUENCE public.users_{key}_seq
+        START WITH 1
+        INCREMENT BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        CACHE 1;
+"""
         return out
     
 def main():
@@ -189,9 +195,9 @@ def main():
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
     args, known = parser.parse_known_args()
 
-    #if len(argv) <= 1:
-    #    parser.print_help()
-        # quit()
+    if len(argv) <= 1:
+        parser.print_help()
+        quit()
 
     # if verbose, dump to the terminal.
     if args.verbose is not None:
@@ -202,12 +208,14 @@ def main():
         ch.setFormatter(formatter)
         log.addHandler(ch)
 
-    # Process the types config file first, as all the other files
-    # depend on these enum types.
-    # out = gen.createProtoTable()
-    gen = Generator(f'{rootdir}/users/users.yaml')
-    gen.createTypes()
-    # print(out)
+    gen = Generator()
+    for file in known:
+        path = Path(file)
+        gen.readConfig(file)
+        out = gen.createSQLTable()
+        with open('foo.sql', 'w') as file:
+            file.write(out)
+        print(out)
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
