@@ -62,6 +62,44 @@ class Generator(object):
             out += "};\n\n"
         return out
 
+    def createSQLTable(self):
+        out = ""
+        convert = {'int32': 'integer',
+                   'int64': 'bigint',
+                   'bool': 'boolean',
+                   'string': 'character varying',
+                   'bytes': 'bytea',
+                   'timestamp': 'timestamp without time zone',
+                   }
+        for entry in self.yaml.yaml:
+            [[table, values]] = entry.items()
+            out += f"DROP TABLE IF EXISTS public.{table} CASCADE;\n"
+            out += f"CREATE TABLE public.{table} (\n"
+            for line in values:
+                [[k, v]] = line.items()
+                required = ""
+                array = ""
+                public = False
+                for item in v:
+                    print(item)
+                    if type(item) == dict:
+                        if 'required' in item and item['required']:
+                            required = ' NOT NULL'
+                        if 'array' in item and item['array']:
+                            array = "[]"
+                    if type(item) == str:
+                        if item[:7] == 'public.':
+                            public = True
+                    if len(v) >= 2:
+                        if 'required' in v[1] and v[1]['required']:
+                            required = ' NOT NULL'
+                if public:
+                    out += f"\t{k} {v[0]}{array}{required},\n"
+                else:
+                    out += f"\t{k} {convert[v[0]]}{array}{required},\n"
+            out = out[:-2]
+            out += "\n);\n"
+        return out
     
 def main():
     """This main function lets this class be run standalone by a bash script."""
@@ -76,8 +114,8 @@ def main():
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
     args, known = parser.parse_known_args()
 
-    if len(argv) <= 1:
-        parser.print_help()
+    #if len(argv) <= 1:
+    #    parser.print_help()
         # quit()
 
     # if verbose, dump to the terminal.
@@ -89,9 +127,10 @@ def main():
         ch.setFormatter(formatter)
         log.addHandler(ch)
 
-    gen = Generator()
+    gen = Generator('users/users.yaml')
     # out = gen.createSQLEnums()
-    out = gen.createProtoEnums()
+    # out = gen.createProtoEnums()
+    out = gen.createSQLTable()
     print(out)
 
 if __name__ == "__main__":
