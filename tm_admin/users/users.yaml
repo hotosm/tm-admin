@@ -1,0 +1,47 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- users:
+    - id:
+        - int64
+        - required: True
+        - share: True
+        - sequence: True
+    - username:
+        - string
+    - name:
+        - string
+        - required: True
+    - city:
+        - string
+    - country:
+        - string
+    - email_address:
+        - string
+    - is_email_verified:
+        - bool
+    - is_expert:
+        - bool
+    - mapping_level:
+        - public.mappinglevel
+        - required: True
+    - tasks_mapped:
+        - int32
+        - share: False
+    - tasks_validated:
+        - int32
+    - tasks_invalidated:
+        - int32
+        - share: False
+    - projects_mapped:
+        - int32
+        - array: True
+        - share: False
+    - date_registered:
+        - timestamp
+    - last_validation_date:
+        - timestamp
+        - share: False
+    - password:
+        - string

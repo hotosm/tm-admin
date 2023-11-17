@@ -1,11 +1,14 @@
 ---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
 - projectpriority:
     - URGENT
     - HIGH
     - MEDIUM
     - LOW
 
-- public.permissions:
+- permissions:
     - ANY
     - LEVEL
     - TEAMS
