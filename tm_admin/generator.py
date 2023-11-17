@@ -39,6 +39,18 @@ class Generator(object):
         self.filespec = Path(filespec)
         self.yaml = YamlFile(filespec)
 
+    def createTypes(self):
+        gen = Generator(f'types.yaml')
+        out = gen.createSQLEnums()
+        with open('types_tm.sql', 'w') as file:
+            file.write(out)
+        out = gen.createProtoEnums()
+        with open('types_tm.proto', 'w') as file:
+            file.write(out)
+        out = gen.createPyEnums()
+        with open('types_tm.py', 'w') as file:
+            file.write(out)
+
     def createSQLEnums(self):
         out = ""
         for entry in self.yaml.yaml:
@@ -51,7 +63,7 @@ class Generator(object):
         return out
 
     def createProtoEnums(self):
-        out = "syntax = 'proto3';"
+        out = "syntax = 'proto3';\n\n"
         for entry in self.yaml.yaml:
             index = 1
             [[table, values]] = entry.items()
@@ -60,6 +72,50 @@ class Generator(object):
                 out += f"\t{line} = {index};\n"
                 index += 1
             out += "};\n\n"
+        return out
+
+    def createPyEnums(self):
+        out = f"from enum import Enum\n"
+        for entry in self.yaml.yaml:
+            index = 1
+            [[table, values]] = entry.items()
+            out += f"class {table.capitalize()}(Enum):\n"
+            for line in values:
+                out += f"\t{line} = {index}\n"
+                index += 1
+            out += '\n'
+        return out
+
+    def createProtoTable(self):
+        out = list()
+        out.append("'syntax = 'proto3';'")
+        out.append("import 'types.proto';")
+        for entry in self.yaml.yaml:
+            [[table, values]] = entry.items()
+            out += f"message {table} {{"
+            for line in values:
+                [[k, v]] = line.items()
+                required = ""
+                array = ""
+                public = False
+                if type(v) == bool:
+                    if k == 'Sequence' and v:
+                        sequence = True
+                        continue
+                for item in v:
+                    print(item)
+                    if type(item) == dict:
+                        if 'required' in item and item['required']:
+                            required = ' NOT NULL'
+                        if 'array' in item and item['array']:
+                            array = "repeated"
+                    if type(item) == str:
+                        if item[:7] == 'public.':
+                            public = True
+                    if len(v) >= 2:
+                        if 'required' in v[1] and v[1]['required']:
+                            required = ' NOT NULL'
+
         return out
 
     def createSQLTable(self):
@@ -75,14 +131,21 @@ class Generator(object):
             [[table, values]] = entry.items()
             out += f"DROP TABLE IF EXISTS public.{table} CASCADE;\n"
             out += f"CREATE TABLE public.{table} (\n"
+            sequence = ""
             for line in values:
                 [[k, v]] = line.items()
                 required = ""
                 array = ""
                 public = False
+                if type(v) == bool:
+                    if k == 'Sequence' and v:
+                        sequence = True
+                        continue
                 for item in v:
                     print(item)
                     if type(item) == dict:
+                        if 'sequence' in item and item['sequence']:
+                            sequence = True
                         if 'required' in item and item['required']:
                             required = ' NOT NULL'
                         if 'array' in item and item['array']:
@@ -99,6 +162,18 @@ class Generator(object):
                     out += f"\t{k} {convert[v[0]]}{array}{required},\n"
             out = out[:-2]
             out += "\n);\n"
+
+            if sequence:
+                out += f"""CREATE SEQUENCE public.users_{k}_seq;
+                START WITH 1
+                INCREMENT BY 1
+                NO MINVALUE
+                NO MAXVALUE
+                CACHE 1;
+                """
+                out += "};\n"
+                sequence = False
+
         return out
     
 def main():
@@ -127,11 +202,12 @@ def main():
         ch.setFormatter(formatter)
         log.addHandler(ch)
 
-    gen = Generator('users/users.yaml')
-    # out = gen.createSQLEnums()
-    # out = gen.createProtoEnums()
-    out = gen.createSQLTable()
-    print(out)
+    # Process the types config file first, as all the other files
+    # depend on these enum types.
+    # out = gen.createProtoTable()
+    gen = Generator(f'{rootdir}/users/users.yaml')
+    gen.createTypes()
+    # print(out)
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
