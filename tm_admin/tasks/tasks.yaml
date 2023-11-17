@@ -1,0 +1,33 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- tasks:
+    - id:
+        - int64
+        - required: True
+        - share: True
+        - sequence: True
+    - project_id:
+        - int32
+        - required: True
+    - project_task_index:
+        - int32      
+    - project_task_name:
+      - string
+    - outline:
+        - public.geometry(Polygon,4326)
+    - geometry_geojson:
+        - string
+    - initial_feature_count:
+        - int32
+    - task_status:
+        - public.taskstatus
+    - locked_by:
+        - int64
+    - mapped_by:
+        - int64
+    - validated_by:
+        - int64
+    - qr_code_id:
+        - int32

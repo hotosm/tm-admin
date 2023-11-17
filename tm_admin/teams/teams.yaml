@@ -2,24 +2,24 @@
 # This file is used to generate the full SQL to create database
 # tables, as well as the protobuf files.
 
-- organizations:
+- teams:
     - id:
         - int64
         - required: True
         - share: True
         - sequence: True
+    - organisation_id:
+        - int32
+        - required: True
     - name:
         - string
         - required: True
-    - slug:
-        - string
-        - required: True
     - logo:
-        - string
+      - string
     - description:
       - string
-    - url:
-      - string
-    - type:
-        - public.organisationtype
+    - invite_only:
+        - bool
+    - visibility:
+        - public.teamvisibility
         - required: True
