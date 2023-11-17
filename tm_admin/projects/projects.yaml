@@ -1,0 +1,99 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- projects:
+    - id:
+        - int64
+        - required: True
+        - share: True
+        - sequence: True
+    - odkid:
+        - int64
+        - share: True
+    - author_id:
+        - int64
+        - required: True
+        - share: True
+    - created:
+        - timestamp
+        - required: True
+        - share: False
+    - task_creation_mode:
+        - public.taskcreationmode
+        - required: True
+    - project_name_prefix:
+        - string
+    - task_type_prefix:
+        - string
+    - location_str:
+        - string
+    - outline:
+        - public.geometry(Polygon,4326)
+    - last_updated:
+        - timestamp
+    - status:
+        - public.projectstatus
+        - required: True
+    - total_tasks:
+        - int32
+    - odk_central_src:
+        - string
+    - xform_title:
+        - string
+    - private:
+        - bool
+    - mapper_level:
+        - public.mappinglevel
+        - required: True
+    - priority:
+        - public.projectpriority
+    - featured:
+        - bool
+    - mapping_permissions:
+        - public.permissions
+    - validation_permission:
+        - public.permissions
+    - organisation_id:
+        - int32
+    - changeset_comment:
+        - string
+    - osmcha_filter_id:
+        - string
+    - imagery:
+        - string
+    - osm_preset:
+        - string
+    - odk_preset:
+        - string
+    - josm_preset:
+        - string
+    - id_presets:
+        - string
+    - extra_id_params:
+        - string
+    - license_id:
+        - int32
+    - centroid:
+        - public.geometry(Point,4326)
+    - odk_central_url:
+        - string
+    - odk_central_user:
+        - string
+    - odk_central_password:
+        - string
+    - extract_completed_count:
+        - int32
+    - form_xls:
+        - bytes
+    - form_config_file:
+        - bytes
+    - data_extract_type:
+        - string
+    - task_split_type:
+        - string
+    - hashtags:
+        - string
+        - array: True
+
+    
