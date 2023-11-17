@@ -6,7 +6,8 @@ definitions. Otherwise there winds up being a lot of code duplication
 which becomes hard to maintain.
 
 This project also needs to manage the database tables, as well as
-allow to transmit data between projects.
+allow to transmit data between projects. Python enums and classes are
+also generated.
 
 # The YAML files
 
