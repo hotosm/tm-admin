@@ -29,7 +29,16 @@ PBUFS := $(PROTOS:.proto=.py)
 GENP := $(wildcard */*_pb2.py)
 FILES := $(wildcard ./tm_admin/*.py)
 
+all:
+	@cd tm_admin ; $(MAKE)
+
 apidoc: force
 	cd docs && doxygen
+
+clean:
+	@cd tm_admin ; make clean
+
+realclean:
+	@cd tm_admin ; make clean
 
 force:
