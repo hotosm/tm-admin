@@ -21,30 +21,29 @@ a request for data. For any data that is sent, the response is a
 simple SUCCESS/FAILURE message. FAILURE message also return an error
 message and error code.
 
-It seems that most of the projects start with TM. In some cases TM may
-need to notify a fAIr project to process drone imagery. Then TM would
-start the remote mapping project. After critical tasks are mapped,
-they then could be migrated to FMTM for field data collection.
-
-It's entirely possible that FMTM field mappers would find issues
-with the data extract of OSM buildings, and want to notify the TM
-project manager to invalidate some tasks and remap them.
+It seems that most of the projects start with TM. After critical tasks
+are mapped, they then could be migrated to FMTM for field data
+collection. The FMTM mappers would also be ground truthing the remote
+mapping. It's entirely possible that FMTM field mappers would find
+issues with the data extract of OSM buildings, and want to notify the
+TM project manager to invalidate some tasks and remap them.
 
 ## Notifications
 
 Some messages have nothing to do with the database, they're for
-communicating other types of requests. Other than just doing data
+communicating other types of requests. Other than just doing database
 updates, this is the core of an end to end data flow.
 
 Examples of some notifications are:
 
-* Underpass would notify TM of a data quality issue
-* An FMTM project manager would need to notify TM to invalidate a
-  task
+* Underpass would notify TM or fAIr of a data quality issue
+* An FMTM project manager would notify TM to invalidate a task
 * fAIr would notify an FMTM project manager that the imagery has been
-  processed
+  processed so a data extract could be made
+* fAIr would notify OAM that drone imagery is needed for an AOI
+* OAM would notify fAIr when drone imagery is ready to be processed
 
-## TM sends user profile to other project
+## Projects exchange user profiles
 
 Since a user may be contributing to multiple projects, it should be
 possible to clone a users profile between projects. For example, when
@@ -84,7 +83,8 @@ follow-up. The instructions would be very different, so aren't
 needed. The tasks won't be sent either, as a TM task is much largerr
 than an FMTM task. FMTM mappers are walking when mapping. The project
 ID is also not transmitted, as it'll be different in different
-projects.
+projects. There may also be occassions where a project would be sent
+to fAIr, Export Tool, or Underpass.
 
 * name
 * outline
@@ -95,12 +95,29 @@ projects.
 * centroid
 
 A project transferred to FMTM has no project manager, so these are
-initially only an AOI and draft project description.
+initially only an AOI and draft project description. FMTM would need
+the ability to search for an unassigned project, ie... no
+manager. Then when there is a project manager it would be assigned to
+them.
 
 #### Receiving project decides, update or create ?
 
 When this message is received, it should update the database for this
-user, and send the response acknowledgment.
+project, and send the response acknowledgment.
 
 ## TM sends organization profile
 
+Organizations may be using multiple HOT projects, so this would sync
+organization data between projects so it wouldn't have to be manually
+edited for each poroject like it is now.
+
+* name
+* description
+* url
+* logo
+* type
+
+#### Receiving project decides, update or create ?
+
+When this message is received, it should update the database for this
+organization, and send the response acknowledgment.
