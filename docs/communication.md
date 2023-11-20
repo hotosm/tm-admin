@@ -30,6 +30,20 @@ It's entirely possible that FMTM field mappers would find issues
 with the data extract of OSM buildings, and want to notify the TM
 project manager to invalidate some tasks and remap them.
 
+## Notifications
+
+Some messages have nothing to do with the database, they're for
+communicating other types of requests. Other than just doing data
+updates, this is the core of an end to end data flow.
+
+Examples of some notifications are:
+
+* Underpass would notify TM of a data quality issue
+* An FMTM project manager would need to notify TM to invalidate a
+  task
+* fAIr would notify an FMTM project manager that the imagery has been
+  processed
+
 ## TM sends user profile to other project
 
 Since a user may be contributing to multiple projects, it should be
@@ -41,13 +55,16 @@ to process the drone imagery they just collected.
 
 ### User profiles
 
-These are the data fields that need to be in this message to create or
-replace a user profile in the database.
+These are the data fields that need to be in this message to create a
+user profile in the database. The user ID in TM or FMTM won't be the
+same, since each project will have different teams of mappers. Instead
+of the ID, the username will be used to refer to a mapper.
 
-* id
 * username
+* name
 * city
 * country
+* email_address
 * is_email_verified
 * is_expert
 * mapping_level 
@@ -56,7 +73,8 @@ replace a user profile in the database.
 #### Receiving project decides, update or create ?
 
 When this message is received, it should update the database for this
-user, and send the response acknowledgment.
+user unless the username already exists, and send the response
+acknowledgment.
 
 ## TM sends project profile
 
@@ -64,9 +82,10 @@ It is entirely likely that for disaster response, an area may be
 remotely mapped with TM, and then will be field mapped with FMTM as a 
 follow-up. The instructions would be very different, so aren't
 needed. The tasks won't be sent either, as a TM task is much largerr
-than an FMTM task. FMTM mappers are walking when mapping.
+than an FMTM task. FMTM mappers are walking when mapping. The project
+ID is also not transmitted, as it'll be different in different
+projects.
 
-* id
 * name
 * outline
 * description
@@ -77,3 +96,11 @@ than an FMTM task. FMTM mappers are walking when mapping.
 
 A project transferred to FMTM has no project manager, so these are
 initially only an AOI and draft project description.
+
+#### Receiving project decides, update or create ?
+
+When this message is received, it should update the database for this
+user, and send the response acknowledgment.
+
+## TM sends organization profile
+
