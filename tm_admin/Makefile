@@ -30,11 +30,7 @@ GENP := $(wildcard */*_pb2*.py*)
 YAML := $(wildcard */*.yaml)
 OUTSQL := $(YAML:.yaml=.sql)
 
-all: protos compile
-
-# FIXME: this will be depreciated soon!
-protos: $(SQL) services.proto
-	./tmadmin-manage.py -v */*.sql
+all: generate compile
 
 # The SQL files are now generated from YAML based config files
 generate: $(OUTSQL)
@@ -44,23 +40,23 @@ compile: $(PBUFS)
 	-@$(PROTOC) -I. --python_out=. --grpc_python_out=. services.proto
 
 %.sql: %.yaml
-	@echo "Generating $< for postgres"
-	./generator.py $<
+	@echo "Generating $@ file for postgres"
+	-@./generator.py $<
 
 %.py: %.proto
-	@echo "Converting $< to a protobuf file"
-	-@$(PROTOC) -I. --python_out=. --grpc_python_out=. types.proto  $*.proto
+	@echo "Converting $< to a protobuf python stubs file"
+	-@$(PROTOC) -I. --python_out=. --grpc_python_out=. types_tm.proto  $*.proto
 	@# FIXME: --pyi_out= seems to have been replaced by --grpc_python_out
 	@#-@$(PROTOC) -I. --python_out=. --pyi_out=. types.proto $*.proto
 
 clean:
 	@echo "Removing all generated files!"
-	$(RM) -f $(GENP) $(PYI) $(PROTOS) $(SQL) types_pb2* types_tm.* services_pb2*
+	$(RM) -f $(GENP) $(PYI) $(PROTOS) $(SQL)  types_tm* services_pb2*
 
 realclean: clean
-	@$(RM) -f *~ */*~
+	@$(RM) -f *~ */*~ rm -fr __pycache__/ */rm -fr __pycache__/
 
 
-.SUFFIXES: .py .sql .yaml
+.SUFFIXES: .py .sql .yaml .proto
 
 force:
