@@ -37,88 +37,6 @@ class ProtoBuf(object):
                 ):
         self.sqlfile = sqlfile
 
-    def convertType(self):
-        pass
-        # double
-        # float
-        # int32 (int)
-        # int64 (long)
-        # bool
-        # bytes
-        # string
-    def createProto(self,
-                    sqlfile: str,
-                    ):
-        """
-        Read an SQL file and produce data to create protobuf .proto files.
-
-        Args:
-            sqlfile (str): The SQL file to process.
-
-        Returns:
-            (dict): The list of enums and types
-            (dict): The list of tables
-        """
-        tables = dict()
-        enums = dict()
-        table = dict()
-        log.info(f"Processing {sqlfile}...")
-        with open(sqlfile, 'r') as file:
-            inblock = False
-            inenum = True
-            nume = list()
-            name = None
-            for line in file.readlines():
-                optional = ""
-                repeated = ""
-                # We don't care about the NOT NULL parameter
-                loc = line.find('NOT')
-                tmp = ' '.join(line[:loc].split()).split()
-                # optional is for anything that is NOT NULL
-                if loc > 0:
-                    optional = "optional "
-                if line[:2] == ");":
-                    if inblock:
-                        inblock = False
-                        tables[name] = table
-                        print(f"Done table {name}...")
-                    elif inenum:
-                        inenum = False
-                        enums[name] = nume
-                        print(f"Done enum {name}...")
-                    continue
-                if line[:12] == 'CREATE TABLE':
-                    name = tmp[2].replace("public.", "")
-                    inblock = True
-                    continue
-                if line[:11] == 'CREATE TYPE' and tmp[4] == 'ENUM':
-                    name = tmp[2].replace("public.", "")
-                    nume = list()
-                    inenum = True
-                    continue
-                if len(tmp) == 2 and inblock:
-                    table[tmp[0]] = tmp[1]
-                    continue
-                if len(tmp) == 3 and inblock:
-                    if tmp[2][-1:] == ',':
-                        table[tmp[0]] = f"{tmp[1]}_{tmp[2][:-1]}"
-                    else:
-                        table[tmp[0]] = f"{tmp[1]}_{tmp[2]}"
-                    continue
-                if len(tmp) == 1 and inenum:
-                    if  tmp[0][-1:] == ',':
-                        nume.append(f"{tmp[0][1:-2]}")
-                    else:
-                        nume.append(f"{tmp[0][1:-1]}")
-                # Repeated is for arrays
-                if line[:2] == "[]":
-                    repeated = "repeated"
-
-        out1 = self.createEnumProto(enums)
-        out2 = self.createTableProto(tables)
-
-        return out1, out2
-
     def createEnumProto(self,
                     enums: dict,
                     ):
@@ -144,58 +62,62 @@ class ProtoBuf(object):
         return out
 
     def createTableProto(self,
-                    tables: dict,
+                    tables: list,
                     ):
         """
         Process a list of tables into the protobuf version.
 
         Args:
-            table (dict): The list of tables to generate a protobuf for.
+            table (list): The list of tables to generate a protobuf for.
 
         Returns:
             (list): The list of tables in protobuf format
         """
         out = list()
-        convert = {'integer': 'int32',
-                   'bigint': 'int64',
-                   'boolean': 'bool',
-                   'character_varying': 'string',
-                   'bytea': 'bytes',
-                   }
         out.append(f"syntax = 'proto3';")
-        out.append("import 'types.proto';")
+        # types.proto is generated from the types.yaml file.
+        out.append("import 'types_tm.proto';")
+        out.append("package tmadmin;")
+        out.append("import 'google/protobuf/timestamp.proto';")
 
-        for name, value in tables.items():
-            out.append(f"message {name} {{")
+        convert = {'timestamp': "google.protobuf.Timestamp"}
+        for table in tables:
             index = 1
-            for table, data in tables.items():
+            for key, value in table.items():
+                out.append(f"message {key} {{")
                 optional = ""
                 repeated = ""
-                for k1, v1 in data.items():
-                    # Remove any embedded commas
-                    v1 = v1.replace(',', '')
-                    # print(f"DATA: {k1} = {v1}")
-                    if v1[:7] == 'public.':
-                        # log.debug(f"Got enum '{k1}' from types.proto")
-                        v1 = v1[7:].capitalize()
-                        # out.append(f"\t{optional}  {v1} {k1} = {index};")
-                    # FIXME: Sometimes this has a number for a fixed length string
-                    elif v1[:17] == 'character_varying':
-                        v1 = v1[:17]
-                    # It's an array, ie.. repeated field
-                    elif v1[-2:] == '[]':
-                        # log.debug(f"Got an array for {k1}")
-                        v1 = v1[:-2]
-                        repeated = 'repeated'
-                    # it's an enum defined in types.proto
-                    if v1 not in convert:
-                        if v1[:8] == 'Geometry':
-                            # log.debug(f"Got a geometry for {k1}")
-                            out.append(f"\t{optional}  bytes {k1} = {index};")
-                    else:
-                        out.append(f"\t{optional}  {repeated} {convert[v1]} {k1} = {index};")
-                    index += 1
-            out += f"}}";
+                for data in value:
+                    # print(f"DATA: {data}")
+                    for entry, settings in data.items():
+                        share = False
+                        array = ""
+                        datatype = None
+                        required = ""
+                        optional = ""
+                        for item in settings:
+                            if type(item) == str:
+                                if item in convert:
+                                    datatype = convert[item]
+                                else:
+                                    datatype = item
+                                continue
+                            if type(item) == dict:
+                                [[k, v]] = item.items()
+                                if k == 'required' and v:
+                                    required = k
+                                if k == 'optional' and v:
+                                    optional = k
+                                if k == 'share':
+                                    share = True
+                                if k == 'array':
+                                    array = "repeated"
+                        if not share:
+                            continue
+                        # out.append(f"\t{required} {optional} {datatype} {entry} = {index};")
+                        out.append(f"\t {array} {optional} {datatype} {entry} = {index};")
+                        index += 1
+            out.append(f"}}")
 
         return out
 
@@ -251,7 +173,7 @@ def main():
 
     if len(argv) <= 1:
         parser.print_help()
-        quit()
+        # quit()
 
     # if verbose, dump to the terminal.
     if args.verbose is not None:
@@ -264,11 +186,12 @@ def main():
 
     tm = ProtoBuf()
     for table in known:
-        out1, out2 = tm.createProto(table)
+        out1, out2 = tm.createProtoFromSQL(table)
         name = table.replace('.sql', '.proto')
-        pyfile = table.replace('.sql', '.py')
+        # pyfile = table.replace('.sql', '.py')
         # xx = tm.protoToDict(name)
-        
+        # name = table.replace('.yaml', '.proto')
+        out = tm.createTableProto()
         if len(out1) > 0:
             with open(name, 'w') as file:
                 file.writelines([str(i)+'\n' for i in out1])
@@ -278,7 +201,6 @@ def main():
                 file.writelines([str(i)+'\n' for i in out2])
                 file.close()
         log.info(f"Wrote {name} to disk")
-
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
