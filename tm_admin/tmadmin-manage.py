@@ -26,6 +26,9 @@ from pathlib import Path
 from sys import argv
 from osm_rawdata.postgres import uriParser, PostgresClient
 from tm_admin.proto import ProtoBuf
+from tm_admin.yamlfile import YamlFile
+from tm_admin.generator import Generator
+
 
 # Instantiate logger
 log = logging.getLogger("tm-admin")
@@ -163,6 +166,22 @@ class TmAdminManage(object):
                         self.columns['add'].append({tmp[1]: f"{tmp[2]} {tmp[3][:-1]}"})
         return self.columns
 
+    # def createTypes(self):
+    #     config = f"{rootdir}/types.yaml"
+    #     gen = Generator()
+    #     gen.readConfig(config)
+    #     out = gen.createPyEnums()
+
+    #     enums = dict()
+    #     for entry in types.yaml:
+    #         [[k, v]] = entry.items()
+    #         enums[k] = v
+    #     types = pb.createEnumProto(enums)
+    #     with open(f'types.proto', 'w') as file:
+    #         file.writelines(str(i)+'\n' for i in types)
+    #         file.close()
+    #         log.info(f"Wrote types.proto")
+
 def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser(
@@ -176,12 +195,12 @@ def main():
     choices = ['create', 'migrate']
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
     parser.add_argument("-d", "--diff", help="SQL file diff for migrations")
-    parser.add_argument("-p", "--proto", help="Generate the .proto file from the SQL file")
+    parser.add_argument("-p", "--proto", help="Generate the .proto file from the YAML file")
     parser.add_argument("-u", "--uri", default='localhost/tm_admin',
                             help="Database URI")
     parser.add_argument("-c", "--cmd", choices=choices, default='create',
                             help="Command")
-    args, sqlfiles = parser.parse_known_args()
+    args, known = parser.parse_known_args()
 
     if len(argv) <= 1:
         parser.print_help()
@@ -200,33 +219,28 @@ def main():
     tm = TmAdminManage(args.uri)
     tm.createDB()
 
-    # modules to generating proto files
-    pb = ProtoBuf()
-
-    # The default is the current directory in the source tree, so find all
-    # the SQL files.
+    # This database tables stores the versions of the table schemas,
+    # and is only used for updating the table schemas.
     result = tm.createTable(f"{rootdir}/schemas.sql")
 
-    # This defines all the enums needed to compile the proto files
-    types = pb.createProto(f"{rootdir}/types.sql")
-    with open(f'types.proto', 'w') as file:
-        file.writelines(str(i)+'\n' for i in types[0])
-        file.close()
+    # This class generates all the output files.
+    gen = Generator()
 
-    for sqlfile in sqlfiles:
-        sql = tm.createTable(sqlfile)
-        out1, out2 = pb.createProto(sqlfile)
-        name = sqlfile.replace('.sql', '.proto')
-        if len(out1) > 0:
-            with open(name, 'w') as file:
-                file.writelines([str(i)+'\n' for i in out1])
-                file.close()
-        if len(out2) > 0:
-            with open(name, 'w') as file:
-                file.writelines([str(i)+'\n' for i in out2])
-                file.close()
-        log.info(f"Wrote {name} to disk")
-    tm.dump()
+    for yamlfile in known:
+        gen.readConfig(yamlfile)
+        out = gen.createSQLTable()
+        name = yamlfile.replace('.yaml', '.sql')
+        with open(name, 'w') as file:
+            file.write(out)
+            log.info(f"Wrote {name} to disk")
+            file.close()
+        name = yamlfile.replace('.yaml', '.proto')
+        out = gen.createProtoMessage()
+        with open(name, 'w') as file:
+            file.writelines([str(i)+'\n' for i in out])
+            log.info(f"Wrote {name} to disk")
+            file.close()
+    # tm.dump()
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
