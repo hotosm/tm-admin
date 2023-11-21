@@ -25,6 +25,7 @@ import sys
 from sys import argv
 from pathlib import Path
 from tm_admin.yamlfile import YamlFile
+from tm_admin.proto import ProtoBuf
 
 # Instantiate logger
 log = logging.getLogger("tm-admin")
@@ -75,7 +76,7 @@ class Generator(object):
     def createProtoEnums(self):
         out = "syntax = 'proto3';\n\n"
         for entry in self.yaml.yaml:
-            index = 1
+            index = 0
             [[table, values]] = entry.items()
             out += f"enum {table.capitalize()} {{\n"
             for line in values:
@@ -96,37 +97,9 @@ class Generator(object):
             out += '\n'
         return out
 
-    def createProtoTable(self):
-        out = list()
-        out.append("'syntax = 'proto3';'")
-        out.append("import 'types.proto';")
-        for entry in self.yaml.yaml:
-            [[table, values]] = entry.items()
-            out += f"message {table} {{"
-            for line in values:
-                print(line)
-                [[k, v]] = line.items()
-                required = ""
-                array = ""
-                public = False
-                if type(v) == bool:
-                    if k == 'Sequence' and v:
-                        sequence = True
-                        continue
-                for item in v:
-                    print(item)
-                    if type(item) == dict:
-                        if 'required' in item and item['required']:
-                            required = ' NOT NULL'
-                        if 'array' in item and item['array']:
-                            array = "repeated"
-                    if type(item) == str:
-                        if item[:7] == 'public.':
-                            public = True
-                    if len(v) >= 2:
-                        if 'required' in v[1] and v[1]['required']:
-                            required = ' NOT NULL'
-
+    def createProtoMessage(self):
+        pb = ProtoBuf()
+        out = pb.createTableProto(self.yaml.yaml)
         return out
 
     def createSQLTable(self):
@@ -209,16 +182,23 @@ def main():
         log.addHandler(ch)
 
     gen = Generator()
-    for file in known:
-        gen.readConfig(file)
+    for config in known:
+        gen.readConfig(config)
         out = gen.createSQLTable()
-        sqlfile = file.replace('.yaml', '.sql')
+        sqlfile = config.replace('.yaml', '.sql')
         path = Path(sqlfile)
-        if path.exists():
-            path.rename(file.replace('.sql', '_bak.sql'))
+        #if path.exists():
+        #    path.rename(file.replace('.sql', '_bak.sql'))
         with open(sqlfile, 'w') as file:
             file.write(out)
-        #print(out)
+            log.info(f"Wrote {sqlfile} to disk")
+            file.close()
+        proto = config.replace('.yaml', '.proto')
+        out = gen.createProtoMessage()
+        with open(proto, 'w') as file:
+            file.writelines([str(i)+'\n' for i in out])
+            log.info(f"Wrote {proto} to disk")
+            file.close()
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
