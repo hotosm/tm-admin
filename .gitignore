@@ -8,6 +8,10 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+*_pb2_*
+*.sql
+*.proto
+*~
 build/
 develop-eggs/
 dist/
