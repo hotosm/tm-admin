@@ -1,0 +1,56 @@
+## Unreleased
+
+### Fix
+
+- Add actual content
+- Add new files to API docs
+- Major refactoring to use YAML config file for all file generation
+- Major refactoring to use YAML config file for .sql generation
+- Major refactoring to use YAML config file for .proto generation
+- Add generated files to reduce clutter
+- Refactoring to use yaml files for file generation completed
+- Add organization section
+- Add doc on the communication details
+- Add initial content for a doc on data flow between projects
+- Add default page
+- Add doc on this project
+- Add recursive targets, since tm_admin/Makefile does all the work
+- Set version number to 0.1.0
+- Start refactoring to use our messages
+- Generate the SQL files from the YAML files
+- add one sentence about python
+- The SQL files now get generated from the YAML config files
+- Drop SQL files, they're now generated from the yaml config files
+- Add config file for organizxations table
+- Add config file for tasks table
+- Add config file for projects table
+- Always generate types_tm.* files, improve handling of sequences
+- Generate all the types_tm files
+- Add config file for all typedefs and the user table
+- Remove the generated type_tm.* files too
+- Add new file documenting the yaml based config file syntax
+- Generate SQL from yaml file
+- Generate SQL and protobuf files from yaml config file
+- Add method to convert a .proto file to a python dict
+- update services to support user profiles
+- Minimal implementation sending user profile data between client & server
+- Don't display the comments in the target
+- Add config file and use it to specify host:port for the other programs
+- Build the top level services stubs
+- add grpc dependencies
+- Improve table creation
+- Update AGPL code block
+- Move protobuf creation code to it's own file and use it
+- Add realclean target to get rid of all non source files
+- Use the protoc in grpc, not protobuf
+- Add dependencies
+- Add changelog file
+- Add target to run Doxygen
+- More files to create documentation infrastructure
+- Add Doxyfile to generate API docs
+- Update the License file
+- Add more files
+- Add the generated types* files too
+- Add default docs
+- Install the module
+- sloppy merge for new code into a real git repo
