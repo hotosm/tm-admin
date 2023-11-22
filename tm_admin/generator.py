@@ -43,6 +43,14 @@ class Generator(object):
             self.filespec = Path(filespec)
             self.yaml = YamlFile(filespec)
         self.createTypes()
+        self.yaml2py = {'int32': 'int',
+                    'int64': 'int',
+                    'bool': 'bool',
+                    'string': 'str',
+                    'bytes': 'bytes',
+                    'timestamp': '',
+                    }
+        
 
     def readConfig(self,
                     filespec: str,
@@ -86,7 +94,7 @@ class Generator(object):
         return out
 
     def createPyEnums(self):
-        out = f"from enum import Enum\n"
+        out = f"import logging\n"
         for entry in self.yaml.yaml:
             index = 1
             [[table, values]] = entry.items()
@@ -97,6 +105,96 @@ class Generator(object):
             out += '\n'
         return out
 
+    def createPyMessage(self):
+        out = f"""
+import logging
+from datetime import timedelta
+
+log = logging.getLogger("tm-admin")
+        """
+        for entry in self.yaml.yaml:
+            [[table, settings]] = entry.items()
+            out += f"""
+class {table.capitalize()}Message(object):
+    def __init__(self, 
+            """
+            # print(table, settings)
+            share = False
+            datatype = None
+            data = "        self.data = {"
+            for item in settings:
+                if type(item) == dict:
+                    [[k, v]] = item.items()
+                    for k1 in v:
+                        if type(k1) == dict:
+                            [[k2, v2]] = k1.items()
+                            if k2 == 'share' and v2:
+                                share = True
+                                # out += f"\nshare {k1}"
+                        elif type(k1) == str:
+                            if k1 in self.yaml2py:
+                                datatype = self.yaml2py[k1]
+                            else:
+                                datatype = item
+                                continue
+                    if share:
+                        share = False
+                        out += f"{k}: {datatype} = None, "
+                        data += f"'{k}': {k}, "
+        out += "):\n"
+        out += f"{data[:-2]}}}\n"
+
+        return out
+
+    def createPyClass(self):
+        out = f"""
+import logging
+
+log = logging.getLogger("tm-admin")
+
+        """
+        for entry in self.yaml.yaml:
+            [[table, settings]] = entry.items()
+            out += f"""
+class {table.capitalize()}Table(object):
+    def __init__(self, 
+            """
+            datatype = None
+            data = "        self.data = {"
+            for item in settings:
+                if type(item) == dict:
+                    [[k, v]] = item.items()
+                    for k1 in v:
+                        if type(k1) == dict:
+                            [[k2, v2]] = k1.items()
+                            if k2 == 'share' and v2:
+                                share = True
+                                # out += f"\nshare {k1}"
+                        elif type(k1) == str:
+                            if k1 in self.yaml2py:
+                                datatype = self.yaml2py[k1]
+                            else:
+                                datatype = item
+                                continue
+                    if share:
+                        share = False
+                        out += f"{k}: {datatype} = None, "
+                        data += f"'{k}': {k}, "
+        out += "):\n"
+        out += f"{data[:-2]}}}\n"
+#             [[table, values]] = entry.items()
+#             out += f"""
+# class {table.capitalize()}Table(object):
+#     def __init__(self):
+#         self.data = {{
+#             """
+#             for line in values:
+#                 [[k, v]] = line.items()
+#                 out += f"'{k}': None, "
+#             out = out[:-2]
+#             out += '}\n'
+        return out
+    
     def createProtoMessage(self):
         pb = ProtoBuf()
         out = pb.createTableProto(self.yaml.yaml)
@@ -200,7 +298,21 @@ def main():
             log.info(f"Wrote {proto} to disk")
             file.close()
 
+        out = gen.createPyClass()
+        py = config.replace('.yaml', '_class.py')
+        with open(py, 'w') as file:
+            file.write(out)
+            log.info(f"Wrote {py} to disk")
+            file.close()
+        print(out)
+        out = gen.createPyMessage()
+        py = config.replace('.yaml', '_proto.py')
+        with open(py, 'w') as file:
+            file.write(out)
+            log.info(f"Wrote {py} to disk")
+            file.close()
+        # print(out)
+        
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
     main()
-    
