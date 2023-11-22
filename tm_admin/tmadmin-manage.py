@@ -241,6 +241,18 @@ def main():
             file.writelines([str(i)+'\n' for i in out])
             log.info(f"Wrote {name} to disk")
             file.close()
+        out = gen.createPyClass()
+        py = yamlfile.replace('.yaml', '_class.py')
+        with open(py, 'w') as file:
+            file.write(out)
+            log.info(f"Wrote {py} to disk")
+            file.close()
+        out = gen.createPyMessage()
+        py = yamlfile.replace('.yaml', '_proto.py')
+        with open(py, 'w') as file:
+            file.write(out)
+            log.info(f"Wrote {py} to disk")
+            file.close()
     # tm.dump()
 
 if __name__ == "__main__":
