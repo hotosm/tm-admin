@@ -234,6 +234,7 @@ def main():
             file.write(out)
             log.info(f"Wrote {name} to disk")
             file.close()
+        tm.createTable(name)
         name = yamlfile.replace('.yaml', '.proto')
         out = gen.createProtoMessage()
         with open(name, 'w') as file:
