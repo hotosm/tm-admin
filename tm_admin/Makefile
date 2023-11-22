@@ -51,7 +51,7 @@ compile: $(PBUFS)
 
 clean:
 	@echo "Removing all generated files!"
-	$(RM) -f $(GENP) $(PYI) $(PROTOS) $(SQL)  types_tm* services_pb2*
+	$(RM) -f $(GENP) $(PYI) $(PROTOS) $(SQL) types_tm* services_pb2* */*_proto.py */*_class.py 
 
 realclean: clean
 	@$(RM) -f *~ */*~ rm -fr __pycache__/ */rm -fr __pycache__/
