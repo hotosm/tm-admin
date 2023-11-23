@@ -23,10 +23,15 @@ import argparse
 import logging
 import sys
 from sys import argv
+from datetime import datetime
+from dateutil.parser import parse
+
 
 from tm_admin.users.users_class import UsersTable
 from osm_rawdata.postgres import uriParser, PostgresClient
 
+# Instantiate logger
+log = logging.getLogger("tm-admin")
 
 class UsersDB(object):
     def __init__(self,
@@ -41,6 +46,43 @@ class UsersDB(object):
                     profile: UsersTable,
                     ):
         self.profile = profile
+        sql = f"INSERT INTO users("
+        for column,value in self.profile.data.items():
+            # print(f"{column} is {type(value)}")
+            if type(value) == str:
+                # FIXME: for now ignore timestamps, as they're meaningless
+                # between projects
+                try:
+                    if parse(value):
+                        continue
+                except:
+                    # it's a string, but not a date
+                    pass
+            if value is not None:
+                sql += f"{column},"
+        sql = sql[:-1]
+        sql += f") VALUES("
+        for column,value in self.profile.data.items():
+            try:
+                if parse(value):
+                    continue
+            except:
+                pass
+            if value is None:
+                continue
+            elif type(value) == datetime:
+                continue
+            elif type(value) == int:
+                sql += f"{value},"
+            elif type(value) == bool:
+                if value:
+                    sql += f"true,"
+                else:
+                    sql += f"false,"
+            elif type(value) == str:
+                sql += f"'{value}',"
+
+        result = self.pg.dbcursor.execute(f"{sql[:-1]});")
 
     def updateUser(self,
                     profile: UsersTable,
@@ -50,23 +92,40 @@ class UsersDB(object):
     def getByID(self,
                 id: int,
                 ):
-        # SELECT json_agg(tags)::jsonb FROM nodes LIMIT 1;
-        pass
-    
-    def getByName(self,
-                  name: str,
-                ):
-        pass
-    
-    def getAllUsers(self):
         sql = f"SELECT json_build_object("
         for column in self.profile.data.keys():
             sql += f"'{column}', json_agg(users.{column}),"
         sql = sql[:-1]
-        sql += ") FROM users;"
+        sql += f") FROM users WHERE id='{id}';"
         result = self.pg.dbcursor.execute(sql)
 
         return result
+
+    def getByName(self,
+                  name: str,
+                ):
+        pass
+
+    def getAllUsers(self):
+        # sql = f"SELECT json_build_object("
+        # for column in self.profile.data.keys():
+        #     sql += f"'{column}', json_agg(users.{column}),"
+        # sql = f"{sql[:-1]}) FROM users;"
+        # print(sql)
+        sql = f"SELECT * FROM users;"
+        self.pg.dbcursor.execute(sql)
+        result = self.pg.dbcursor.fetchall()
+        out = list()
+        for entry in result:
+            data = dict()
+            for column in self.profile.data.keys():
+                index = 0
+                for column in self.profile.data.keys():
+                    data[column] = entry[index]
+                    index += 1
+            out.append(data)
+
+        return out
 
 def main():
     """This main function lets this class be run standalone by a bash script."""
@@ -76,9 +135,9 @@ def main():
                             help="Database URI")
     args = parser.parse_args()
 
-    if len(argv) <= 1:
-        parser.print_help()
-        # quit()
+    # if len(argv) <= 1:
+    #     parser.print_help()
+    #     quit()
 
     # if verbose, dump to the terminal.
     if args.verbose is not None:
@@ -89,8 +148,16 @@ def main():
         ch.setFormatter(formatter)
         log.addHandler(ch)
 
+    ut = UsersTable(id=1, name='fixme', mapping_level='BEGINNER')
     user = UsersDB(args.uri)
+    user.createUser(ut)
+
     all = user.getAllUsers()
+    print(all)
+
+    user.createUser(ut)
+
+    all = user.getByID(1)
     print(all)
             
 if __name__ == "__main__":
