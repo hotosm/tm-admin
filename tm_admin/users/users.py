@@ -92,19 +92,32 @@ class UsersDB(object):
     def getByID(self,
                 id: int,
                 ):
-        sql = f"SELECT json_build_object("
-        for column in self.profile.data.keys():
-            sql += f"'{column}', json_agg(users.{column}),"
-        sql = sql[:-1]
-        sql += f") FROM users WHERE id='{id}';"
+        sql = f"SELECT * FROM users WHERE id='{id}' LIMIT 1"
         result = self.pg.dbcursor.execute(sql)
+        data = dict()
+        entry = self.pg.dbcursor.fetchone()
+        for column in self.profile.data.keys():
+            index = 0
+            for column in self.profile.data.keys():
+                data[column] = entry[index]
+                index += 1
 
-        return result
+        return data
 
     def getByName(self,
-                  name: str,
+                name: str,
                 ):
-        pass
+        sql = f"SELECT * FROM users WHERE name='{name}' LIMIT 1"
+        self.pg.dbcursor.execute(sql)
+        data = dict()
+        entry = self.pg.dbcursor.fetchone()
+        for column in self.profile.data.keys():
+            index = 0
+            for column in self.profile.data.keys():
+                data[column] = entry[index]
+                index += 1
+
+        return data
 
     def getAllUsers(self):
         # sql = f"SELECT json_build_object("
@@ -115,15 +128,18 @@ class UsersDB(object):
         sql = f"SELECT * FROM users;"
         self.pg.dbcursor.execute(sql)
         result = self.pg.dbcursor.fetchall()
-        out = list()
-        for entry in result:
-            data = dict()
-            for column in self.profile.data.keys():
-                index = 0
+        if result:
+            out = list()
+            for entry in result:
+                data = dict()
                 for column in self.profile.data.keys():
-                    data[column] = entry[index]
-                    index += 1
-            out.append(data)
+                    index = 0
+                    for column in self.profile.data.keys():
+                        data[column] = entry[index]
+                        index += 1
+                out.append(data)
+        else:
+            log.debug(f"No data returned from query")
 
         return out
 
@@ -153,11 +169,14 @@ def main():
     user.createUser(ut)
 
     all = user.getAllUsers()
-    print(all)
+    # print(all)
 
     user.createUser(ut)
 
     all = user.getByID(1)
+    print(all)
+            
+    all = user.getByName('fixme')
     print(all)
             
 if __name__ == "__main__":
