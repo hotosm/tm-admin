@@ -25,7 +25,7 @@ import sys
 from sys import argv
 from datetime import datetime
 from dateutil.parser import parse
-
+import tm_admin.types_tm
 
 from tm_admin.users.users_class import UsersTable
 from osm_rawdata.postgres import uriParser, PostgresClient
@@ -40,7 +40,8 @@ class UsersDB(object):
         self.pg = None
         self.profile = UsersTable()
         if dburi:
-            self.pg = PostgresClient(dburi)        
+            self.pg = PostgresClient(dburi)
+        self.types = dir(tm_admin.types_tm)
 
     def createUser(self,
                     profile: UsersTable,
@@ -89,8 +90,36 @@ class UsersDB(object):
 
     def updateUser(self,
                     profile: UsersTable,
-                   ):
-        pass
+                    id: int = None,
+                    ):
+        self.profile = profile
+        sql = f"UPDATE users SET"
+        if not id:
+            id = profile.data['id']
+        for column,value in self.profile.data.items():
+            print(column, value)
+            name = column.replace('_', '').capitalize()
+            if name in self.types:
+                tmp = tm_admin.types_tm.Mappinglevel._member_names_
+                if type(value) == str:
+                    level = value
+                else:
+                    level = tmp[value-1]
+                sql += f" {column}='{level}'"
+                continue
+            if value:
+                try:
+                    # FIXME: for now ignore timestamps, as they're meaningless
+                    # between projects
+                    if parse(value):
+                        continue
+                except:
+                    # it's a string, but not a date
+                    pass
+                sql += f" {column}='{value}',"
+        sql += f" WHERE id='{id}'"
+        print(sql)
+        result = self.pg.dbcursor.execute(f"{sql[:-1]}';")
 
     def resetSequence(self):
         sql = "ALTER SEQUENCE public.users_id_seq RESTART;"
@@ -157,6 +186,7 @@ def main():
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
     parser.add_argument("-u", "--uri", default='localhost/tm_admin',
                             help="Database URI")
+    # parser.add_argument("-r", "--reset", help="Reset Sequences")
     args = parser.parse_args()
 
     # if len(argv) <= 1:
@@ -186,6 +216,9 @@ def main():
     all = user.getByName('fixme')
     print(all)
             
+    ut = UsersTable(name='foobar', email_address="foo@bar.com", mapping_level='INTERMEDIATE')
+    user.updateUser(ut, 9)
+
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
     main()
