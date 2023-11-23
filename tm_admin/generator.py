@@ -26,6 +26,7 @@ from sys import argv
 from pathlib import Path
 from tm_admin.yamlfile import YamlFile
 from tm_admin.proto import ProtoBuf
+from datetime import datetime
 
 # Instantiate logger
 log = logging.getLogger("tm-admin")
@@ -95,6 +96,7 @@ class Generator(object):
 
     def createPyEnums(self):
         out = f"import logging\n"
+        out += f"from enum import Enum\n"
         for entry in self.yaml.yaml:
             index = 1
             [[table, values]] = entry.items()
@@ -149,6 +151,8 @@ class {table.capitalize()}Message(object):
     def createPyClass(self):
         out = f"""
 import logging
+from datetime import datetime
+import tm_admin.types_tm
 
 log = logging.getLogger("tm-admin")
 
@@ -160,39 +164,39 @@ class {table.capitalize()}Table(object):
     def __init__(self, 
             """
             datatype = None
-            data = "        self.data = {"
+            now = datetime.now()
+            data = "            self.data = {"
             for item in settings:
                 if type(item) == dict:
                     [[k, v]] = item.items()
                     for k1 in v:
                         if type(k1) == dict:
-                            [[k2, v2]] = k1.items()
-                            if k2 == 'share' and v2:
-                                share = True
-                                # out += f"\nshare {k1}"
+                            continue
                         elif type(k1) == str:
-                            if k1 in self.yaml2py:
+                            if k1[:7] == 'public.':
+                                # FIXME: It's in the SQL types
+                                log.warning(f"SQL ENUM {k1}!")
+                            elif k1 in self.yaml2py:
                                 datatype = self.yaml2py[k1]
                             else:
                                 datatype = item
                                 continue
-                    if share:
-                        share = False
-                        out += f"{k}: {datatype} = None, "
+                        if k1 == 'bool':
+                            out += f"{k}: {datatype} = False, "
+                        elif k1 == 'timestamp':
+                            out += f"{k}: datetime = '{datetime.now()}', "
+                        elif k1[:7] == 'public.':
+                            # defined = f"tm_admin.types_tm.{k1[7:].capitalize()}()"
+                            # out += f"{k}: {defined} =  1, "
+                            out += f"{k}: int =  1, "
+                        else:
+                            out += f"{k}: {datatype} = None, "
+                        print(k)
                         data += f"'{k}': {k}, "
+        out = out[:-2]
         out += "):\n"
         out += f"{data[:-2]}}}\n"
-#             [[table, values]] = entry.items()
-#             out += f"""
-# class {table.capitalize()}Table(object):
-#     def __init__(self):
-#         self.data = {{
-#             """
-#             for line in values:
-#                 [[k, v]] = line.items()
-#                 out += f"'{k}': None, "
-#             out = out[:-2]
-#             out += '}\n'
+
         return out
     
     def createProtoMessage(self):
