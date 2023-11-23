@@ -1,0 +1,23 @@
+syntax = 'proto3';
+
+package tmadmin;
+
+enum Commands {
+    GET_USER = 0;
+    GET_ORG = 1;
+    GET_PROJECT = 2;
+    GET_TEAM = 3;
+};
+
+enum Notifications {
+     BAD_DATA = 0;
+};
+
+message requests {
+     Commands cmd = 1;
+};
+
+message response {
+     int32 error_code = 1;
+     string error_msg = 2;
+};
