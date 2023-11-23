@@ -2,6 +2,15 @@
 
 ### Fix
 
+- Support class for managing the users table
+- Make more items be shared in messages
+- Handle datetime now
+- Nre proto file for message requests
+- Now generated classes use named parameters, which also get store in a dict
+- Delete the new generated files
+- Also generate the python stubs for data structures
+- Create the tables in the database from the generated SQL files
+- Update CHANGELOG
 - Add actual content
 - Add new files to API docs
 - Major refactoring to use YAML config file for all file generation
