@@ -46,7 +46,7 @@ class UsersDB(object):
                     profile: UsersTable,
                     ):
         self.profile = profile
-        sql = f"INSERT INTO users("
+        sql = f"INSERT INTO users(id, "
         for column,value in self.profile.data.items():
             # print(f"{column} is {type(value)}")
             if type(value) == str:
@@ -68,6 +68,9 @@ class UsersDB(object):
                     continue
             except:
                 pass
+            if column == 'id':
+                sql += f"nextval('public.users_id_seq'),"
+                continue
             if value is None:
                 continue
             elif type(value) == datetime:
@@ -89,18 +92,23 @@ class UsersDB(object):
                    ):
         pass
 
+    def resetSequence(self):
+        sql = "ALTER SEQUENCE public.users_id_seq RESTART;"
+        self.pg.dbcursor.execute(sql)
+
     def getByID(self,
                 id: int,
                 ):
-        sql = f"SELECT * FROM users WHERE id='{id}' LIMIT 1"
+        sql = f"SELECT * FROM users WHERE id='{id}'"
         result = self.pg.dbcursor.execute(sql)
         data = dict()
         entry = self.pg.dbcursor.fetchone()
-        for column in self.profile.data.keys():
-            index = 0
+        if entry:
             for column in self.profile.data.keys():
-                data[column] = entry[index]
-                index += 1
+                index = 0
+                for column in self.profile.data.keys():
+                    data[column] = entry[index]
+                    index += 1
 
         return data
 
@@ -128,8 +136,8 @@ class UsersDB(object):
         sql = f"SELECT * FROM users;"
         self.pg.dbcursor.execute(sql)
         result = self.pg.dbcursor.fetchall()
+        out = list()
         if result:
-            out = list()
             for entry in result:
                 data = dict()
                 for column in self.profile.data.keys():
@@ -164,14 +172,13 @@ def main():
         ch.setFormatter(formatter)
         log.addHandler(ch)
 
-    ut = UsersTable(id=1, name='fixme', mapping_level='BEGINNER')
     user = UsersDB(args.uri)
-    user.createUser(ut)
-
+    # user.resetSequence()
     all = user.getAllUsers()
-    # print(all)
-
+    # Don't pass id, let postgres auto increment
+    ut = UsersTable(name='fixme', mapping_level='BEGINNER')
     user.createUser(ut)
+    # print(all)
 
     all = user.getByID(1)
     print(all)
