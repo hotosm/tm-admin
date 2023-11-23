@@ -8,6 +8,7 @@
         - required: True
         - share: True
         - sequence: True
+        - unique: True
     - username:
         - string
         - share: True

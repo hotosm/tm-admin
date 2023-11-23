@@ -218,19 +218,24 @@ class {table.capitalize()}Table(object):
             [[table, values]] = entry.items()
             out += f"DROP TABLE IF EXISTS public.{table} CASCADE;\n"
             out += f"CREATE TABLE public.{table} (\n"
+            unique = ""
             for line in values:
                 [[k, v]] = line.items()
                 required = ""
                 array = ""
                 public = False
+                primary = ""
                 for item in v:
                     if type(item) == dict:
                         if 'sequence' in item and item['sequence']:
                             sequence.append(k)
+                            primary = k
                         if 'required' in item and item['required']:
                             required = ' NOT NULL'
                         if 'array' in item and item['array']:
                             array = "[]"
+                        if 'unique' in item and item['unique']:
+                            unique = k
                     if type(item) == str:
                         if item[:7] == 'public.':
                             public = True
@@ -241,8 +246,8 @@ class {table.capitalize()}Table(object):
                     out += f"\t{k} {v[0]}{array}{required},\n"
                 else:
                     out += f"\t{k} {convert[v[0]]}{array}{required},\n"
-            out = out[:-2]
-            out += "\n);\n"
+            if len(unique) > 0:
+                out += f"\tUNIQUE({unique})\n);\n"
 
             if len(sequence) > 0:
                 for key in sequence:
