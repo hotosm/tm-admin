@@ -4,7 +4,7 @@
 
 This project attempts to minimise code duplication. It is designed to
 be a module for use in other projects. Because this project works with
-but gRPC messages and a postgres database, and changes to any of the
+both gRPC messages and a postgres database, any changes to any of the
 data structures would require making changes in multiple
 places. Instead a single file in YAML format is used to generate all
 the other formats. This way changes only have to be made in one place. 
@@ -93,8 +93,8 @@ object to be used for data exchange in a consistent fashion.
 The SQL files are designed to work with postgres for creating the
 database, and it's tables and data types. The config file format
 allows for setting each column as an auto incrementing column (good
-for IDs), setting thst are required, so become 'NOT NULL'. And also a
-unique columns, which is used for an INSERT that may trigger a
+for IDs), setting that are required, so become 'NOT NULL'. And also a
+unique column, which is used for an INSERT that may trigger a
 conflict. This is useful to update existing data.
 
 ### Protobuf files
