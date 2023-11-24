@@ -62,7 +62,6 @@ plugins:
             merge_init_into_class: true
 
 nav:
-  - Home: index.md
   - About: about.md
   - Utilities:
       - TM-Manager: tmadmin-manage.md
