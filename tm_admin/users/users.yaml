@@ -70,7 +70,7 @@
     - linkedin_id:
         - int64
         - share: True
-    - twitter_id
+    - twitter_id:
         - int64
         - share: True
     - default_editor:
