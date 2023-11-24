@@ -21,7 +21,7 @@ To generate the files, there is a standalone python class, which also
 has a simple command line interface and can be run offline. The
 *generate.py* file reads in the YAML config files, and creates an
 internal data structure for that file. More information on the config file
-[is here](configuring).
+[is here](configuring.md).
 
 The actual database schemas are created from the generated SQL
 files. The *tmadmin-manage.py* file has a class that also runs
@@ -43,7 +43,10 @@ There are multiple shared enums, and are defined in the *types.yaml*
 file. These become enums for postgres, python, and protobuf. After
 generating the files, there is *types_tm.sql*, *types_tm.py*, and a
 *types_tm.proto* for the protobuf files gRPC uses. These can be included
-in any of the other classes that create data types.
+in any of the other classes that create data types. Having portable
+data strucures that can be shared is critical. Otherwise any changes
+would require editing multiple places. Having a single definition
+reduces maintaince.
 
 ### The Python files
 
@@ -53,7 +56,7 @@ enums are in the *types_tm.py* file.
 
 The other two files are classes that define the full data for SQL
 queries, as well as the reduced dataset used in inter-project data
-exchange using gRPC. Using the table name, these become *table*Class
+exchange using gRPC. Using the table name, these become *table*Table
 or *table*Message. The class files are for storing the data for a
 table. The *table*Message classes are the reduced datasets for
 exchanging data. Not all data in a database is useful in multiple
