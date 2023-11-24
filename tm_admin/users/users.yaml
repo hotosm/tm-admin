@@ -50,8 +50,8 @@
         - timestamp
         - share: False
     - password:
-        - share: True
         - string
+        - share: True
     - osm_id:
         - int64
         - share: True
