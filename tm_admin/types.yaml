@@ -19,15 +19,6 @@
     - ROADS
     - UPLOAD
 
-- organisationtype:
-    - FREE
-    - DISCOUNTED
-    - FULL_FEE
-
-- teamvisibility:
-    - PUBLIC
-    - PRIVATE
-
 - taskaction:
     - RELEASED_FOR_MAPPING
     - LOCKED_FOR_MAPPING
@@ -51,7 +42,111 @@
     - SPLIT
     - TASK_ARCHIVED
 
+- projectstatus:
+    - ARCHIVED
+    - PUBLISHED
+    - DRAFT
+
+- taskcreationmode:
+    - GRID
+    - ARBITRARY
+
+- taskstatus:
+    - READY
+    - LOCKED_FOR_MAPPING
+    - MAPPED
+    - LOCKED_FOR_VALIDATION
+    - VALIDATED
+    - INVALIDATED
+    - BADIMAGERY
+    - SPLIT
+
 - mappinglevel:
     - BEGINNER
     - INTERMEDIATE
     - ADVANCED
+
+- projectdifficulty:
+    - EASY
+    - MODERATE
+    - CHALLENGING
+
+- mappingtypes:
+    - ROADS
+    - BUILDINGS
+    - WATERWAYS
+    - LAND_USE
+    - OTHER
+
+- mappingnotallowed:
+    - USER_ALREADY_HAS_TASK_LOCKED
+    - USER_NOT_CORRECT_MAPPING_LEVEL
+    - USER_NOT_ACCEPTED_LICENSE
+    - USER_NOT_ON_ALLOWED_LIST
+    - PROJECT_NOT_PUBLISHED
+    - USER_NOT_TEAM_MEMBER
+    - PROJECT_HAS_NO_TEAM
+    - NOT_A_MAPPING_TEAM
+
+- validatingnotallowed:
+    - USER_NOT_VALIDATOR
+    - USER_NOT_ACCEPTED_LICENSE
+    - USER_NOT_ON_ALLOWED_LIST
+    - PROJECT_NOT_PUBLISHED
+    - USER_IS_BEGINNER
+    - NOT_A_VALIDATION_TEAM
+    - USER_NOT_TEAM_MEMBER
+    - PROJECT_HAS_NO_TEAM
+    - USER_ALREADY_HAS_TASK_LOCKED
+
+- usergender:
+    - MALE
+    - FEMALE
+    - SELF_DESCRIBE
+    - PREFER_NOT
+
+- userrole:
+    - READ_ONLY
+    - MAPPER
+    - ADMIN
+
+- editors:
+    - ID
+    - JOSM
+    - POTLATCH_2
+    - FIELD_PAPERS
+    - CUSTOM
+    - RAPID
+
+- teamvisibility:
+    - PUBLIC
+    - PRIVATE
+
+- teamjoinmethod:
+    - ANY
+    - BY_REQUEST
+    - BY_INVITE
+
+- teamroles:
+    - READ_ONLY
+    - MAPPER
+    - VALIDATOR
+    - PROJECT_MANAGER
+
+- teammemberfunctions:
+    - MANAGER
+    - MEMBER
+
+- organisationtype:
+    - FREE
+    - DISCOUNTED
+    - FULL_FEE
+
+- encouragingemailtype:
+    - PROJECT_PROGRESS
+    - PROJECT_COMPLETE
+    - BEEN_SOME_TIME
+
+- bannertype:
+    - INFO
+    - WARNING
