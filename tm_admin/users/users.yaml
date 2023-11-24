@@ -50,4 +50,46 @@
         - timestamp
         - share: False
     - password:
+        - share: True
         - string
+    - osm_id:
+        - int64
+        - share: True
+    - facebook_id:
+        - int64
+        - share: True
+    - irc_id:
+        - int64
+        - share: True
+    - skype_id:
+        - int64
+        - share: True
+    - slack_id:
+        - int64
+        - share: True
+    - linkedin_id:
+        - int64
+        - share: True
+    - twitter_id
+        - int64
+        - share: True
+    - default_editor:
+        - string
+    - picture_url:
+        - string
+        - share: True
+    - gender:
+        - int32
+        - share: True
+    - mentions_notifications:
+        - bool
+    - projects_notifications:
+        - bool
+    - self_description_gender:
+        - string
+    - projects_comments_notifications:
+        - bool
+    - tasks_comments_notifications:
+        - bool
+    - teams_announcement_notifications:
+        - bool
