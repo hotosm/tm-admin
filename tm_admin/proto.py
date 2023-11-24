@@ -76,8 +76,9 @@ class ProtoBuf(object):
         out = list()
         out.append(f"syntax = 'proto3';")
         # types.proto is generated from the types.yaml file.
-        out.append("import 'types_tm.proto';")
+        # out.append("import 'types_tm.proto';")
         out.append("package tmadmin;")
+        out.append("import 'types_tm.proto';")
         out.append("import 'google/protobuf/timestamp.proto';")
 
         convert = {'timestamp': "google.protobuf.Timestamp"}
@@ -88,8 +89,11 @@ class ProtoBuf(object):
                 optional = ""
                 repeated = ""
                 for data in value:
-                    # print(f"DATA: {data}")
+                    #print(f"DATA: {data}")
                     for entry, settings in data.items():
+                        # print(f"DATA: {entry} = {settings}")
+                        # print(f"DATA: {entry} = {settings}")
+                        #    datatype = settings[0][7:].capitalize()
                         share = False
                         array = ""
                         datatype = None
@@ -97,7 +101,10 @@ class ProtoBuf(object):
                         optional = ""
                         for item in settings:
                             if type(item) == str:
-                                if item in convert:
+                                #print(f"DATA: {item}")
+                                if item[:7] == 'public.':
+                                    datatype = item[7:].capitalize()
+                                elif item in convert:
                                     datatype = convert[item]
                                 else:
                                     datatype = item
