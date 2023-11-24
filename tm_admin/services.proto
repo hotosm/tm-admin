@@ -26,12 +26,16 @@ import "users/users.proto";
 import "projects/projects.proto";
 import "tasks/tasks.proto";
 import "teams/teams.proto";
+import "requests.proto";
 
 // The greeting service definition.
 service TMAdmin {
-  // Sends a user profile
-  rpc SendUser (users) returns (users) {}
-  rpc SendProject (projects) returns (projects) {}
+  // Get request for a user profile
+  rpc getUserRequest(requests) returns (users) {}
+
+  rpc GetUser (users) returns (users) {}
+  rpc GetProject (projects) returns (projects) {}
+  rpc GetTeam (teams) returns (teams) {}
 
 //  rpc SayHelloStreamReply (HelloRequest) returns (stream HelloReply) {}
 //  rpc SayHelloBidiStream (stream HelloRequest) returns (stream HelloReply) {}
