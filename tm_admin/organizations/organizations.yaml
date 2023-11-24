@@ -8,18 +8,25 @@
         - required: True
         - share: True
         - sequence: True
+        - unique: True
     - name:
         - string
         - required: True
+        - share: True
     - slug:
         - string
         - required: True
+        - share: True
     - logo:
         - string
+        - share: True
     - description:
       - string
+      - share: True
     - url:
       - string
+      - share: True
     - type:
         - public.organisationtype
         - required: True
+        - share: True

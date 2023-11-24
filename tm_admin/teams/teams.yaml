@@ -4,22 +4,28 @@
 
 - teams:
     - id:
-        - int64
-        - required: True
-        - share: True
-        - sequence: True
+      - int64
+      - required: True
+      - share: True
+      - sequence: True
+      - unique: True
     - organisation_id:
-        - int32
-        - required: True
+      - int32
+      - required: True
     - name:
-        - string
-        - required: True
+      - string
+      - required: True
+      - share: True
     - logo:
       - string
+      - share: True
     - description:
       - string
+      - share: True
     - invite_only:
-        - bool
+      - bool
+      - share: True
     - visibility:
-        - public.teamvisibility
-        - required: True
+      - public.teamvisibility
+      - required: True
+      - share: True

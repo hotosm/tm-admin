@@ -4,30 +4,34 @@
 
 - tasks:
     - id:
-        - int64
-        - required: True
-        - share: True
-        - sequence: True
+      - int64
+      - required: True
+      - share: True
+      - sequence: True
+      - unique: True
     - project_id:
-        - int32
-        - required: True
+      - int32
+      - required: True
     - project_task_index:
-        - int32      
+      - int32      
     - project_task_name:
       - string
+      - share: True
     - outline:
-        - public.geometry(Polygon,4326)
+      - public.geometry(Polygon,4326)
+      - share: True
     - geometry_geojson:
-        - string
+      - string
+      - share: True
     - initial_feature_count:
-        - int32
+      - int32
     - task_status:
-        - public.taskstatus
+      - public.taskstatus
     - locked_by:
-        - int64
+      - int64
     - mapped_by:
-        - int64
+      - int64
     - validated_by:
-        - int64
+      - int64
     - qr_code_id:
-        - int32
+      - int32
