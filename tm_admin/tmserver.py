@@ -35,11 +35,20 @@ from tm_admin.yamlfile import YamlFile
 
 import tm_admin.services_pb2
 import tm_admin.services_pb2_grpc
-import tm_admin.types_pb2
-import tm_admin.types_pb2
-import tm_admin.types_pb2_grpc
-import tm_admin.users.users_pb2
+import tm_admin.types_tm_pb2
+import tm_admin.types_tm_pb2_grpc
+import tm_admin.types_tm_pb2_grpc
 import tm_admin.users.users_pb2_grpc
+from tm_admin.users.users_pb2 import users
+from tm_admin.teams.teams_pb2 import teams
+from tm_admin.users.users_pb2 import users
+from tm_admin.organizations.organizations_pb2 import organizations
+from tm_admin.tasks.tasks_proto import TasksMessage
+from tm_admin.teams.teams_proto import TeamsMessage
+from tm_admin.users.users_proto import UsersMessage
+from tm_admin.organizations.organizations_proto import OrganizationsMessage
+from tm_admin.projects.projects_proto import ProjectsMessage
+
 
 # Instantiate logger
 log = logging.getLogger("tm-admin")
@@ -50,12 +59,20 @@ rootdir = tma.__path__[0]
 semaphore = Lock()
 
 class _UserServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
-    def SendUser(self, request, context):
+    def GetUser(self, request, context):
         foo = protobuf_to_dict(request)
 
         # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
         # print(f"FOOBAR: {foobar}")
         bar = tm_admin.users.users_pb2.users(**foo)
+        return(bar)
+
+    def GetProjects(self, request, context):
+        foo = protobuf_to_dict(request)
+
+        # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
+        # print(f"FOOBAR: {foobar}")
+        bar = tm_admin.users.users_pb2(**foo)
         return(bar)
 
         # return tm_admin.services_pb2.HelloReply(
@@ -67,7 +84,6 @@ class _UserServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
 
 
 #         self.db = route_guide_resources.read_route_guide_database()
-
 
 class TMServer(object):
     def __init__(self,
@@ -98,6 +114,7 @@ class TMServer(object):
 
         target = self.getTarget(target)
         [[host, port]] = target.items()
+        # FIXME: this needs to use SSL for a secure connection
         server.add_insecure_port(f"[::]:{port}")
         server.start()
         server.wait_for_termination()

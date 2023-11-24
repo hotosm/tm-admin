@@ -28,10 +28,17 @@ import grpc
 from  protobuf_serialization import serialize_to_protobuf, protobuf_to_dict
 import tm_admin.services_pb2
 import tm_admin.services_pb2_grpc
-import tm_admin.types_pb2
-import tm_admin.types_pb2_grpc
-import tm_admin.users.users_pb2
-import tm_admin.users.users_pb2_grpc
+import tm_admin.types_tm_pb2
+import tm_admin.types_tm_pb2_grpc
+from tm_admin.users.users_pb2 import users
+from tm_admin.teams.teams_pb2 import teams
+from tm_admin.users.users_pb2 import users
+from tm_admin.organizations.organizations_pb2 import organizations
+from tm_admin.tasks.tasks_proto import TasksMessage
+from tm_admin.teams.teams_proto import TeamsMessage
+from tm_admin.users.users_proto import UsersMessage
+from tm_admin.organizations.organizations_proto import OrganizationsMessage
+from tm_admin.projects.projects_proto import ProjectsMessage
 from tm_admin.yamlfile import YamlFile
 
 # Instantiate logger
@@ -58,6 +65,7 @@ class TMClient(object):
         target = self.getTarget(target)
         [[host, port]] = target.items()
         self.hosts = YamlFile(f"{rootdir}/services.yaml")
+        # FIXME: this needs to use SSL for a secure connection
         channel = grpc.insecure_channel(f"{host}:{port}")
         self.stub = tm_admin.services_pb2_grpc.TMAdminStub(channel)
 
@@ -73,12 +81,11 @@ class TMClient(object):
         Returns:
            (dict): The response from the server
         """
-        foo = {'id': 1, 'username': msg, 'name': msg}
+        foo = UsersMessage(id=1, username=msg, name=msg)
 
-        bar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
+        bar = serialize_to_protobuf(foo.data, tm_admin.users.users_pb2.users)
 
-        response = self.stub.SendUser(bar)
-        # response = self.stub.SayHello(tm_admin.services_pb2.HelloRequest(name=msg))
+        response = self.stub.GetUser(bar)
         #print(f"TMAdmin client received: {response}")
         return response
 
@@ -95,7 +102,14 @@ class TMClient(object):
             (dict): the hostname and IP port for this target program
         """
         return self.hosts.yaml[0][target][0]
-    
+
+    def sendUserProfile(self):
+        foo = UsersMessage(id=1, username=msg, name=msg)
+
+        bar = serialize_to_protobuf(foo.data, tm_admin.users.users_pb2.users)
+        response = self.stub.SendUser(bar)
+        return response
+
 def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser(
@@ -108,7 +122,7 @@ def main():
     )
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
     parser.add_argument("-m", "--msg", default='who', help="string to send")
-    args = parser.parse_args()
+    args, known = parser.parse_known_args()
 
     if len(argv) <= 1:
         parser.print_help()
