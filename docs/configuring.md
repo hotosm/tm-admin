@@ -50,3 +50,8 @@ this needs to be set to *False*.
 If this is *True*, then in the database schema this becomes an
 array. In the protobuf file, this adds the *repeated* keyword in the
 message to define this field as an array.
+
+## unique
+
+if this is True, in postgres a unique constraint is generated for
+this, which is used for upserts.
