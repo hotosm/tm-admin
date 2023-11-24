@@ -97,9 +97,9 @@ class UsersDB(object):
         if not id:
             id = profile.data['id']
         for column,value in self.profile.data.items():
-            print(column, value)
             name = column.replace('_', '').capitalize()
             if name in self.types:
+                # FIXME: this needs to not be hardcoded!
                 tmp = tm_admin.types_tm.Mappinglevel._member_names_
                 if type(value) == str:
                     level = value
@@ -118,7 +118,7 @@ class UsersDB(object):
                     pass
                 sql += f" {column}='{value}',"
         sql += f" WHERE id='{id}'"
-        print(sql)
+        # print(sql)
         result = self.pg.dbcursor.execute(f"{sql[:-1]}';")
 
     def resetSequence(self):
