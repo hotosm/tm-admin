@@ -50,3 +50,8 @@
     - BAD
     - SPLIT
     - TASK_ARCHIVED
+
+- mappinglevel:
+    - BEGINNER
+    - INTERMEDIATE
+    - ADVANCED
