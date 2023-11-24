@@ -79,7 +79,8 @@ class Generator(object):
             out += f"CREATE TYPE public.{table} AS ENUM (\n"
             for line in values:
                 out += f"\t'{line}',\n"
-            out += ");\n"
+            out = out[:-2]
+            out += "\n);\n"
         return out
 
     def createProtoEnums(self):
@@ -176,6 +177,7 @@ class {table.capitalize()}Table(object):
                             if k1[:7] == 'public.':
                                 # FIXME: It's in the SQL types
                                 log.warning(f"SQL ENUM {k1}!")
+                                datatype = k1[7:].capitalize()
                             elif k1 in self.yaml2py:
                                 datatype = self.yaml2py[k1]
                             else:
@@ -191,7 +193,7 @@ class {table.capitalize()}Table(object):
                             out += f"{k}: int =  1, "
                         else:
                             out += f"{k}: {datatype} = None, "
-                        print(k)
+                        # print(k)
                         data += f"'{k}': {k}, "
         out = out[:-2]
         out += "):\n"
@@ -219,7 +221,14 @@ class {table.capitalize()}Table(object):
             out += f"DROP TABLE IF EXISTS public.{table} CASCADE;\n"
             out += f"CREATE TABLE public.{table} (\n"
             unique = ""
+            typedef = ""
             for line in values:
+                # these are usually from the types.yaml file, which have no
+                # settings beyond the enum value.
+                # if type(line) == str:
+                #     print(f"SQL TABLE: {typedef} {line}")
+                #     typedef = table
+                #     continue
                 [[k, v]] = line.items()
                 required = ""
                 array = ""
@@ -313,7 +322,7 @@ def main():
             file.write(out)
             log.info(f"Wrote {py} to disk")
             file.close()
-        print(out)
+        # print(out)
         out = gen.createPyMessage()
         py = config.replace('.yaml', '_proto.py')
         with open(py, 'w') as file:
