@@ -19,7 +19,7 @@
 
 syntax = "proto3";
 
-package tmadmin;
+// package tmadmin;
 
 // Include all the data structures
 import "users/users.proto";
