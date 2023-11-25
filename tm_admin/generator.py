@@ -64,12 +64,15 @@ class Generator(object):
         out = self.createSQLEnums()
         with open('types_tm.sql', 'w') as file:
             file.write(out)
+            file.close()
         out = self.createProtoEnums()
         with open('types_tm.proto', 'w') as file:
             file.write(out)
+            file.close()
         out = self.createPyEnums()
         with open('types_tm.py', 'w') as file:
             file.write(out)
+            file.close()
 
     def createSQLEnums(self):
         out = ""
