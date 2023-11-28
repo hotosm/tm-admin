@@ -58,8 +58,8 @@ rootdir = tma.__path__[0]
 
 semaphore = Lock()
 
-class _UserServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
-    def GetUser(self, request, context):
+class _UserServicer(tm_admin.services_pb2_grpc.TMServerServicer):
+    def GetUserRequest(self, request, context):
         foo = protobuf_to_dict(request)
 
         # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
@@ -67,18 +67,68 @@ class _UserServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
         bar = tm_admin.users.users_pb2.users(**foo)
         return(bar)
 
-    def GetProjects(self, request, context):
+    def GetProjectRequest(self, request, context):
         foo = protobuf_to_dict(request)
 
         # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
         # print(f"FOOBAR: {foobar}")
-        bar = tm_admin.users.users_pb2(**foo)
+        bar = tm_admin.projects.projects_pb2(**foo)
         return(bar)
 
         # return tm_admin.services_pb2.HelloReply(
         #     message="Hello, {}!".format(request.name), id=3,
         # )
-    
+
+    def GetTeamRequest(self, request, context):
+        foo = protobuf_to_dict(request)
+
+        # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
+        # print(f"FOOBAR: {foobar}")
+        bar = tm_admin.teams.teams_pb2.users(**foo)
+        return(bar)
+
+    def GetOrganizationRequest(self, request, context):
+        foo = protobuf_to_dict(request)
+
+        # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
+        # print(f"FOOBAR: {foobar}")
+        bar = tm_admin.organizations.organizations_pb2.users(**foo)
+        return(bar)
+
+    # These methods get a user profile, and add it to the database
+    def GetUserProfile(self, users, context):
+        foo = protobuf_to_dict(request)
+
+        # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
+        # print(f"FOOBAR: {foobar}")
+        bar = tm_admin.users.users_pb2.users(**foo)
+        return(bar)
+
+    def GetProjectProfile(self, projects, context):
+        foo = protobuf_to_dict(request)
+
+        # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
+        # print(f"FOOBAR: {foobar}")
+        bar = tm_admin.projects.projects_pb2.users(**foo)
+        return(bar)
+
+    def GetTeamProfile(self, teams, context):
+        foo = protobuf_to_dict(request)
+
+        # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
+        # print(f"FOOBAR: {foobar}")
+        bar = tm_admin.teams.teams_pb2.users(**foo)
+        return(bar)
+
+    def GetOrganizationProfile(self, teams, context):
+        foo = protobuf_to_dict(request)
+
+        # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
+        # print(f"FOOBAR: {foobar}")
+        bar = tm_admin.organizations.organizations_pb2.users(**foo)
+        return(bar)
+
+        
 # class _{ProjectServicer(route_guide_pb2_grpc.RouteGuideServicer):
 #     """Provides methods that implement functionality of route guide server."""
 
@@ -100,14 +150,14 @@ class TMServer(object):
         """
         self.hosts = YamlFile(f"{rootdir}/services.yaml")
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        tm_admin.services_pb2_grpc.add_TMAdminServicer_to_server(
+        tm_admin.services_pb2_grpc.add_TMServerServicer_to_server(
             _UserServicer(), server
         )
         # route_guide_pb2_grpc.add_RouteGuideServicer_to_server(
         #     _RouteGuideServicer(), server
         # )
         SERVICE_NAMES = (
-            tm_admin.services_pb2.DESCRIPTOR.services_by_name['TMAdmin'].full_name,
+            tm_admin.services_pb2.DESCRIPTOR.services_by_name['TMServer'].full_name,
             reflection.SERVICE_NAME,
         )
         reflection.enable_server_reflection(SERVICE_NAMES, server)
