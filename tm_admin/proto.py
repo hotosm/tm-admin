@@ -89,9 +89,8 @@ class ProtoBuf(object):
                 optional = ""
                 repeated = ""
                 for data in value:
-                    #print(f"DATA: {data}")
+                    # print(f"DATA: {data}")
                     for entry, settings in data.items():
-                        # print(f"DATA: {entry} = {settings}")
                         # print(f"DATA: {entry} = {settings}")
                         #    datatype = settings[0][7:].capitalize()
                         share = False
@@ -101,8 +100,10 @@ class ProtoBuf(object):
                         optional = ""
                         for item in settings:
                             if type(item) == str:
-                                #print(f"DATA: {item}")
-                                if item[:7] == 'public.':
+                                # print(f"DATA: {item}")
+                                if item[:15] == 'public.geometry':
+                                    datatype = "bytes"
+                                elif item[:7] == 'public.':
                                     datatype = item[7:].capitalize()
                                 elif item in convert:
                                     datatype = convert[item]
