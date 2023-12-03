@@ -70,7 +70,7 @@ class TMClient(object):
         self.channel = grpc.insecure_channel(f"{host}:{port}")
         # self.stub = tm_admin.services_pb2_grpc.TMClientStub(channel)
         # self.stub = tm_admin.services_pb2_grpc.testStub(self.channel)
-        self.stub = tm_admin.services_pb2_grpc.TMServerStub(self.channel)
+        self.stub = tm_admin.services_pb2_grpc.TMAdminStub(self.channel)
 
     def sendUserProfile(self,
                 msg: str,
@@ -113,7 +113,7 @@ class TMClient(object):
 
         # bar = serialize_to_protobuf(foo, tm_admin.services_pb2.tmrequest)
         req = tm_admin.services_pb2.tmrequest(cmd=1)
-        response = self.stub.getRequest(req)
+        response = self.stub.doRequest(req)
         return response
 
 def main():

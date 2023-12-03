@@ -57,14 +57,15 @@ rootdir = tma.__path__[0]
 
 semaphore = Lock()
 
-class RequestServicer(tm_admin.services_pb2_grpc.TMServerServicer):
-    def GetRequest(self, request, context):
+class RequestServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
+    def doRequest(self, request, context):
         foo = protobuf_to_dict(request)
 
-        xx = response()
+        xx = tm_admin.services_pb2.tmresponse()
         # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
-        print(f"FOOBAR: {foobar}")
-        bar = tm_admin.services_pb2.response(**foo)
+        print(f"FOOBAR: {xx}")
+        # bar = tm_admin.services_pb2.tmresponse(**foo)
+        bar = tm_admin.services_pb2.tmresponse(error_code=0, error_msg="none")
         return(bar)
 
     def GetUserRequest(self, request, context):
@@ -160,11 +161,12 @@ class TMServer(object):
         self.hosts = YamlFile(f"{rootdir}/services.yaml")
         log.debug("Starting server")
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        tm_admin.services_pb2_grpc.add_TMServerServicer_to_server(
+        tm_admin.services_pb2_grpc.add_TMAdminServicer_to_server(
             RequestServicer(), server
         )
+        # Enable reflection for grpc_cli
         SERVICE_NAMES = (
-            tm_admin.services_pb2.DESCRIPTOR.services_by_name['TMServer'].full_name,
+            tm_admin.services_pb2.DESCRIPTOR.services_by_name['TMAdmin'].full_name,
             reflection.SERVICE_NAME,
         )
         reflection.enable_server_reflection(SERVICE_NAMES, server)
