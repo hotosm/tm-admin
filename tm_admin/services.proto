@@ -33,32 +33,13 @@ import "types_tm.proto";
 service TMAdmin {
   // These are for handling tmrequest for profile data from the database
   rpc doRequest(tmrequest) returns (tmresponse) {}
+  rpc doNotification(notification) returns (tmresponse) {}
 
-  rpc getUserRequest(tmrequest) returns (users) {}
-  rpc getTeamRequest(tmrequest) returns (teams) {}
-  rpc getOrganizationTmrequest(tmrequest) returns (organizations) {}
-  rpc getProjectTmrequest(tmrequest) returns (projects) {}
-  // rpc getNotification(notification) returns (tmresponse) {}
-
-  // There are for handling profiles into the database
-  rpc getUserProfile(users) returns (tmresponse) {} 
-  rpc getProjectProfile(projects) returns (tmresponse) {}
-  rpc getTeamsProfile(teams) returns (tmresponse) {}
-  rpc getOrganizationProfile(organizations) returns (tmresponse) {}
-
-// //  rpc SayHelloStreamReply (HelloTmrequest) returns (stream HelloReply) {}
-// //  rpc SayHelloBidiStream (stream HelloTmrequest) returns (stream HelloReply) {}
-// // }
-
-// // service TMClient {
-//   rpc sendRequest(tmrequest) returns (tmresponse) {}
-//   // rpc sendUserRequest(tmrequest) returns (tmresponse) {}
-//   // rpc sendNotification(notification) returns (tmresponse) {}
-//   rpc SendUserProfile (users) returns (users) {}
-//   rpc SendProjectProfile (projects) returns (projects) {}
-//   rpc SendTeamProfile (teams) returns (teams) {}
-//   // rpc SendTask (tasks) returns (tasks) {}
-//   rpc SendOrganizationProfile (tmadmin.organizations) returns (tmadmin.organizations) {}
+  rpc updateUserProfile (users) returns (users) {}
+  rpc updateProjectProfile (projects) returns (projects) {}
+  rpc updateTeamProfile (teams) returns (teams) {}
+  rpc updateTask (tasks) returns (tasks) {}
+  rpc updateOrganizationProfile (tmadmin.organizations) returns (tmadmin.organizations) {}
 }
 
 message tmrequest {
@@ -73,14 +54,4 @@ message tmresponse {
 
 message notification {
      Notification note = 1;
-};
-
-// FIXME:
-
-service test {
-  rpc testy (testMsg) returns (testMsg) {}
-}
-
-message testMsg {
-     string msg = 1;
 };
