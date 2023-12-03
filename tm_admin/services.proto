@@ -19,7 +19,7 @@
 
 syntax = "proto3";
 
-// package tmadmin;
+package tmadmin;
 
 // Include all the data structures
 import "users/users.proto";
@@ -27,33 +27,60 @@ import "projects/projects.proto";
 import "tasks/tasks.proto";
 import "teams/teams.proto";
 import "organizations/organizations.proto";
-import "requests.proto";
+import "types_tm.proto";
 
 // The greeting service definition.
-service TMServer {
-  // These are for handling requests for profile data from the database
-  rpc getUserRequest(requests) returns (users) {}
-  rpc getTeamRequest(requests) returns (teams) {}
-  rpc getOrganizationRequest(requests) returns (organizations) {}
-  rpc getProjectRequest(requests) returns (projects) {}
-  // rpc getNotification(notification) returns (response) {}
+service TMAdmin {
+  // These are for handling tmrequest for profile data from the database
+  rpc doRequest(tmrequest) returns (tmresponse) {}
+
+  rpc getUserRequest(tmrequest) returns (users) {}
+  rpc getTeamRequest(tmrequest) returns (teams) {}
+  rpc getOrganizationTmrequest(tmrequest) returns (organizations) {}
+  rpc getProjectTmrequest(tmrequest) returns (projects) {}
+  // rpc getNotification(notification) returns (tmresponse) {}
 
   // There are for handling profiles into the database
-  rpc getUserProfile(users) returns (response) {} 
-  rpc getProjectProfile(projects) returns (response) {}
-  rpc getTeamsProfile(teams) returns (response) {}
-  rpc getOrganizationProfile(organizations) returns (response) {}
+  rpc getUserProfile(users) returns (tmresponse) {} 
+  rpc getProjectProfile(projects) returns (tmresponse) {}
+  rpc getTeamsProfile(teams) returns (tmresponse) {}
+  rpc getOrganizationProfile(organizations) returns (tmresponse) {}
 
-//  rpc SayHelloStreamReply (HelloRequest) returns (stream HelloReply) {}
-//  rpc SayHelloBidiStream (stream HelloRequest) returns (stream HelloReply) {}
+// //  rpc SayHelloStreamReply (HelloTmrequest) returns (stream HelloReply) {}
+// //  rpc SayHelloBidiStream (stream HelloTmrequest) returns (stream HelloReply) {}
+// // }
+
+// // service TMClient {
+//   rpc sendRequest(tmrequest) returns (tmresponse) {}
+//   // rpc sendUserRequest(tmrequest) returns (tmresponse) {}
+//   // rpc sendNotification(notification) returns (tmresponse) {}
+//   rpc SendUserProfile (users) returns (users) {}
+//   rpc SendProjectProfile (projects) returns (projects) {}
+//   rpc SendTeamProfile (teams) returns (teams) {}
+//   // rpc SendTask (tasks) returns (tasks) {}
+//   rpc SendOrganizationProfile (tmadmin.organizations) returns (tmadmin.organizations) {}
 }
 
-service TMClient {
-  rpc sendRequest(requests) returns (response) {}
-  // rpc sendNotification(notifications) returns (response) {}
-  rpc SendUser (users) returns (users) {}
-  rpc SendProject (projects) returns (projects) {}
-  rpc SendTeam (teams) returns (teams) {}
-  rpc SendTask (tasks) returns (tasks) {}
-  rpc SendOrganization (tmadmin.organizations) returns (tmadmin.organizations) {}
+message tmrequest {
+     Command cmd = 1;
+     // int32 cmd = 1;
+};
+
+message tmresponse {
+     int32 error_code = 1;
+     string error_msg = 2;
+};
+
+message notification {
+     Notification note = 1;
+};
+
+// FIXME:
+
+service test {
+  rpc testy (testMsg) returns (testMsg) {}
 }
+
+message testMsg {
+     string msg = 1;
+};
