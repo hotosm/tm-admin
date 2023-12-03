@@ -100,11 +100,11 @@ class Generator(object):
 
     def createPyEnums(self):
         out = f"import logging\n"
-        out += f"from enum import Enum\n"
+        out += f"from enum import IntEnum\n"
         for entry in self.yaml.yaml:
             index = 1
             [[table, values]] = entry.items()
-            out += f"class {table.capitalize()}(Enum):\n"
+            out += f"class {table.capitalize()}(IntEnum):\n"
             for line in values:
                 out += f"\t{line} = {index}\n"
                 index += 1
