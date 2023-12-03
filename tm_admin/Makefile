@@ -38,6 +38,12 @@ generate: $(OUTSQL)
 compile: $(PBUFS)
 	@echo "Build services"
 	-@$(PROTOC) -I. --python_out=. --grpc_python_out=. services.proto
+	#-@$(PROTOC) -I. --python_out=. --pyi_out=. services.proto
+
+docs:
+	-(PROTOC) --doc_out=../docs --doc_opt=html,index.html services.proto types_tm.proto * */*.proto
+	#protoc --doc_out=./foo --doc_opt=html,index.html services.proto */*.proto
+
 
 %.sql: %.yaml
 	@echo "Generating $@ file for postgres"
