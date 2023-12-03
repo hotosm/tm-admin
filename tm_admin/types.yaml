@@ -142,3 +142,14 @@
 - bannertype:
     - INFO
     - WARNING
+
+- command:
+    - GET_USER
+    - GET_ORG
+    - GET_PROJECT
+    - GET_TEAM
+
+- notification:
+    - BAD_DATA
+    - BLOCKED_USER
+    - PROJECT_FINISHED
