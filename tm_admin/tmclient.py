@@ -40,6 +40,8 @@ from tm_admin.users.users_proto import UsersMessage
 from tm_admin.organizations.organizations_proto import OrganizationsMessage
 from tm_admin.projects.projects_proto import ProjectsMessage
 from tm_admin.yamlfile import YamlFile
+from tm_admin.commands import Notification, Request
+from tm_admin.types_tm import Command, Notification
 
 # Instantiate logger
 log = logging.getLogger("tm-admin")
@@ -64,12 +66,13 @@ class TMClient(object):
         self.hosts = YamlFile(f"{rootdir}/services.yaml")
         target = self.getTarget(target)
         [[host, port]] = target.items()
-        self.hosts = YamlFile(f"{rootdir}/services.yaml")
         # FIXME: this needs to use SSL for a secure connection
-        channel = grpc.insecure_channel(f"{host}:{port}")
-        self.stub = tm_admin.services_pb2_grpc.TMAdminStub(channel)
+        self.channel = grpc.insecure_channel(f"{host}:{port}")
+        # self.stub = tm_admin.services_pb2_grpc.TMClientStub(channel)
+        # self.stub = tm_admin.services_pb2_grpc.testStub(self.channel)
+        self.stub = tm_admin.services_pb2_grpc.TMServerStub(self.channel)
 
-    def sendMsg(self,
+    def sendUserProfile(self,
                 msg: str,
                 ):
         """
@@ -103,11 +106,14 @@ class TMClient(object):
         """
         return self.hosts.yaml[0][target][0]
 
-    def sendUserProfile(self):
-        foo = UsersMessage(id=1, username=msg, name=msg)
+    def sendRequest(self):
 
-        bar = serialize_to_protobuf(foo.data, tm_admin.users.users_pb2.users)
-        response = self.stub.SendUser(bar)
+        # foo = {'cmd': Command.GET_USER}
+        # foo = {'cmd': 1}
+
+        # bar = serialize_to_protobuf(foo, tm_admin.services_pb2.tmrequest)
+        req = tm_admin.services_pb2.tmrequest(cmd=1)
+        response = self.stub.getRequest(req)
         return response
 
 def main():
@@ -124,9 +130,9 @@ def main():
     parser.add_argument("-m", "--msg", default='who', help="string to send")
     args, known = parser.parse_known_args()
 
-    if len(argv) <= 1:
-        parser.print_help()
-        # quit()
+    # if len(argv) <= 1:
+    #     parser.print_help()
+    #     quit()
 
     # if verbose, dump to the terminal.
     if args.verbose is not None:
@@ -139,7 +145,7 @@ def main():
 
     tm = TMClient('test')
 
-    response = tm.sendMsg(args.msg)
+    response = tm.sendRequest()
     print(f"TMAdmin client received: {response}")
 
 if __name__ == "__main__":

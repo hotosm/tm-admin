@@ -35,9 +35,8 @@ from tm_admin.yamlfile import YamlFile
 
 import tm_admin.services_pb2
 import tm_admin.services_pb2_grpc
-import tm_admin.types_tm_pb2
-import tm_admin.types_tm_pb2_grpc
-import tm_admin.types_tm_pb2_grpc
+# import tm_admin.types_tm_pb2
+# import tm_admin.types_tm_pb2_grpc
 import tm_admin.users.users_pb2_grpc
 from tm_admin.users.users_pb2 import users
 from tm_admin.teams.teams_pb2 import teams
@@ -58,13 +57,23 @@ rootdir = tma.__path__[0]
 
 semaphore = Lock()
 
-class _UserServicer(tm_admin.services_pb2_grpc.TMServerServicer):
+class RequestServicer(tm_admin.services_pb2_grpc.TMServerServicer):
+    def GetRequest(self, request, context):
+        foo = protobuf_to_dict(request)
+
+        xx = response()
+        # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
+        print(f"FOOBAR: {foobar}")
+        bar = tm_admin.services_pb2.response(**foo)
+        return(bar)
+
     def GetUserRequest(self, request, context):
         foo = protobuf_to_dict(request)
 
+        xx = response()
         # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
-        # print(f"FOOBAR: {foobar}")
-        bar = tm_admin.users.users_pb2.users(**foo)
+        print(f"FOOBAR: {foobar}")
+        bar = tm_admin.services_pb2.response(**foo)
         return(bar)
 
     def GetProjectRequest(self, request, context):
@@ -149,13 +158,11 @@ class TMServer(object):
             (TMServer): An instance of this class
         """
         self.hosts = YamlFile(f"{rootdir}/services.yaml")
+        log.debug("Starting server")
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         tm_admin.services_pb2_grpc.add_TMServerServicer_to_server(
-            _UserServicer(), server
+            RequestServicer(), server
         )
-        # route_guide_pb2_grpc.add_RouteGuideServicer_to_server(
-        #     _RouteGuideServicer(), server
-        # )
         SERVICE_NAMES = (
             tm_admin.services_pb2.DESCRIPTOR.services_by_name['TMServer'].full_name,
             reflection.SERVICE_NAME,
@@ -197,9 +204,9 @@ def main():
 
     args = parser.parse_args()
 
-    if len(argv) <= 1:
-        parser.print_help()
-        # quit()
+    # if len(argv) <= 1:
+    #     parser.print_help()
+    #     quit()
 
     # if verbose, dump to the terminal.
     if args.verbose is not None:
@@ -210,15 +217,8 @@ def main():
         ch.setFormatter(formatter)
         log.addHandler(ch)
 
+    # This blocks till  this process is killed
     tm = TMServer('test')
-
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    tm_admin.services_pb2_grpc.add_TMAdminServicer_to_server(
-        _UserServicer(), server
-    )
-    # route_guide_pb2_grpc.add_RouteGuideServicer_to_server(
-    #     _RouteGuideServicer(), server
-    # )
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
