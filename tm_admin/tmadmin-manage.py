@@ -100,7 +100,7 @@ class TmAdminManage(object):
             self.dburi = uriParser(dburi)
         # FIXME: CREATE DATABASE cannot run inside a transaction block
         # self.pg.createDB(self.dburi)
-        with open(f"{rootdir}/types.sql", 'r') as file:
+        with open(f"{rootdir}/types_tm.sql", 'r') as file:
             self.pg.dbcursor.execute(file.read())
 
 
