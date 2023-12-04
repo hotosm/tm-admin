@@ -22,6 +22,7 @@
 import argparse
 import logging
 import sys
+import os
 from sys import argv
 from datetime import datetime
 from dateutil.parser import parse
@@ -31,11 +32,11 @@ from tm_admin.users.users_class import UsersTable
 from osm_rawdata.postgres import uriParser, PostgresClient
 
 # Instantiate logger
-log = logging.getLogger("tm-admin")
+log = logging.getLogger(__name__)
 
 class UsersDB(object):
     def __init__(self,
-                 dburi: str,
+                 dburi: str = "localhost/tm_admin",
                 ):
         self.pg = None
         self.profile = UsersTable()
@@ -139,7 +140,7 @@ class UsersDB(object):
                     data[column] = entry[index]
                     index += 1
 
-        return data
+        return [data]
 
     def getByName(self,
                 name: str,
@@ -154,7 +155,7 @@ class UsersDB(object):
                 data[column] = entry[index]
                 index += 1
 
-        return data
+        return [data]
 
     def getAllUsers(self):
         # sql = f"SELECT json_build_object("
@@ -194,13 +195,16 @@ def main():
     #     quit()
 
     # if verbose, dump to the terminal.
+    log_level = os.getenv("LOG_LEVEL", default="INFO")
     if args.verbose is not None:
-        log.setLevel(logging.DEBUG)
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("%(threadName)10s - %(name)s - %(levelname)s - %(message)s")
-        ch.setFormatter(formatter)
-        log.addHandler(ch)
+        log_level = logging.DEBUG
+
+    logging.basicConfig(
+        level=log_level,
+        format=("%(asctime)s.%(msecs)03d [%(levelname)s] " "%(name)s | %(funcName)s:%(lineno)d | %(message)s"),
+        datefmt="%y-%m-%d %H:%M:%S",
+        stream=sys.stdout,
+    )
 
     user = UsersDB(args.uri)
     # user.resetSequence()
