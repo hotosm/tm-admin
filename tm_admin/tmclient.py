@@ -23,7 +23,6 @@ import argparse
 import logging
 import sys
 from sys import argv
-#from __future__ import print_function
 import grpc
 from  protobuf_serialization import serialize_to_protobuf, protobuf_to_dict
 import tm_admin.services_pb2
@@ -108,13 +107,11 @@ class TMClient(object):
 
     def sendRequest(self):
 
-        # foo = {'cmd': Command.GET_USER}
-        # foo = {'cmd': 1}
+        cmd = {'cmd': Command.GET_TEAM}
 
-        # bar = serialize_to_protobuf(foo, tm_admin.services_pb2.tmrequest)
-        req = tm_admin.services_pb2.tmrequest(cmd=1)
+        req = serialize_to_protobuf(cmd, tm_admin.services_pb2.tmrequest)
         response = self.stub.doRequest(req)
-        return response
+        return protobuf_to_dict(response)
 
 def main():
     """This main function lets this class be run standalone by a bash script."""
