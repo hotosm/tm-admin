@@ -49,7 +49,7 @@ from tm_admin.users.users_proto import UsersMessage
 from tm_admin.organizations.organizations_proto import OrganizationsMessage
 from tm_admin.projects.projects_proto import ProjectsMessage
 from tm_admin.types_tm import Command, Notification
-
+from tm_admin.users.users import UsersDB
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -64,21 +64,37 @@ class RequestServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
         action = protobuf_to_dict(request)
 
         if action['cmd'] == Command.GET_USER:
-            print("USER")
+            users = UsersDB()
+            print(f"USER {action}")
+            if action['id'] != 0:
+                if len(action['name']) > 0:
+                    # print(f"BY NAME {action}")
+                    out = users.getByName(action['name'])
+                else:
+                    # print(f" BY ID {action}")
+                    out = users.getByID(action['id'])
+            else:
+                out = users.getAllUsers()
         elif action['cmd'] == Command.GET_ORG:
             print("ORG")
         elif action['cmd'] == Command.GET_PROJECT:
             print("PROJECT")
         elif action['cmd'] == Command.GET_TEAM:
             print("TEAM")
-        bar = {'one': 1, 'two': 2}
-        foo = {'error_code': 1, 'error_msg':'nothing'}
-        foobar = serialize_to_protobuf(foo, tm_admin.services_pb2.tmresponse)
-        foobar.data['one'] = '1'
-        foobar.data['two'] = '2'
+        # FIXME: should add real error codes!
+        error = {'error_code': 0}
+        result = serialize_to_protobuf(error, tm_admin.services_pb2.tmresponse)
+        if type(out) == dict():
+            for key, value in entry.items():
+                result.data[key] = str(value)
+        elif type(out) == list:
+            for entry in out:
+                # print(f"ENTRY: {entry}")
+                for key, value in entry.items():
+                    result.data[key] = str(value)
         # print(f"FOOBAR: {foobar}")
         # bar = tm_admin.services_pb2.tmresponse(error_code=0, error_msg="none")
-        return(foobar)
+        return(result)
 
     def GetUserRequest(self, request, context):
         foo = protobuf_to_dict(request)
