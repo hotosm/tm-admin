@@ -22,12 +22,13 @@
 import argparse
 import logging
 import sys
+import os
 from pathlib import Path
 from sys import argv
 from osm_rawdata.postgres import uriParser, PostgresClient
 from  protobuf_serialization import serialize_to_protobuf, protobuf_to_dict
 from concurrent import futures
-from threading import Lock
+# from threading import Lock
 import time
 import grpc
 from grpc_reflection.v1alpha import reflection
@@ -47,26 +48,37 @@ from tm_admin.teams.teams_proto import TeamsMessage
 from tm_admin.users.users_proto import UsersMessage
 from tm_admin.organizations.organizations_proto import OrganizationsMessage
 from tm_admin.projects.projects_proto import ProjectsMessage
+from tm_admin.types_tm import Command, Notification
 
 
 # Instantiate logger
-log = logging.getLogger("tm-admin")
+log = logging.getLogger(__name__)
 
 import tm_admin as tma
 rootdir = tma.__path__[0]
 
-semaphore = Lock()
+# semaphore = Lock()
 
 class RequestServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
     def doRequest(self, request, context):
-        foo = protobuf_to_dict(request)
+        action = protobuf_to_dict(request)
 
-        xx = tm_admin.services_pb2.tmresponse()
-        # foobar = serialize_to_protobuf(foo, tm_admin.users.users_pb2.users)
-        print(f"FOOBAR: {xx}")
-        # bar = tm_admin.services_pb2.tmresponse(**foo)
-        bar = tm_admin.services_pb2.tmresponse(error_code=0, error_msg="none")
-        return(bar)
+        if action['cmd'] == Command.GET_USER:
+            print("USER")
+        elif action['cmd'] == Command.GET_ORG:
+            print("ORG")
+        elif action['cmd'] == Command.GET_PROJECT:
+            print("PROJECT")
+        elif action['cmd'] == Command.GET_TEAM:
+            print("TEAM")
+        bar = {'one': 1, 'two': 2}
+        foo = {'error_code': 1, 'error_msg':'nothing'}
+        foobar = serialize_to_protobuf(foo, tm_admin.services_pb2.tmresponse)
+        foobar.data['one'] = '1'
+        foobar.data['two'] = '2'
+        # print(f"FOOBAR: {foobar}")
+        # bar = tm_admin.services_pb2.tmresponse(error_code=0, error_msg="none")
+        return(foobar)
 
     def GetUserRequest(self, request, context):
         foo = protobuf_to_dict(request)
@@ -211,13 +223,16 @@ def main():
     #     quit()
 
     # if verbose, dump to the terminal.
+    log_level = os.getenv("LOG_LEVEL", default="INFO")
     if args.verbose is not None:
-        log.setLevel(logging.DEBUG)
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("%(threadName)10s - %(name)s - %(levelname)s - %(message)s")
-        ch.setFormatter(formatter)
-        log.addHandler(ch)
+        log_level = logging.DEBUG
+
+    logging.basicConfig(
+        level=log_level,
+        format=("%(asctime)s.%(msecs)03d [%(levelname)s] " "%(name)s | %(funcName)s:%(lineno)d | %(message)s"),
+        datefmt="%y-%m-%d %H:%M:%S",
+        stream=sys.stdout,
+    )
 
     # This blocks till  this process is killed
     tm = TMServer('test')
