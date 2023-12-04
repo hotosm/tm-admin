@@ -61,8 +61,10 @@ rootdir = tma.__path__[0]
 
 class RequestServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
     def doRequest(self, request, context):
-        action = protobuf_to_dict(request)
+        # FIXME: should use real error codes!
+        error = {'error_code': 0}
 
+        action = protobuf_to_dict(request)
         if action['cmd'] == Command.GET_USER:
             users = UsersDB()
             print(f"USER {action}")
@@ -76,13 +78,11 @@ class RequestServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
             else:
                 out = users.getAllUsers()
         elif action['cmd'] == Command.GET_ORG:
-            print("ORG")
+            log.error("ORG unimplemented!")
         elif action['cmd'] == Command.GET_PROJECT:
-            print("PROJECT")
+            log.error("PROJECT unimplemented!")
         elif action['cmd'] == Command.GET_TEAM:
-            print("TEAM")
-        # FIXME: should add real error codes!
-        error = {'error_code': 0}
+            log.error("TEAM unimplemented!")
         result = serialize_to_protobuf(error, tm_admin.services_pb2.tmresponse)
         if type(out) == dict():
             for key, value in entry.items():
