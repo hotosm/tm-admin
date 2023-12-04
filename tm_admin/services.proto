@@ -21,6 +21,8 @@ syntax = "proto3";
 
 package tmadmin;
 
+// import "google/protobuf/struct.proto";
+
 // Include all the data structures
 import "users/users.proto";
 import "projects/projects.proto";
@@ -44,12 +46,18 @@ service TMAdmin {
 
 message tmrequest {
      Command cmd = 1;
-     // int32 cmd = 1;
+     int64 id = 2;
+     string name = 3;
 };
 
 message tmresponse {
      int32 error_code = 1;
      string error_msg = 2;
+     map<string, string> data = 3;
+//     message Data {
+//     	  map<string, string> pairs = 3;
+//	 }
+//     repeated Data data = 4;
 };
 
 message notification {
