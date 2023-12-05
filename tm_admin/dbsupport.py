@@ -29,6 +29,7 @@ from dateutil.parser import parse
 import tm_admin.types_tm
 from tm_admin.organizations.organizations_class import OrganizationsTable
 from tm_admin.users.users_class import UsersTable
+from tm_admin.teams.teams_class import TeamsTable
 from osm_rawdata.postgres import uriParser, PostgresClient
 
 # Instantiate logger
@@ -176,6 +177,22 @@ class DBSupport(object):
             log.debug(f"No data returned from query")
 
         return out
+
+    def getByWhere(self,
+                where: str,
+                ):
+        sql = f"SELECT * FROM {self.table} WHERE {where}'"
+        result = self.pg.dbcursor.execute(sql)
+        data = dict()
+        entry = self.pg.dbcursor.fetchone()
+        if entry:
+            for column in self.profile.data.keys():
+                index = 0
+                for column in self.profile.data.keys():
+                    data[column] = entry[index]
+                    index += 1
+
+        return [data]
 
 def main():
     """This main function lets this class be run standalone by a bash script."""

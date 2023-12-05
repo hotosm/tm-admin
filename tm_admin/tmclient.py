@@ -31,6 +31,7 @@ import tm_admin.types_tm_pb2
 import tm_admin.types_tm_pb2_grpc
 from tm_admin.users.users_pb2 import users
 from tm_admin.teams.teams_pb2 import teams
+from tm_admin.tasks.tasks_pb2 import tasks
 from tm_admin.users.users_pb2 import users
 from tm_admin.organizations.organizations_pb2 import organizations
 from tm_admin.tasks.tasks_proto import TasksMessage
@@ -105,9 +106,11 @@ class TMClient(object):
         """
         return self.hosts.yaml[0][target][0]
 
-    def sendRequest(self):
+    def sendRequest(self,
+                    cmd: dict,
+                    ):
 
-        cmd = {'cmd': Command.GET_TEAM}
+        # cmd = {'cmd': Command.GET_USER, 'id': 17}
 
         req = serialize_to_protobuf(cmd, tm_admin.services_pb2.tmrequest)
         response = self.stub.doRequest(req)
@@ -142,9 +145,22 @@ def main():
 
     tm = TMClient('test')
 
-    response = tm.sendRequest()
-    print(f"TMAdmin client received: {response}")
+    cmd = {'cmd': Command.GET_USER, 'id': 2}
+    response = tm.sendRequest(cmd)
+    print(f"TMAdmin user received: {response}")
 
+    cmd = {'cmd': Command.GET_TEAM, 'id': 20}
+    response = tm.sendRequest(cmd)
+    print(f"TMAdmin team received: {response}")
+
+    cmd = {'cmd': Command.GET_ORG, 'id': 10}
+    response = tm.sendRequest(cmd)
+    print(f"TMAdmin organization received: {response}")
+    
+    # cmd = {'cmd': Command.GET_TASK, 'id': 1}
+    # response = tm.sendRequest(cmd)
+    # print(f"TMAdmin task received: {response}")
+    
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
     main()

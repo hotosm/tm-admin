@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Humanitarian OpenStreetmap Team
+# Humanitarian OpenStreetmap Task
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
@@ -27,23 +27,24 @@ from sys import argv
 from datetime import datetime
 from dateutil.parser import parse
 import tm_admin.types_tm
+
 from tm_admin.dbsupport import DBSupport
-from tm_admin.organizations.organizations_class import OrganizationsTable
+from tm_admin.tasks.tasks_class import TasksTable
 from osm_rawdata.postgres import uriParser, PostgresClient
 
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-class OrganizationsDB(DBSupport):
+class TasksDB(DBSupport):
     def __init__(self,
                  dburi: str = "localhost/tm_admin",
                 ):
         self.pg = None
-        self.profile = OrganizationsTable()
+        self.profile = TasksTable()
         #if dburi:
         #    self.pg = PostgresClient(dburi)
         self.types = dir(tm_admin.types_tm)
-        super().__init__('organizations', dburi)
+        super().__init__('tasks', dburi)
 
 def main():
     """This main function lets this class be run standalone by a bash script."""
@@ -70,20 +71,25 @@ def main():
         stream=sys.stdout,
     )
 
-    organization = OrganizationsDB(args.uri)
-    # organization.resetSequence()
-    all = organization.getAll()
+    task = TasksDB(args.uri)
+    # user.resetSequence()
+    all = task.getAll()
     # Don't pass id, let postgres auto increment
-    ut = OrganizationsTable(name='fixme', slug='slug', orgtype='FREE')
-    organization.createTable(ut)
+    ut = TasksTable(name='test', organisation_id=1,
+                    visibility='PUBLIC')
+    task.createTable(ut)
     # print(all)
 
-    all = organization.getByID(1)
+    all = task.getByID(1)
     print(all)
             
-    all = organization.getByName('fixme')
+    all = task.getByName('test')
     print(all)
-            
+
+    #ut = TasksTable(name='foobar', organisation_id=1, visibility='PUBLIC')
+    # This is obviously only for manual testing
+    #user.updateTask(ut, 17)
+
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
     main()

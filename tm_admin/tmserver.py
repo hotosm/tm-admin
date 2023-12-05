@@ -33,6 +33,7 @@ import time
 import grpc
 from grpc_reflection.v1alpha import reflection
 from tm_admin.yamlfile import YamlFile
+from shapely.geometry import Polygon, shape
 
 import tm_admin.services_pb2
 import tm_admin.services_pb2_grpc
@@ -48,8 +49,17 @@ from tm_admin.teams.teams_proto import TeamsMessage
 from tm_admin.users.users_proto import UsersMessage
 from tm_admin.organizations.organizations_proto import OrganizationsMessage
 from tm_admin.projects.projects_proto import ProjectsMessage
+from tm_admin.organizations.organizations_proto import OrganizationsMessage
+from tm_admin.projects.projects_proto import ProjectsMessage
 from tm_admin.types_tm import Command, Notification
+# Get class definitions
 from tm_admin.users.users import UsersDB
+from tm_admin.teams.teams import TeamsDB
+from tm_admin.tasks.tasks import TasksDB
+from tm_admin.projects.projects import ProjectsDB
+from tm_admin.organizations.organizations import OrganizationsDB
+#from tm_admin.tasks.tasks import TasksDB
+#from tm_admin.projects.projects import ProjectsDB
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -59,30 +69,53 @@ rootdir = tma.__path__[0]
 
 # semaphore = Lock()
 
+usersDB = UsersDB()
+# tasksDB = TasksDB()
+teamsDB = TeamsDB()
+# projectsDB = ProjectsDB()
+organizationsDB = OrganizationsDB()
+
 class RequestServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
     def doRequest(self, request, context):
         # FIXME: should use real error codes!
         error = {'error_code': 0}
 
+        out = ""
         action = protobuf_to_dict(request)
         if action['cmd'] == Command.GET_USER:
-            users = UsersDB()
             print(f"USER {action}")
             if action['id'] != 0:
                 if len(action['name']) > 0:
                     # print(f"BY NAME {action}")
-                    out = users.getByName(action['name'])
+                    out = usersDB.getByName(action['name'])
                 else:
                     # print(f" BY ID {action}")
-                    out = users.getByID(action['id'])
+                    out = usersDB.getByID(action['id'])
             else:
-                out = users.getAllUsers()
+                out = usersDB.getAllUsers()
         elif action['cmd'] == Command.GET_ORG:
-            log.error("ORG unimplemented!")
+            if action['id'] != 0:
+                if len(action['name']) > 0:
+                    # print(f"BY NAME {action}")
+                    out = organizationsDB.getByName(action['name'])
+                else:
+                    # print(f" BY ID {action}")
+                    out = organizationsDB.getByID(action['id'])
+            else:
+                out = teams.getAllUsers()
         elif action['cmd'] == Command.GET_PROJECT:
-            log.error("PROJECT unimplemented!")
+            log.error("PROJECTS unimplemented!")
         elif action['cmd'] == Command.GET_TEAM:
-            log.error("TEAM unimplemented!")
+            if action['id'] != 0:
+                if len(action['name']) > 0:
+                    # print(f"BY NAME {action}")
+                    out = teamsDB.getByName(action['name'])
+                else:
+                    # print(f" BY ID {action}")
+                    out = teamsDB.getByID(action['id'])
+            else:
+                out = teams.getAllUsers()
+            
         result = serialize_to_protobuf(error, tm_admin.services_pb2.tmresponse)
         if type(out) == dict():
             for key, value in entry.items():
