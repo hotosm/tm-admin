@@ -26,7 +26,7 @@ from pathlib import Path
 from sys import argv
 
 # Instantiate logger
-log = logging.getLogger("tm-admin")
+log = logging.getLogger(__name__)
 
 import tm_admin as tma
 rootdir = tma.__path__[0]
@@ -81,7 +81,8 @@ class ProtoBuf(object):
         out.append("import 'types_tm.proto';")
         out.append("import 'google/protobuf/timestamp.proto';")
 
-        convert = {'timestamp': "google.protobuf.Timestamp"}
+        convert = {'timestamp': "google.protobuf.Timestamp",
+                   'polygon': 'bytes', 'point': 'bytes'}
         for table in tables:
             index = 1
             for key, value in table.items():
@@ -135,7 +136,12 @@ class ProtoBuf(object):
         inblock = False
         array = False
         dataout = dict()
-        convert = {'int32': 'int', 'int64': 'long', 'string': 'str'}
+        convert = {'int32': 'int',
+                   'int64': 'long',
+                   'string': 'str',
+                   'polygon': 'bytes',
+                   'point': 'bytes',
+                   }
         with open(filespec, 'r') as file:
             for line in file.readlines():
                 if line[:6] == 'syntax' or line[:6] == 'import' or line[:2] == '//':
