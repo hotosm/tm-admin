@@ -22,6 +22,7 @@
 import argparse
 import logging
 import sys
+import os
 from pathlib import Path
 from sys import argv
 from osm_rawdata.postgres import uriParser, PostgresClient
@@ -31,7 +32,7 @@ from tm_admin.generator import Generator
 
 
 # Instantiate logger
-log = logging.getLogger("tm-admin")
+log = logging.getLogger(__name__)
 
 import tm_admin as tma
 rootdir = tma.__path__[0]
@@ -102,7 +103,7 @@ class TmAdminManage(object):
         # self.pg.createDB(self.dburi)
         with open(f"{rootdir}/types_tm.sql", 'r') as file:
             self.pg.dbcursor.execute(file.read())
-
+            file.close()
 
     def createTable(self,
                     sqlfile: str,
@@ -207,13 +208,16 @@ def main():
         quit()
 
     # if verbose, dump to the terminal.
+    log_level = os.getenv("LOG_LEVEL", default="INFO")
     if args.verbose is not None:
-        log.setLevel(logging.DEBUG)
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("%(threadName)10s - %(name)s - %(levelname)s - %(message)s")
-        ch.setFormatter(formatter)
-        log.addHandler(ch)
+        log_level = logging.DEBUG
+
+    logging.basicConfig(
+        level=log_level,
+        format=("%(asctime)s.%(msecs)03d [%(levelname)s] " "%(name)s | %(funcName)s:%(lineno)d | %(message)s"),
+        datefmt="%y-%m-%d %H:%M:%S",
+        stream=sys.stdout,
+    )
 
     # The base class that does all the work
     tm = TmAdminManage(args.uri)
