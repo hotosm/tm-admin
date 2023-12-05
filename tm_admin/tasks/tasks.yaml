@@ -18,7 +18,7 @@
       - string
       - share: True
     - outline:
-      - public.geometry(Polygon,4326)
+      - polygon
       - share: True
     - geometry_geojson:
       - string

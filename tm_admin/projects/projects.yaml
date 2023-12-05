@@ -33,7 +33,7 @@
       - string
       - share: True
     - outline:
-      - public.geometry(Polygon,4326)
+      - polygon
       - share: True
     - last_updated:
       - timestamp
@@ -84,7 +84,7 @@
     - license_id:
       - int32
     - centroid:
-      - public.geometry(Point,4326)
+      - point
       - share: True
     - odk_central_url:
       - string

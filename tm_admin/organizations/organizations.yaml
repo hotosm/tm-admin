@@ -26,7 +26,7 @@
     - url:
       - string
       - share: True
-    - type:
-        - public.organisationtype
+    - orgtype:
+        - public.organizationtype
         - required: True
         - share: True
