@@ -28,6 +28,7 @@ from datetime import datetime
 from dateutil.parser import parse
 import tm_admin.types_tm
 from tm_admin.organizations.organizations_class import OrganizationsTable
+from tm_admin.users.users_class import UsersTable
 from osm_rawdata.postgres import uriParser, PostgresClient
 
 # Instantiate logger

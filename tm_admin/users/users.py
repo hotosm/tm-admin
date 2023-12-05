@@ -28,6 +28,7 @@ from datetime import datetime
 from dateutil.parser import parse
 import tm_admin.types_tm
 
+from tm_admin.dbsupport import DBSupport
 from tm_admin.users.users_class import UsersTable
 from osm_rawdata.postgres import uriParser, PostgresClient
 
@@ -43,51 +44,13 @@ class UsersDB(object):
         if dburi:
             self.pg = PostgresClient(dburi)
         self.types = dir(tm_admin.types_tm)
+        self.queries = DBSupport('users', dburi)
 
     def createUser(self,
                     profile: UsersTable,
                     ):
         self.profile = profile
-        sql = f"INSERT INTO users(id, "
-        for column,value in self.profile.data.items():
-            # print(f"{column} is {type(value)}")
-            if type(value) == str:
-                # FIXME: for now ignore timestamps, as they're meaningless
-                # between projects
-                try:
-                    if parse(value):
-                        continue
-                except:
-                    # it's a string, but not a date
-                    pass
-            if value is not None:
-                sql += f"{column},"
-        sql = sql[:-1]
-        sql += f") VALUES("
-        for column,value in self.profile.data.items():
-            try:
-                if parse(value):
-                    continue
-            except:
-                pass
-            if column == 'id':
-                sql += f"nextval('public.users_id_seq'),"
-                continue
-            if value is None:
-                continue
-            elif type(value) == datetime:
-                continue
-            elif type(value) == int:
-                sql += f"{value},"
-            elif type(value) == bool:
-                if value:
-                    sql += f"true,"
-                else:
-                    sql += f"false,"
-            elif type(value) == str:
-                sql += f"'{value}',"
-
-        result = self.pg.dbcursor.execute(f"{sql[:-1]});")
+        self.queries.createTable(profile)
 
     def updateUser(self,
                     profile: UsersTable,
@@ -129,57 +92,18 @@ class UsersDB(object):
     def getByID(self,
                 id: int,
                 ):
-        sql = f"SELECT * FROM users WHERE id='{id}'"
-        result = self.pg.dbcursor.execute(sql)
-        data = dict()
-        entry = self.pg.dbcursor.fetchone()
-        if entry:
-            for column in self.profile.data.keys():
-                index = 0
-                for column in self.profile.data.keys():
-                    data[column] = entry[index]
-                    index += 1
-
-        return [data]
+        data = self.queries.getByID(id)
+        return data
 
     def getByName(self,
                 name: str,
                 ):
-        sql = f"SELECT * FROM users WHERE name='{name}' LIMIT 1"
-        self.pg.dbcursor.execute(sql)
-        data = dict()
-        entry = self.pg.dbcursor.fetchone()
-        for column in self.profile.data.keys():
-            index = 0
-            for column in self.profile.data.keys():
-                data[column] = entry[index]
-                index += 1
-
-        return [data]
+        data = self.queries.getByName(name)
+        return data
 
     def getAllUsers(self):
-        # sql = f"SELECT json_build_object("
-        # for column in self.profile.data.keys():
-        #     sql += f"'{column}', json_agg(users.{column}),"
-        # sql = f"{sql[:-1]}) FROM users;"
-        # print(sql)
-        sql = f"SELECT * FROM users;"
-        self.pg.dbcursor.execute(sql)
-        result = self.pg.dbcursor.fetchall()
-        out = list()
-        if result:
-            for entry in result:
-                data = dict()
-                for column in self.profile.data.keys():
-                    index = 0
-                    for column in self.profile.data.keys():
-                        data[column] = entry[index]
-                        index += 1
-                out.append(data)
-        else:
-            log.debug(f"No data returned from query")
-
-        return out
+        data = self.queries.getAll()
+        return data
 
 def main():
     """This main function lets this class be run standalone by a bash script."""
@@ -210,19 +134,20 @@ def main():
     # user.resetSequence()
     all = user.getAllUsers()
     # Don't pass id, let postgres auto increment
-    ut = UsersTable(name='liz', mapping_level='BEGINNER',
-                    email_address='lizhaze@apple.com')
+    ut = UsersTable(name='test', mapping_level='BEGINNER',
+                    email_address='foo@bar.com')
     user.createUser(ut)
     # print(all)
 
     all = user.getByID(1)
     print(all)
             
-    all = user.getByName('fixme')
+    all = user.getByName('test')
     print(all)
-            
-    ut = UsersTable(name='foobar', email_address="foo@bar.com", mapping_level='INTERMEDIATE')
-    user.updateUser(ut, 9)
+
+    ut = UsersTable(name='foobar', email_address="bar@foo.com", mapping_level='INTERMEDIATE')
+    # This is obviously only for manjal testing
+    user.updateUser(ut, 17)
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
