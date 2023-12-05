@@ -71,14 +71,16 @@ dev = [
 ]
 debug = [
     "ipdb>=0.13.13",
+    "debugpy>=1.8.0",
 ]
 test = [
-    "pytest>=7.4.0",
+    "pytest>=7.4.3",
+    "pytest-grpc>=0.8.0",
 ]
 docs = [
-    "mkdocs>=1.5.2",
-    "mkdocs-material>=9.2.3",
-    "mkdocstrings-python>=1.5.2",
+    "mkdocs>=1.5.3",
+    "mkdocs-material>=9.4.14",
+    "mkdocstrings-python>=1.7.5",
     "mkdocs-exclude>=1.0.2",
 ]
 
