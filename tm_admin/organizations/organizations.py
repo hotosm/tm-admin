@@ -97,41 +97,12 @@ class OrganizationsDB(object):
     def getByName(self,
                 name: str,
                 ):
-        sql = f"SELECT * FROM organizations WHERE name='{name}' LIMIT 1"
-        self.pg.dbcursor.execute(sql)
-        data = dict()
-        entry = self.pg.dbcursor.fetchone()
-        for column in self.profile.data.keys():
-            index = 0
-            for column in self.profile.data.keys():
-                data[column] = entry[index]
-                index += 1
+        data = self.queries.getByName(name)
+        return data
 
-        return [data]
-
-    def getAll(self):
-        # sql = f"SELECT json_build_object("
-        # for column in self.profile.data.keys():
-        #     sql += f"'{column}', json_agg(organizations.{column}),"
-        # sql = f"{sql[:-1]}) FROM organizations;"
-        # print(sql)
-        sql = f"SELECT * FROM organizations;"
-        self.pg.dbcursor.execute(sql)
-        result = self.pg.dbcursor.fetchall()
-        out = list()
-        if result:
-            for entry in result:
-                data = dict()
-                for column in self.profile.data.keys():
-                    index = 0
-                    for column in self.profile.data.keys():
-                        data[column] = entry[index]
-                        index += 1
-                out.append(data)
-        else:
-            log.debug(f"No data returned from query")
-
-        return out
+    def getAllOrganizations(self):
+        data = self.queries.getAll()
+        return data
 
 def main():
     """This main function lets this class be run standalone by a bash script."""
@@ -160,7 +131,7 @@ def main():
 
     organization = OrganizationsDB(args.uri)
     # organization.resetSequence()
-    # all = organization.getAll()
+    all = organization.getAllOrganizations()
     # Don't pass id, let postgres auto increment
     ut = OrganizationsTable(name='fixme', slug='slug', orgtype='FREE')
     organization.createOrganization(ut)

@@ -51,7 +51,7 @@ class DBSupport(object):
                     ):
         sql = f"INSERT INTO {self.table}(id, "
         for column,value in obj.data.items():
-            print(f"{column} is {type(value)}")
+            # print(f"{column} is {type(value)}")
             if type(value) == str:
                 # FIXME: for now ignore timestamps, as they're meaningless
                 # between projects
