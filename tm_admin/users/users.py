@@ -210,7 +210,8 @@ def main():
     # user.resetSequence()
     all = user.getAllUsers()
     # Don't pass id, let postgres auto increment
-    ut = UsersTable(name='fixme', mapping_level='BEGINNER')
+    ut = UsersTable(name='liz', mapping_level='BEGINNER',
+                    email_address='lizhaze@apple.com')
     user.createUser(ut)
     # print(all)
 
