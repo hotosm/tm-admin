@@ -27,36 +27,74 @@ from sys import argv
 from datetime import datetime
 from dateutil.parser import parse
 import tm_admin.types_tm
-from tm_admin.dbsupport import DBSupport
 from tm_admin.organizations.organizations_class import OrganizationsTable
 from osm_rawdata.postgres import uriParser, PostgresClient
 
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-class OrganizationsDB(object):
+class DBSupport(object):
     def __init__(self,
+                 table: str,
                  dburi: str = "localhost/tm_admin",
                 ):
         self.pg = None
-        self.profile = OrganizationsTable()
+        self.table = table
+        profile = f"{table.capitalize()}Table()"
+        self.profile = eval(profile)
         if dburi:
             self.pg = PostgresClient(dburi)
         self.types = dir(tm_admin.types_tm)
-        self.queries = DBSupport('organizations')
 
-    def createOrganization(self,
-                    profile: OrganizationsTable,
+    def createTable(self,
+                    obj,
                     ):
-        self.profile = profile
-        self.queries.createTable(profile)
+        sql = f"INSERT INTO {self.table}(id, "
+        for column,value in obj.data.items():
+            print(f"{column} is {type(value)}")
+            if type(value) == str:
+                # FIXME: for now ignore timestamps, as they're meaningless
+                # between projects
+                try:
+                    if parse(value):
+                        continue
+                except:
+                    # it's a string, but not a date
+                    pass
+            if value is not None:
+                sql += f"{column},"
+        sql = sql[:-1]
+        sql += f") VALUES("
+        for column,value in obj.data.items():
+            try:
+                if parse(value):
+                    continue
+            except:
+                pass
+            if column == 'id':
+                sql += f"nextval('public.organizations_id_seq'),"
+                continue
+            if value is None:
+                continue
+            elif type(value) == datetime:
+                continue
+            elif type(value) == int:
+                sql += f"{value},"
+            elif type(value) == bool:
+                if value:
+                    sql += f"true,"
+                else:
+                    sql += f"false,"
+            elif type(value) == str:
+                sql += f"'{value}',"
 
-    def updateOrganization(self,
-                    profile: OrganizationsTable,
+        print(sql[:-1])
+        result = self.pg.dbcursor.execute(f"{sql[:-1]});")
+
+    def updateTable(self,
                     id: int = None,
                     ):
-        self.profile = profile
-        sql = f"UPDATE organizations SET"
+        sql = f"UPDATE {self.table} SET"
         if not id:
             id = profile.data['id']
         for column,value in self.profile.data.items():
@@ -85,19 +123,29 @@ class OrganizationsDB(object):
         result = self.pg.dbcursor.execute(f"{sql[:-1]}';")
 
     def resetSequence(self):
-        sql = "ALTER SEQUENCE public.organizations_id_seq RESTART;"
+        sql = f"ALTER SEQUENCE public.{self.table}_id_seq RESTART;"
         self.pg.dbcursor.execute(sql)
 
     def getByID(self,
                 id: int,
                 ):
-        data = self.queries.getByID(id)
-        return data
+        sql = f"SELECT * FROM {self.table} WHERE id='{id}'"
+        result = self.pg.dbcursor.execute(sql)
+        data = dict()
+        entry = self.pg.dbcursor.fetchone()
+        if entry:
+            for column in self.profile.data.keys():
+                index = 0
+                for column in self.profile.data.keys():
+                    data[column] = entry[index]
+                    index += 1
+
+        return [data]
 
     def getByName(self,
                 name: str,
                 ):
-        sql = f"SELECT * FROM organizations WHERE name='{name}' LIMIT 1"
+        sql = f"SELECT * FROM {self.table} WHERE name='{name}' LIMIT 1"
         self.pg.dbcursor.execute(sql)
         data = dict()
         entry = self.pg.dbcursor.fetchone()
@@ -110,12 +158,7 @@ class OrganizationsDB(object):
         return [data]
 
     def getAll(self):
-        # sql = f"SELECT json_build_object("
-        # for column in self.profile.data.keys():
-        #     sql += f"'{column}', json_agg(organizations.{column}),"
-        # sql = f"{sql[:-1]}) FROM organizations;"
-        # print(sql)
-        sql = f"SELECT * FROM organizations;"
+        sql = f"SELECT * FROM {self.table};"
         self.pg.dbcursor.execute(sql)
         result = self.pg.dbcursor.fetchall()
         out = list()
@@ -158,18 +201,20 @@ def main():
         stream=sys.stdout,
     )
 
-    organization = OrganizationsDB(args.uri)
+    org = DBSupport('organizations', args.uri)
     # organization.resetSequence()
-    # all = organization.getAll()
+    all = org.getAll()
+
     # Don't pass id, let postgres auto increment
-    ut = OrganizationsTable(name='fixme', slug='slug', orgtype='FREE')
-    organization.createOrganization(ut)
+    ut = OrganizationsTable(name='test org', slug="slug", orgtype=1)
+#                            orgtype=tm_admin.types_tm.Organizationtype.FREE)
+    org.createTable(ut)
     # print(all)
 
-    all = organization.getByID(1)
+    all = org.getByID(1)
     print(all)
             
-    all = organization.getByName('fixme')
+    all = org.getByName('fixme')
     print(all)
             
 if __name__ == "__main__":
