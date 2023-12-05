@@ -33,12 +33,14 @@ from tm_admin.users.users_pb2 import users
 from tm_admin.teams.teams_pb2 import teams
 from tm_admin.tasks.tasks_pb2 import tasks
 from tm_admin.users.users_pb2 import users
+from tm_admin.projects.projects_pb2 import projects
 from tm_admin.organizations.organizations_pb2 import organizations
+# import the protobuf messages
 from tm_admin.tasks.tasks_proto import TasksMessage
 from tm_admin.teams.teams_proto import TeamsMessage
 from tm_admin.users.users_proto import UsersMessage
-from tm_admin.organizations.organizations_proto import OrganizationsMessage
 from tm_admin.projects.projects_proto import ProjectsMessage
+from tm_admin.organizations.organizations_proto import OrganizationsMessage
 from tm_admin.yamlfile import YamlFile
 from tm_admin.commands import Notification, Request
 from tm_admin.types_tm import Command, Notification

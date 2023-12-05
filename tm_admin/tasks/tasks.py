@@ -41,8 +41,6 @@ class TasksDB(DBSupport):
                 ):
         self.pg = None
         self.profile = TasksTable()
-        #if dburi:
-        #    self.pg = PostgresClient(dburi)
         self.types = dir(tm_admin.types_tm)
         super().__init__('tasks', dburi)
 
@@ -75,8 +73,7 @@ def main():
     # user.resetSequence()
     all = task.getAll()
     # Don't pass id, let postgres auto increment
-    ut = TasksTable(name='test', organisation_id=1,
-                    visibility='PUBLIC')
+    ut = TasksTable(project_id=1)
     task.createTable(ut)
     # print(all)
 

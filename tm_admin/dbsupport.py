@@ -30,6 +30,9 @@ import tm_admin.types_tm
 from tm_admin.organizations.organizations_class import OrganizationsTable
 from tm_admin.users.users_class import UsersTable
 from tm_admin.teams.teams_class import TeamsTable
+from tm_admin.tasks.tasks_class import TasksTable
+from tm_admin.projects.projects_class import ProjectsTable
+from tm_admin.organizations.organizations_class import OrganizationsTable
 from osm_rawdata.postgres import uriParser, PostgresClient
 
 # Instantiate logger

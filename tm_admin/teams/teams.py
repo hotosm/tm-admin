@@ -41,8 +41,6 @@ class TeamsDB(DBSupport):
                 ):
         self.pg = None
         self.profile = TeamsTable()
-        #if dburi:
-        #    self.pg = PostgresClient(dburi)
         self.types = dir(tm_admin.types_tm)
         super().__init__('teams', dburi)
 

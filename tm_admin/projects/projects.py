@@ -44,8 +44,6 @@ class ProjectsDB(DBSupport):
                 ):
         self.pg = None
         self.profile = ProjectsTable()
-        #if dburi:
-        #    self.pg = PostgresClient(dburi)
         self.types = dir(tm_admin.types_tm)
         super().__init__('projects', dburi)
 
@@ -90,7 +88,7 @@ def main():
                        created='2021-12-15 09:58:02.672236',
                        task_creation_mode='GRID', status='DRAFT',
                        mapper_level='BEGINNER')
-    proj.createProject(ut)
+    proj.createTable(ut)
     # print(all)
 
     #all = proj.getByID(1)

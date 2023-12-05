@@ -40,8 +40,6 @@ class OrganizationsDB(DBSupport):
                 ):
         self.pg = None
         self.profile = OrganizationsTable()
-        #if dburi:
-        #    self.pg = PostgresClient(dburi)
         self.types = dir(tm_admin.types_tm)
         super().__init__('organizations', dburi)
 
