@@ -129,7 +129,7 @@
     - MANAGER
     - MEMBER
 
-- organisationtype:
+- organizationtype:
     - FREE
     - DISCOUNTED
     - FULL_FEE
