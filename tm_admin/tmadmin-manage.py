@@ -195,8 +195,8 @@ def main():
     )
     choices = ['create', 'migrate']
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
-    parser.add_argument("-d", "--diff", help="SQL file diff for migrations")
-    parser.add_argument("-p", "--proto", help="Generate the .proto file from the YAML file")
+    # parser.add_argument("-d", "--diff", help="SQL file diff for migrations")
+    # parser.add_argument("-p", "--proto", help="Generate the .proto file from the YAML file")
     parser.add_argument("-u", "--uri", default='localhost/tm_admin',
                             help="Database URI")
     parser.add_argument("-c", "--cmd", choices=choices, default='create',
