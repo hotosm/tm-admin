@@ -42,6 +42,15 @@ class ProjectsDB(DBSupport):
     def __init__(self,
                  dburi: str = "localhost/tm_admin",
                 ):
+        """
+        A class to access the projects table.
+
+        Args:
+            dburi (str): The URI string for the database connection
+
+        Returns:
+            (ProjectsDB): An instance of this class
+        """
         self.pg = None
         self.profile = ProjectsTable()
         self.types = dir(tm_admin.types_tm)

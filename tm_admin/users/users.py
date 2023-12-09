@@ -39,6 +39,15 @@ class UsersDB(object):
     def __init__(self,
                  dburi: str = "localhost/tm_admin",
                 ):
+        """
+        A class to access the users table.
+
+        Args:
+            dburi (str): The URI string for the database connection
+
+        Returns:
+            (UsersDB): An instance of this class
+        """
         self.pg = None
         self.profile = UsersTable()
         if dburi:

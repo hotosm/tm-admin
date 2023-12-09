@@ -39,7 +39,16 @@ class TasksDB(DBSupport):
     def __init__(self,
                  dburi: str = "localhost/tm_admin",
                 ):
-        self.pg = None
+         """
+        A class to access the tasks table.
+
+        Args:
+            dburi (str): The URI string for the database connection.
+
+        Returns:
+            (TasksDB): An instance of this class.
+        """
+       self.pg = None
         self.profile = TasksTable()
         self.types = dir(tm_admin.types_tm)
         super().__init__('tasks', dburi)

@@ -38,6 +38,15 @@ class OrganizationsDB(DBSupport):
     def __init__(self,
                  dburi: str = "localhost/tm_admin",
                 ):
+        """
+        A class to access the organizations table.
+
+        Args:
+            dburi (str): The URI string for the database connection
+
+        Returns:
+            (OrganizationsDB): An instance of this class
+        """
         self.pg = None
         self.profile = OrganizationsTable()
         self.types = dir(tm_admin.types_tm)
