@@ -44,6 +44,8 @@ markdown_extensions:
       alternate_style: true
 
 plugins:
+  - mkdocs_protobuf:
+      proto_dir: */*.proto *.proto
   - search
   - exclude:
       glob:
