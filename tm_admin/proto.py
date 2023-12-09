@@ -35,6 +35,12 @@ class ProtoBuf(object):
     def __init__(self,
                 sqlfile: str = None,
                 ):
+        """
+        A class that generates protobuf files from the config data.
+
+        Returns:
+            (ProtoBuf): An instance of this class
+        """
         self.sqlfile = sqlfile
 
     def createEnumProto(self,
@@ -68,7 +74,7 @@ class ProtoBuf(object):
         Process a list of tables into the protobuf version.
 
         Args:
-            table (list): The list of tables to generate a protobuf for.
+            tables (list): The list of tables to generate a protobuf for.
 
         Returns:
             (list): The list of tables in protobuf format
@@ -129,48 +135,6 @@ class ProtoBuf(object):
             out.append(f"}}")
 
         return out
-
-    def protoToDict(self,
-                    filespec: str,
-                    ):
-        inblock = False
-        array = False
-        dataout = dict()
-        convert = {'int32': 'int',
-                   'int64': 'long',
-                   'string': 'str',
-                   'polygon': 'bytes',
-                   'point': 'bytes',
-                   }
-        with open(filespec, 'r') as file:
-            for line in file.readlines():
-                if line[:6] == 'syntax' or line[:6] == 'import' or line[:2] == '//':
-                    continue
-                elif line[0] == '}':
-                    inblock = False
-                    continue
-                elif line[:7] == 'message':
-                    name = line.strip().split(' ')[1]
-                    inblock = True
-                    continue
-                elif inblock:
-                    keyword = None
-                    datatype = None
-                    tmp = line.strip().split(' ')
-                    if tmp[0] == 'repeated':
-                        array = True
-                        datatype = tmp[1]
-                        keyword = tmp[2]
-                    elif tmp[0] == 'optional':
-                        datatype = tmp[1]
-                        keyword = tmp[2]
-                    else:
-                        datatype = tmp[0]
-                        keyword = tmp[1]
-                    
-                    dataout[keyword] = None
-                    
-        return dataout
 
 def main():
     """This main function lets this class be run standalone by a bash script."""
