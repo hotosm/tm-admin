@@ -64,6 +64,12 @@ class DBSupport(object):
     def createTable(self,
                     obj,
                     ):
+        """
+        Create a table in a postgres database.
+
+        Args:
+            obj: The config data for the table.
+        """
         sql = f"INSERT INTO {self.table}(id, "
         for column,value in obj.data.items():
             # print(f"{column} is {type(value)}")
@@ -109,6 +115,12 @@ class DBSupport(object):
     def updateTable(self,
                     id: int = None,
                     ):
+        """
+        Updates an existing table in the database
+
+        Args:
+            id (int): The ID of the dataset to update
+        """
         sql = f"UPDATE {self.table} SET"
         if not id:
             id = profile.data['id']
@@ -138,12 +150,24 @@ class DBSupport(object):
         result = self.pg.dbcursor.execute(f"{sql[:-1]}';")
 
     def resetSequence(self):
+        """
+        Reset the postgres sequence to zero.
+        """
         sql = f"ALTER SEQUENCE public.{self.table}_id_seq RESTART;"
         self.pg.dbcursor.execute(sql)
 
     def getByID(self,
                 id: int,
                 ):
+        """
+        Return the data for the ID in the table.
+
+        Args:
+            id (int): The ID of the dataset to retrieve.
+
+        Returns:
+            (list): The results of the query
+        """
         sql = f"SELECT * FROM {self.table} WHERE id='{id}'"
         result = self.pg.dbcursor.execute(sql)
         data = dict()
@@ -160,6 +184,15 @@ class DBSupport(object):
     def getByName(self,
                 name: str,
                 ):
+        """
+        Return the data for the name in the table.
+
+        Args:
+            name (str): The name of the dataset to retrieve.
+
+        Returns:
+            (list): The results of the query
+        """
         sql = f"SELECT * FROM {self.table} WHERE name='{name}' LIMIT 1"
         self.pg.dbcursor.execute(sql)
         data = dict()
@@ -173,6 +206,12 @@ class DBSupport(object):
         return [data]
 
     def getAll(self):
+        """
+        Return all the data in the table.
+
+        Returns:
+            (list): The results of the query
+        """
         sql = f"SELECT * FROM {self.table};"
         self.pg.dbcursor.execute(sql)
         result = self.pg.dbcursor.fetchall()
@@ -194,6 +233,15 @@ class DBSupport(object):
     def getByWhere(self,
                 where: str,
                 ):
+        """
+        Return the data for the where clause in the table.
+
+        Args:
+            where (str): The where clzuse of the dataset to retrieve.
+
+        Returns:
+            (list): The results of the query
+        """
         sql = f"SELECT * FROM {self.table} WHERE {where}'"
         result = self.pg.dbcursor.execute(sql)
         data = dict()

@@ -109,11 +109,11 @@ class TmAdminManage(object):
                     sqlfile: str,
                     ):
         """
-        Create a table in the database
+        Create a table in the database.
 
         Args:
-            sqlfile (str):
-            dburi (str): The URI string for the database connection
+            sqlfile (str): The SQL schema for this table
+            dburi (str): The URI string for the database connection.
 
         Returns:
             (bool): The table creation status
@@ -166,22 +166,6 @@ class TmAdminManage(object):
                     elif len(tmp) == 4:
                         self.columns['add'].append({tmp[1]: f"{tmp[2]} {tmp[3][:-1]}"})
         return self.columns
-
-    # def createTypes(self):
-    #     config = f"{rootdir}/types.yaml"
-    #     gen = Generator()
-    #     gen.readConfig(config)
-    #     out = gen.createPyEnums()
-
-    #     enums = dict()
-    #     for entry in types.yaml:
-    #         [[k, v]] = entry.items()
-    #         enums[k] = v
-    #     types = pb.createEnumProto(enums)
-    #     with open(f'types.proto', 'w') as file:
-    #         file.writelines(str(i)+'\n' for i in types)
-    #         file.close()
-    #         log.info(f"Wrote types.proto")
 
 def main():
     """This main function lets this class be run standalone by a bash script."""
