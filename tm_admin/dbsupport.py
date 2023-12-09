@@ -43,6 +43,16 @@ class DBSupport(object):
                  table: str,
                  dburi: str = "localhost/tm_admin",
                 ):
+        """
+        A base class since all tables have the same structure for queries.
+
+        Args:
+            table (str): The table to use for this connection.
+            dburi (str): The URI string for the database connection.
+
+        Returns:
+            (DBSupport): An instance of this class
+        """
         self.pg = None
         self.table = table
         profile = f"{table.capitalize()}Table()"
