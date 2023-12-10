@@ -7,6 +7,13 @@ options:
 show_source: false
 heading_level: 3
 
+## dbsupport.py
+
+::: tm_admin.dbsupport
+options:
+show_source: false
+heading_level: 3
+
 ## generator.py
 
 ::: tm_admin.generator
@@ -14,7 +21,7 @@ options:
 show_source: false
 heading_level: 3
 
-## generator.py
+## proto.py
 
 ::: tm_admin.proto
 options:
