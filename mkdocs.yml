@@ -72,6 +72,7 @@ nav:
       - Configuring: configuring.md
       - Communication: communication.md
       - Data Flow: dataflow.md
-  - API: api.md
+  - Code API: api.md
+  - Protobuf API: protos-api.md
   - License: LICENSE.md
   - Changelog: CHANGELOG.md
