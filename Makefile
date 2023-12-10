@@ -34,6 +34,7 @@ all:
 
 apidoc: force
 	cd docs && doxygen
+	cd tm_admin && $(MAKE) docs
 
 clean:
 	@cd tm_admin ; make clean
