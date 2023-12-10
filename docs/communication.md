@@ -14,7 +14,7 @@ be in multiple places. Each data structure is represented in the
 database schemas, python, and gRPC. To reduce future maintainance
 headaches, a single configuration file is used to generate multiple
 output formats. More information on that process is [documented
-here](configuring).
+here](configuring.md).
 
 All communication is bi-directional. Projects can send data, or handle
 a request for data. For any data that is sent, the response is a
