@@ -74,5 +74,6 @@ nav:
       - Data Flow: dataflow.md
   - Code API: api.md
   - Protobuf API: protos-api.md
+  - Class Hierarchy: apidocs/html/inherits.html
   - License: LICENSE.md
   - Changelog: CHANGELOG.md
