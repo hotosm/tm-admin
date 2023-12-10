@@ -44,8 +44,8 @@ markdown_extensions:
       alternate_style: true
 
 plugins:
-  - mkdocs_protobuf:
-      proto_dir: */*.proto *.proto
+#  - mkdocs_protobuf:
+#      proto_dir: */*.proto *.proto
   - search
   - exclude:
       glob:
@@ -67,6 +67,11 @@ nav:
   - About: about.md
   - Utilities:
       - TM-Manager: tmadmin-manage.md
+  - Deep Dives:
+      - Building: build.md
+      - Configuring: configuring.md
+      - Communication: communication.md
+      - Data Flow: dataflow.md
   - API: api.md
   - License: LICENSE.md
   - Changelog: CHANGELOG.md
