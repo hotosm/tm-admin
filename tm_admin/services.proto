@@ -37,11 +37,11 @@ service TMAdmin {
   rpc doRequest(tmrequest) returns (tmresponse) {}
   rpc doNotification(notification) returns (tmresponse) {}
 
-  rpc updateUserProfile (users) returns (users) {}
-  rpc updateProjectProfile (projects) returns (projects) {}
-  rpc updateTeamProfile (teams) returns (teams) {}
-  rpc updateTask (tasks) returns (tasks) {}
-  rpc updateOrganizationProfile (tmadmin.organizations) returns (tmadmin.organizations) {}
+  // rpc updateUserProfile (users) returns (users) {}
+  // rpc updateProjectProfile (projects) returns (projects) {}
+  // rpc updateTeamProfile (teams) returns (teams) {}
+  // rpc updateTask (tasks) returns (tasks) {}
+  // rpc updateOrganizationProfile (tmadmin.organizations) returns (tmadmin.organizations) {}
 }
 
 message tmrequest {
