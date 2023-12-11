@@ -52,8 +52,8 @@ class Generator(object):
                     'string': 'str',
                     'bytes': 'bytes',
                     'timestamp': 'timestamp without time zone',
-                    'polygon': 'polygon',
-                    'point': 'point',
+                    'polygon': 'Polygon',
+                    'point': 'Point',
                     }
 
         self.yaml2sql = {'int32': 'int',
@@ -129,6 +129,7 @@ class Generator(object):
         out = f"""
 import logging
 from datetime import timedelta
+from shapely.geometry import Polygon, Point, shape
 
 log = logging.getLogger(__name__)
         """
