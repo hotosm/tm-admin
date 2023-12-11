@@ -101,6 +101,9 @@
     - USER_READ_ONLY
     - USER_MAPPER
     - ADMIN
+    - VALIDATOR
+    - FIELD_ADMIN
+    - ORGANIZATION_ADMIN
 
 - editors:
     - ID
@@ -145,9 +148,15 @@
 
 - command:
     - GET_USER
+    - SEND_USER
     - GET_ORG
+    - SEND_ORG
     - GET_PROJECT
+    - SEND_PROJECT
     - GET_TEAM
+    - SEND_TEAM
+    - GET_TASK
+    - SEND_TASK
 
 - notification:
     - BAD_DATA
