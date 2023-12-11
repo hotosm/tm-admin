@@ -54,7 +54,7 @@ way a single configuration file can be used to generate multiple
 output formats. In the case of this projects, that's SQL files for a
 local postgres database, protobuf files for gRPC, and python source
 files for data type definitions. There is more information on the
-[configuration files here](configuring)
+[configuration files here](configuring.md)
 
 ## .proto files
 

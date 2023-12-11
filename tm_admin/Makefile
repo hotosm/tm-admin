@@ -41,7 +41,7 @@ compile: $(PBUFS)
 	#-@$(PROTOC) -I. --python_out=. --pyi_out=. services.proto
 
 docs:
-	-(PROTOC) --doc_out=../docs --doc_opt=html,index.html services.proto types_tm.proto * */*.proto
+	-$(PROTOC) --doc_out=../docs --doc_opt=html,protos.html services.proto types_tm.proto * */*.proto
 	#protoc --doc_out=./foo --doc_opt=html,index.html services.proto */*.proto
 
 

@@ -39,6 +39,15 @@ class TeamsDB(DBSupport):
     def __init__(self,
                  dburi: str = "localhost/tm_admin",
                 ):
+        """
+        A class to access the teams table.
+
+        Args:
+            dburi (str): The URI string for the database connection
+
+        Returns:
+            (TeamsDB): An instance of this class
+        """
         self.pg = None
         self.profile = TeamsTable()
         self.types = dir(tm_admin.types_tm)
