@@ -100,5 +100,5 @@ exclude = [
 [tool.ruff.pydocstyle]
 convention = "google"
 
-#[project.scripts]
-# tmadmin-manage = "tm_admin.tmadmin-manage"
+[project.scripts]
+tmadmin-manage = "tm_admin.tmadmin-manage:main"
