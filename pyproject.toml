@@ -1,7 +1,7 @@
 [project]
 name = "tm-admin"
 dynamic = ["version"]
-description = "Support functions for tasking manager style projects"
+description = "Administrative modules for Tasking Manager style projects."
 authors = [
     {name = "Rob Savoye", email = "rob.savoye@hotosm.org"},
 ]

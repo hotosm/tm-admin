@@ -1,4 +1,48 @@
-# Building TM-Admin
+# TM Admin
+
+<!-- markdownlint-disable -->
+<p align="center">
+  <img src="https://github.com/hotosm/fmtm/blob/main/images/hot_logo.png?raw=true" style="width: 200px;" alt="HOT"></a>
+</p>
+<p align="center">
+  <em>Administrative modules for Tasking Manager style projects.</em>
+</p>
+<p align="center">
+  <a href="https://github.com/hotosm/tm-admin/actions/workflows/build.yml" target="_blank">
+      <img src="https://github.com/hotosm/tm-admin/workflows/Build/badge.svg" alt="Build">
+  </a>
+  <a href="https://github.com/hotosm/tm-admin/actions/workflows/build-ci.yml" target="_blank">
+      <img src="https://github.com/hotosm/tm-admin/workflows/Build CI Img/badge.svg" alt="CI Build">
+  </a>
+  <a href="https://github.com/hotosm/tm-admin/actions/workflows/docs.yml" target="_blank">
+      <img src="https://github.com/hotosm/tm-admin/workflows/Publish Docs/badge.svg" alt="Publish Docs">
+  </a>
+  <a href="https://github.com/hotosm/tm-admin/actions/workflows/publish.yml" target="_blank">
+      <img src="https://github.com/hotosm/tm-admin/workflows/Publish to PyPi.org/badge.svg" alt="Publish">
+  </a>
+  <a href="https://github.com/hotosm/tm-admin/actions/workflows/pytest.yml" target="_blank">
+      <img src="https://github.com/hotosm/tm-admin/workflows/PyTest/badge.svg" alt="Test">
+  </a>
+  <a href="https://pypi.org/project/tm-admin" target="_blank">
+      <img src="https://img.shields.io/pypi/v/tm-admin?color=%2334D058&label=pypi%20package" alt="Package version">
+  </a>
+  <a href="https://pypistats.org/packages/tm-admin" target="_blank">
+      <img src="https://img.shields.io/pypi/dm/tm-admin.svg" alt="Downloads">
+  </a>
+  <a href="https://github.com/hotosm/tm-admin/blob/main/LICENSE" target="_blank">
+      <img src="https://img.shields.io/github/license/hotosm/tm-admin.svg" alt="License">
+  </a>
+</p>
+
+---
+
+📖 **Documentation**: <a href="https://hotosm.github.io/tm-admin/" target="_blank">https://hotosm.github.io/tm-admin/</a>
+
+🖥️ **Source Code**: <a href="https://github.com/hotosm/tm-admin" target="_blank">https://github.com/hotosm/tm-admin</a>
+
+---
+
+<!-- markdownlint-enable -->
 
 This is a complicated project as it involves parsing and outputting
 multiple file formats. This project uses [gRPC](https://grpc.io/) for
