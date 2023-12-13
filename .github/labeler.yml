@@ -1,0 +1,14 @@
+"devops":
+  - ".github/**/*"
+  - "Dockerfile"
+  - "*entrypoint.sh"
+  - "Makefile"
+"dependency":
+  - "pyproject.toml"
+  - "pdm.lock"
+"documentation":
+  - "docs/**/*"
+  - "mkdocs.yml"
+  - "README.md"
+"version":
+  - "tm_admin/__version__.py"
