@@ -2,8 +2,7 @@
 **
 
 # Allow files and directories
-!osm_fieldwork
-!ui
+!tm_admin
 !pyproject.toml
 !pdm.lock
 !entrypoint.sh
