@@ -101,4 +101,4 @@ exclude = [
 convention = "google"
 
 [project.scripts]
-tmadmin-manage = "tm_admin.tmadmin-manage:main"
+tmadmin-manage = "tm_admin.tmadmin_manage:main"

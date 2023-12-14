@@ -24,7 +24,7 @@ internal data structure for that file. More information on the config file
 [is here](configuring.md).
 
 The actual database schemas are created from the generated SQL
-files. The *tmadmin-manage.py* file has a class that also runs
+files. The *tmadmin_manage.py* file has a class that also runs
 standalone and generates all the SQL, python, and protobuf files using
 the *Generate* class. Once it generates the SQL files, it creates the
 database and tables.
