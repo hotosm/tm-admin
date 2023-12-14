@@ -1,6 +1,6 @@
 # API Docs for TM-Admin
 
-## tmadmin-manage.py
+## tmadmin_manage.py
 
 ::: tm_admin.tmadmin-manage
 options:
