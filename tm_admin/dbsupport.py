@@ -93,7 +93,7 @@ class DBSupport(object):
             except:
                 pass
             if column == 'id':
-                sql += f"nextval('public.organizations_id_seq'),"
+                sql += f"nextval('public.{self.table}_id_seq'),"
                 continue
             if value is None:
                 continue
@@ -252,6 +252,32 @@ class DBSupport(object):
                 for column in self.profile.data.keys():
                     data[column] = entry[index]
                     index += 1
+
+        return [data]
+
+    def getByLocation(self,
+                location: Point,
+                table: str = 'projects',
+                ):
+        """
+        Return the database records in a table using GPS coordinates.
+
+        Args:
+            location (Point): The location to use to find the project or task.
+
+        Returns:
+            (list): The results of the query
+        """
+        data = dict()
+        ewkt = shape(location)
+        sql = f"SELECT * FROM {table} WHERE ST_CONTAINS(ST_GeomFromEWKT('SRID=4326;{ewkt}') geom)"
+        self.pg.dbcursor.execute(sql)
+        entry = self.pg.dbcursor.fetchall()
+        for column in self.profile.data.keys():
+            index = 0
+            for column in self.profile.data.keys():
+                data[column] = entry[index]
+                index += 1
 
         return [data]
 
