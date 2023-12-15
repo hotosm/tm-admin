@@ -101,7 +101,7 @@
     - USER_READ_ONLY
     - USER_MAPPER
     - ADMIN
-    - VALIDATOR
+    - PROJECT_VALIDATOR
     - FIELD_ADMIN
     - ORGANIZATION_ADMIN
 
@@ -125,7 +125,7 @@
 - teamroles:
     - TEAM_READ_ONLY
     - TEAM_MAPPER
-    - VALIDATOR
+    - TEAM_VALIDATOR
     - PROJECT_MANAGER
 
 - teammemberfunctions:
