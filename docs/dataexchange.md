@@ -17,6 +17,12 @@ database size and simplifying the code base. A future enhancement to
 the YAML config file subsystem will support using a subset of all the
 database columns.
 
+Some of the data to be exchanged is currently supported by the REST
+API for FMTM and TM. The plan is for these modules in the TM-Admin
+project work under those REST APIs for database access. This lets the
+REST API stay focused on supporting the web frontend for each
+application.
+
 # Identifying Records
 
 Since the ID can't be used between projects, the name or address is
@@ -51,7 +57,9 @@ tasks, and then recalulate FMTM specific tasks boundaries.
 
 Some fields need to be in any data packet that is intended for
 database queries, since the there needs to be a way to refer to an
-existing record, if it exists. 
+existing record, if it exists. While it is possible to identify remote
+database records by comparing multiple columns, to keep things simple,
+it is prefered to use the name or location.
 
 ### Project Data
 
@@ -81,16 +89,21 @@ includes presets for several editors.
 
 ### User Data
 
+Most all the columns in the user profiles is the same across all
+applications. The are a few columns for tracking tasks mapped, etc... but the
+data for those will vary between applications.
+
+### Organization Data
+
+Organization data is easy, all columns are used by all
+applications. This this table is simple, organization name, logo, URL,
+and a description.
+
 ### Task Data
 
 A task AOI is not usually useful between projects, as a TM task is
 much larger than an FMTM task. For a Drone Tasking Manager (DTM), the
 task size will also be different. Since tasks are not portable across
-projects, each project maintains it's own data on the creation date,
+projects, each project maintains it's own data, the creation date,
 tasks mapped, validated, invalidated, etc...
-
-### Organization Data
-
-### 
-
 
