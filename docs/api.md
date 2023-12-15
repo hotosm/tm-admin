@@ -2,7 +2,7 @@
 
 ## tmadmin_manage.py
 
-::: tm_admin.tmadmin-manage
+::: tm_admin.tmadmin_manage
 options:
 show_source: false
 heading_level: 3
