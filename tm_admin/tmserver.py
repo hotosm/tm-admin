@@ -82,6 +82,7 @@ class RequestServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
 
         out = ""
         action = protobuf_to_dict(request)
+        # These requests get data from the database
         if action['cmd'] == Command.GET_USER:
             print(f"USER {action}")
             if action['id'] != 0:
@@ -104,7 +105,15 @@ class RequestServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
             else:
                 out = teams.getAllUsers()
         elif action['cmd'] == Command.GET_PROJECT:
-            log.error("PROJECTS unimplemented!")
+            if action['id'] != 0:
+                if len(action['name']) > 0:
+                    # print(f"BY NAME {action}")
+                    out = projectsDB.getByName(action['name'])
+                else:
+                    # print(f" BY ID {action}")
+                    out = projectsDB.getByID(action['id'])
+            else:
+                out = projectsDB.getAllUsers()
         elif action['cmd'] == Command.GET_TEAM:
             if action['id'] != 0:
                 if len(action['name']) > 0:
@@ -115,7 +124,18 @@ class RequestServicer(tm_admin.services_pb2_grpc.TMAdminServicer):
                     out = teamsDB.getByID(action['id'])
             else:
                 out = teams.getAllUsers()
-            
+        #   These requests receive a data packet for the database
+        elif action['cmd'] == Command.SEND_USER:
+            out = users.CreateTable()
+            log.error("SEND USER unimplemented!")
+        elif action['cmd'] == Command.SEND_PROJECT:
+            log.error("SEND PROJECT unimplemented!")
+        elif action['cmd'] == Command.SEND_TEAM:
+            log.error("SEND TEAM unimplemented!")
+        elif action['cmd'] == Command.SEND_ORGANIZATION:
+            log.error("SEND ORGANIZATION implemented!")
+
+        # Send the result
         result = serialize_to_protobuf(error, tm_admin.services_pb2.tmresponse)
         if type(out) == dict():
             for key, value in entry.items():
