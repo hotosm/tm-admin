@@ -44,7 +44,7 @@ class Generator(object):
         A class that generates the output files from the config data.
 
         Args:
-            filespec( str): The config file to use as source.
+            filespec (str): The config file to use as source.
 
         Returns:
             (Generator): An instance of this class
@@ -83,7 +83,7 @@ class Generator(object):
         Reads in the YAML config file.
 
         Args:
-            filespec( str): The config file to use as source.
+            filespec (str): The config file to use as source.
         """
         self.filespec = Path(filespec)
         self.yaml = YamlFile(filespec)
