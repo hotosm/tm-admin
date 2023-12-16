@@ -28,6 +28,10 @@
         - bool
     - is_expert:
         - bool
+    - tasks_notifications:
+        - bool
+    - role:
+        - public.userrole
     - mapping_level:
         - public.mappinglevel
         - required: True
@@ -56,22 +60,22 @@
         - int64
         - share: True
     - facebook_id:
-        - int64
+        - string
         - share: True
     - irc_id:
-        - int64
+        - string
         - share: True
     - skype_id:
-        - int64
+        - string
         - share: True
     - slack_id:
-        - int64
+        - string
         - share: True
     - linkedin_id:
-        - int64
+        - string
         - share: True
     - twitter_id:
-        - int64
+        - string
         - share: True
     - default_editor:
         - string

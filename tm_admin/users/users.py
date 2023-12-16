@@ -50,8 +50,6 @@ class UsersDB(DBSupport):
         """
         self.pg = None
         self.profile = UsersTable()
-        #if dburi:
-        #    self.pg = PostgresClient(dburi)
         self.types = dir(tm_admin.types_tm)
         super().__init__('users', dburi)
 

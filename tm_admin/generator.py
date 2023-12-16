@@ -247,7 +247,7 @@ class {table.capitalize()}Table(object):
                                 log.warning(f"GEOMETRY: {datatype}")
                             elif k1[:7] == 'public.':
                                 # FIXME: It's in the SQL types
-                                log.warning(f"SQL ENUM {k1}!")
+                                # log.warning(f"SQL ENUM {k1}!")
                                 datatype = f"tm_admin.types_tm.{k1[7:].capitalize()}"
                             elif k1 in self.yaml2py:
                                 datatype = self.yaml2py[k1]
@@ -332,7 +332,7 @@ class {table.capitalize()}Table(object):
                 if public:
                     out += f"\t{k} {v[0]}{array}{required},\n"
                 else:
-                    print(v)
+                    # print(v)
                     out += f"\t{k} {self.yaml2sql[v[0]]}{array}{required},\n"
             if len(unique) > 0:
                 out += f"\tUNIQUE({unique})\n);\n"

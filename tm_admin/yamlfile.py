@@ -53,7 +53,7 @@ class YamlFile(object):
             print("YAML file: %s" % self.filespec)
         if type(self.yaml) == list:
             for key in self.yaml:
-                print(key)
+                print(f"{key}")
             return
         for key, values in self.yaml.items():
             print(f"Key is: {key}")
@@ -94,8 +94,8 @@ if __name__ == "__main__":
     yaml1 = YamlFile(args.infile)
     yaml1.dump()
 
-    table = ("nodes", "ways_poly")
-    where = ("building", "amenity", "shop", "tourism")
+    # table = ("nodes", "ways_poly")
+    # where = ("building", "amenity", "shop", "tourism")
     # tmp = yaml1.write(table)
     # yaml2 = YamlFile(tmp)
     # yaml2.dump()

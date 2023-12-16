@@ -24,11 +24,11 @@ package tmadmin;
 // import "google/protobuf/struct.proto";
 
 // Include all the data structures
-import "users/users.proto";
-import "projects/projects.proto";
-import "tasks/tasks.proto";
-import "teams/teams.proto";
-import "organizations/organizations.proto";
+// import "users/users.proto";
+// import "projects/projects.proto";
+// import "tasks/tasks.proto";
+// import "teams/teams.proto";
+// import "organizations/organizations.proto";
 import "types_tm.proto";
 
 // The greeting service definition.

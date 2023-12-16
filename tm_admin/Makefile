@@ -30,6 +30,8 @@ GENP := $(wildcard */*_pb2*.py*)
 YAML := $(wildcard */*.yaml)
 OUTSQL := $(YAML:.yaml=.sql)
 
+GRPC = --grpc_python_out=. --plugin=protoc-gen-grpc_python=/usr/bin/grpc_python_plugin
+
 all: generate compile
 
 # The SQL files are now generated from YAML based config files
@@ -37,11 +39,12 @@ generate: $(OUTSQL)
 
 compile: $(PBUFS)
 	@echo "Build services"
-	-@$(PROTOC) -I. --python_out=. --grpc_python_out=. services.proto
+	-@$(PROTOC) -I. --python_out=. $(GRPC) types_tm.proto services.proto
 	#-@$(PROTOC) -I. --python_out=. --pyi_out=. services.proto
+	# --plugin=protoc-gen-grpc_python=/usr/local/bin/grpc_python_plugin
 
 docs:
-	-$(PROTOC) --doc_out=../docs --doc_opt=html,protos.html services.proto types_tm.proto * */*.proto
+	-$(PROTOC) --doc_out=../docs --doc_opt=html,protos-api.html services.proto types_tm.proto * */*.proto
 	#protoc --doc_out=./foo --doc_opt=html,index.html services.proto */*.proto
 
 
@@ -51,7 +54,7 @@ docs:
 
 %.py: %.proto
 	@echo "Converting $< to a protobuf python stubs file"
-	-@$(PROTOC) -I. --python_out=. --grpc_python_out=. types_tm.proto  $*.proto
+	-@$(PROTOC) -I. --python_out=. $(GRPC) types_tm.proto  $*.proto
 	@# FIXME: --pyi_out= seems to have been replaced by --grpc_python_out
 	@#-@$(PROTOC) -I. --python_out=. --pyi_out=. types.proto $*.proto
 
