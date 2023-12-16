@@ -56,7 +56,7 @@ class Generator(object):
             self.yaml = YamlFile(filespec)
         self.createTypes()
         self.yaml2py = {'int32': 'int',
-                    'int64': 'int',
+                    'int64': 'bigint',
                     'bool': 'bool',
                     'string': 'str',
                     'bytes': 'bytes',
