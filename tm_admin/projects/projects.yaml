@@ -37,11 +37,33 @@
       - share: True
     - last_updated:
       - timestamp
+    - due_date:
+      - timestamp
     - status:
       - public.projectstatus
       - required: True
       - share: True
     - total_tasks:
+      - int32
+    - tasks_mapped:
+      - int32
+    - tasks_validated:
+      - int32
+    - mapping_editors:
+      -  public.editors
+    - validation_editors:
+      -  public.editors
+    - enforce_random_task_selection:
+      - bool
+    - Country:
+      - string
+    - mapping_permission:
+      - public.permissions
+    - rapid_power_user:
+      - bool
+    - progress_email_sent:
+      - bool
+    - tasks_bad_imagery:
       - int32
     - odk_central_src:
       - string
@@ -71,6 +93,14 @@
       - string
     - imagery:
       - string
+    - default_locale:
+      - string
+      - share: True
+    - difficulty:
+        - public.projectdifficulty
+    - mappingtypes:
+      - public.mappingtypes
+      - array: True
     - osm_preset:
       - string
     - odk_preset:
