@@ -333,6 +333,8 @@ class {table.capitalize()}Table(object):
                     out += f"\t{k} {v[0]}{array}{required},\n"
                 else:
                     # print(v)
+                    # FIXME: if this produces an error, check the yaml file as this
+                    # usually means the type field isn't first in the list.
                     out += f"\t{k} {self.yaml2sql[v[0]]}{array}{required},\n"
             if len(unique) > 0:
                 out += f"\tUNIQUE({unique})\n);\n"
