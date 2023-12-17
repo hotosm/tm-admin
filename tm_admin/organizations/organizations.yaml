@@ -26,7 +26,10 @@
     - url:
       - string
       - share: True
-    - orgtype:
+    - type:
         - public.organizationtype
         - required: True
         - share: True
+    - subscription_tier:
+        - int32
+        - required: True
