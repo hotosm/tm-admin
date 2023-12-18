@@ -34,6 +34,7 @@ from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.projects.projects_class import ProjectsTable
 from tm_admin.organizations.organizations_class import OrganizationsTable
 from osm_rawdata.postgres import uriParser, PostgresClient
+from shapely.geometry import Polygon, Point, shape
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -109,7 +110,7 @@ class DBSupport(object):
             elif type(value) == str:
                 sql += f"'{value}',"
 
-        print(sql[:-1])
+        #print(sql[:-1])
         result = self.pg.dbcursor.execute(f"{sql[:-1]});")
 
     def updateTable(self,
@@ -193,7 +194,7 @@ class DBSupport(object):
         Returns:
             (list): The results of the query
         """
-        sql = f"SELECT * FROM {self.table} WHERE name='{name}' LIMIT 1"
+        sql = f"SELECT * FROM {self.table} WHERE username='{name}' LIMIT 1"
         self.pg.dbcursor.execute(sql)
         data = dict()
         entry = self.pg.dbcursor.fetchone()
@@ -242,7 +243,8 @@ class DBSupport(object):
         Returns:
             (list): The results of the query
         """
-        sql = f"SELECT * FROM {self.table} WHERE {where}'"
+        sql = f"SELECT * FROM {self.table} WHERE {where}"
+        # print(sql)
         result = self.pg.dbcursor.execute(sql)
         data = dict()
         entry = self.pg.dbcursor.fetchone()
@@ -280,6 +282,39 @@ class DBSupport(object):
                 index += 1
 
         return [data]
+
+    def deleteByID(self,
+                id: int,
+                ):
+        """
+        Delete the record for the ID in the table.
+
+        Args:
+            id (int): The ID of the dataset to delete.
+        """
+        sql = f"DELETE FROM {self.table} WHERE id='{id}'"
+        result = self.pg.dbcursor.execute(sql)
+
+    def updateColumn(self,
+                    id: int,
+                    data: dict,
+                    ):
+        """
+        This updates a single column in the database. If you want to update multiple columns,
+        use self.updateTable() instead.
+
+        Args:
+            id (int): The ID of the user to update
+            data (dict): The column and new value
+        """
+        [[column, value]] = data.items()
+        sql = f"UPDATE {self.table} SET {column}='{value}' WHERE id='{id}'"
+        # print(sql)
+        try:
+            result = self.pg.dbcursor.execute(f"{sql};")
+            return True
+        except:
+            return False
 
 def main():
     """This main function lets this class be run standalone by a bash script."""
