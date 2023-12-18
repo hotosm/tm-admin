@@ -39,39 +39,41 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
-def test_all(user):
+user = UsersDB('localhost/tm_admin')
+
+def test_all():
     all = user.getAll()
     assert len(all) > 0
     
-def test_by_id(user):
+def test_by_id():
     id = 4606673
     all = user.getByID(id)
     assert len(all) > 0
     
-def test_by_name(user):
+def test_by_name():
     name = 'rsavoye'
     all = user.getByName(name)
     assert len(all) > 0
 
-def test_role(user):
+def test_role():
     id = 4606673
     role = Userrole(1)
     result = user.updateRole(id, role)
     assert result
     
-def test_level(user):
+def test_level():
     id = 4606673
     level = Mappinglevel(1)
     result = user.updateMappingLevel(id, level)
     assert result
     
-def test_expert(user):
+def test_expert():
     id = 4606673
     mode = True
     result = user.updateColumn(id, {'is_expert': mode})
     assert result
     
-def test_registered(user):
+def test_registered():
     start = '2020-11-20 08:36:55'
     stime = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
     end = '2023-02-07 12:28:30'
@@ -97,7 +99,7 @@ if __name__ == "__main__":
         stream=sys.stdout,
     )
 
-    user = UsersDB(args.uri)
+    # user = UsersDB(args.uri)
     
     print("--- test_by_id() ---")
     test_by_id(user)
