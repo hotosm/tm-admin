@@ -24,7 +24,7 @@ import logging
 import sys
 import os
 from sys import argv
-from tm_admin.users.users_proto import UsersMessage
+# from tm_admin.users.users_proto import UsersMessage
 #from tm_admin.yamlfile import YamlFile
 from tm_admin.users.users import UsersDB
 from tm_admin.types_tm import Userrole, Mappinglevel
