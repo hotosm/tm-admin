@@ -43,7 +43,12 @@ class TMImport(object):
                 ):
         """
         This class contains support to accessing a Tasking Manager database, and importing
-        it in the TM Admin database.
+        it in the TM Admin database. This works because the TM Admin database schema is based
+        on the ones used by FMTM and TM. The schemas have been merged into a single one, and
+        all of the column names are the same across the two schemas except in a few rare cases.
+
+        The other change is in TM many columns are enums, but the database type is in. The integer
+        values from TM are converted to the proper TM Admin enum value.
         
         Args:
             inuri (str): The URI for the TM database
@@ -176,6 +181,9 @@ class TMImport(object):
                         else:
                             values += f"{val}, "                            
                         continue
+                elif table == 'projects':
+                    pass
+
                 # All tables
                 if type(val) == str:
                     tmp = val.replace("'", "&apos;")
