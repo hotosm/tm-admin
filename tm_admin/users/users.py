@@ -27,10 +27,12 @@ from sys import argv
 from datetime import datetime
 from dateutil.parser import parse
 import tm_admin.types_tm
+from tm_admin.types_tm import Userrole, Mappinglevel
 
 from tm_admin.dbsupport import DBSupport
 from tm_admin.users.users_class import UsersTable
 from osm_rawdata.postgres import uriParser, PostgresClient
+from tm_admin.types_tm import Userrole
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -53,12 +55,71 @@ class UsersDB(DBSupport):
         self.types = dir(tm_admin.types_tm)
         super().__init__('users', dburi)
 
+    # These are just convience wrappers to support the REST API.
+    def updateRole(self,
+                   id: int,
+                   role: Userrole,
+                   ):
+        """
+        Update the role for a user.
+
+        Args:
+            id (int): The users ID
+            role (Userrole): The new role.
+        """
+        role = Userrole(role)
+        return self.updateColumn(id, {'role': role.name})
+
+    def updateMappingLevel(self,
+                   id: int,
+                   level: Mappinglevel,
+                   ):
+        """
+        Update the mapping level for a user.
+
+        Args:
+            id (int): The users ID.
+            level (Mappinglevel): The new level.
+        """
+        mlevel = Mappinglevel(level)
+        return self.updateColumn(id, {'mapping_level': mlevel.name})
+
+    def updateExpert(self,
+                   id: int,
+                   mode: bool,
+                   ):
+        """
+        Toggle the expert mode for a user.
+
+        Args:
+            id (int): The users ID.
+            mode (bool): The new mode..
+        """
+        return self.updateColumn(id, {'expert_mode': mode})
+
+    def getRegistered(self,
+                      start: datetime,
+                      end: datetime,
+                      ):
+        """
+        Get all users registered in this timeframe.
+
+        Args:
+            start (datetime): The starting timestamp
+            end (datetime): The starting timestamp
+
+        Returns:
+            (list): The users registered in this timeframe.
+        """
+
+        where = f" date_registered > '{start}' and date_registered < '{end}'"
+        return self.getByWhere(where)
+
 def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
-    parser.add_argument("-u", "--uri", default='localhost/tm_admin',
-                            help="Database URI")
+    parser.add_argument("-u", "--uri", default='localhost/tm_admin', help="Database URI")
     # parser.add_argument("-r", "--reset", help="Reset Sequences")
     args = parser.parse_args()
 
