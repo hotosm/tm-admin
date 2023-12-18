@@ -24,10 +24,13 @@ import logging
 import sys
 from sys import argv
 import os
+from shapely import wkb, get_coordinates
+from shapely.geometry import Polygon, Point, shape
 from datetime import datetime
 from osm_rawdata.postgres import uriParser, PostgresClient
 from progress.bar import Bar, PixelBar
-from tm_admin.types_tm import Userrole, Mappinglevel, Organizationtype
+from tm_admin.types_tm import Userrole, Mappinglevel, Organizationtype, Taskcreationmode, Projectstatus, Permissions, Projectpriority, Projectdifficulty, Mappingtypes, Editors
+
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -139,11 +142,11 @@ class TMImport(object):
             data (list): The table data from TM
             table str(): The table to get the columns for.
         """
-        bar = Bar('Importing into TMAdmin', max=len(data))
+        #bar = Bar('Importing into TMAdmin', max=len(data))
         for record in data:
             columns = str(list(record.keys()))[1:-1].replace("'", "")
             values = ""
-            bar.next()
+            # bar.next()
             for key, val in record.items():
                 # In TM, role is an integer, but it's also an enum, so use the
                 # correct enum instead of the integer. Python Enums start with
@@ -182,7 +185,91 @@ class TMImport(object):
                             values += f"{val}, "                            
                         continue
                 elif table == 'projects':
-                    pass
+                    # Sometimes there is no value for these booleans
+                    if key == 'progress_email_sent' or key == 'enforce_random_task_selection' or key == 'rapid_power_user' or key == 'private' or key == 'featured':
+                        if val is None:
+                            values += f"'f', "
+                        elif val:
+                            values += f"'t', "
+                        else:
+                            values += f"'f', "
+                        continue
+                    # 
+                    if key == 'task_creation_mode':
+                        task = Taskcreationmode(val + 1)
+                        values += f"'{task.name}', "
+                        continue
+                    elif key == 'status':
+                        proj = Projectstatus(val)
+                        values += f"'{proj.name}', "
+                        continue
+                    elif key == 'mapping_permission':
+                        perm = Permissions(val + 1)
+                        values += f"'{perm.name}', "
+                        continue
+                    elif key == 'validation_permission':
+                        perm = Permissions(val + 1)
+                        values += f"'{perm.name}', "
+                        continue
+                    elif key == 'country':
+                        values += "ARRAY["
+                        for entry in val:                            
+                            values += f"'{entry}', "
+                        values = values[:-2]
+                        values += "], "
+                        continue
+                    elif key == 'mapping_types':
+                        values += "'{"
+                        for entry in val:                            
+                            perm = Mappingtypes(entry)
+                            values += f"{perm.name}, "
+                        values = values[:-2]
+                        values += "}'::mappingtypes[], "
+                        continue
+                    elif key == 'mapper_level':
+                        level = Mappinglevel(val)
+                        values += f"'{level.name}', "
+                        continue
+                    elif key == 'priority':
+                        priority = Projectpriority(val)
+                        values += f"'{priority.name}', "
+                        continue
+                    elif key == 'mapping_permissions':
+                        perm = Permissions(perm + 1)
+                        values += f"'{org.name}', "
+                        continue
+                    elif key == 'difficulty':
+                        diff = Projectdifficulty(val)
+                        values += f"'{diff.name}', "
+                        continue
+                    elif key == 'mapping_editors':
+                        values += "'{"
+                        for ed in val:
+                            med = Editors(ed + 1)
+                            values += f"{med.name}, "
+                        values = values[:-2]
+                        values += "}'::editors[], "
+                        continue
+                    elif key == 'validation_editors':
+                        values += "'{"
+                        for ed in val:
+                            ved = Editors(ed + 1)
+                            values += f"{ved.name}, "
+                        values = values[:-2]
+                        values += "}'::editors[], "
+                        continue
+                    elif key == 'geometry':
+                        geom = get_coordinates(wkb.loads(val))
+                        poly = ''
+                        for x, y in geom:
+                            poly += f"({x},{y}), "
+                        values += f"polygon('({poly[:-2]})'), "
+                        # values += f"ST_MakePolygon(ST_GeomFromText('{wkb.loads(val)}')), "
+                        continue
+                    elif key == key == 'centroid':
+                        geom = get_coordinates(wkb.loads(val))
+                        values += f"point({geom[0][0]}, {geom[0][1]}), "
+                        continue
 
                 # All tables
                 if type(val) == str:
@@ -210,10 +297,10 @@ class TMImport(object):
 
             sql = f"INSERT INTO {table}({columns}) VALUES({values[:-2]})"
             # sql = f"INSERT INTO organizations VALUES({values[:-2]})"
-            # print(sql)
+            print(sql)
             results = self.admindb.queryLocal(sql)
 
-        bar.finish()
+        #bar.finish()
             
 def main():
     """This main function lets this class be run standalone by a bash script."""
