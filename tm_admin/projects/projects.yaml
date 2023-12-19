@@ -4,137 +4,139 @@
 
 - projects:
     - id:
-      - int64
-      - required: True
-      - share: True
-      - sequence: True
-      - unique: True
+        - int64
+        - required: true
+        - share: true
+        - sequence: true
+        - unique: true
     - odkid:
-      - int64
-      - share: True
+        - int64
+        - share: true
     - author_id:
-      - int64
-      - required: True
-      - share: True
+        - int64
+        - required: true
+        - share: true
     - created:
-      - timestamp
-      - required: True
-      - share: False
+        - timestamp
+        - required: true
+        - share: false
     - task_creation_mode:
-      - public.taskcreationmode
-      - required: True
+        - public.taskcreationmode
+        - required: true
     - project_name_prefix:
-      - string
-      - share: True
+        - string
+        - share: true
     - task_type_prefix:
-      - string
-      - share: True
+        - string
+        - share: true
     - location_str:
-      - string
-      - share: True
-    - outline:
-      - polygon
-      - share: True
+        - string
+        - share: true
+    - geometry:
+        - polygon
+        - share: true
     - last_updated:
-      - timestamp
+        - timestamp
     - due_date:
-      - timestamp
+        - timestamp
     - status:
-      - public.projectstatus
-      - required: True
-      - share: True
+        - public.projectstatus
+        - required: true
+        - share: true
     - total_tasks:
-      - int32
+        - int32
     - tasks_mapped:
-      - int32
+        - int32
     - tasks_validated:
-      - int32
+        - int32
     - mapping_editors:
-      -  public.editors
+        - public.editors
+        - array: true
     - validation_editors:
-      -  public.editors
+        - public.editors
+        - array: true
     - enforce_random_task_selection:
-      - bool
-    - Country:
-      - string
+        - bool
+    - country:
+        - string
+        - array: true
     - mapping_permission:
-      - public.permissions
+        - public.permissions
     - rapid_power_user:
-      - bool
+        - bool
     - progress_email_sent:
-      - bool
+        - bool
     - tasks_bad_imagery:
-      - int32
+        - int32
     - odk_central_src:
-      - string
+        - string
     - xform_title:
-      - string
+        - string
     - private:
-      - bool
-      - share: True
+        - bool
+        - share: true
     - mapper_level:
-      - public.mappinglevel
-      - share: True
-      - required: True
+        - public.mappinglevel
+        - share: true
+        - required: true
     - priority:
-      - public.projectpriority
-      - share: True
+        - public.projectpriority
+        - share: true
     - featured:
-      - bool
+        - bool
     - mapping_permissions:
-      - public.permissions
+        - public.permissions
     - validation_permission:
-      - public.permissions
+        - public.permissions
     - organisation_id:
-      - int32
+        - int32
     - changeset_comment:
-      - string
+        - string
     - osmcha_filter_id:
-      - string
+        - string
     - imagery:
-      - string
+        - string
     - default_locale:
-      - string
-      - share: True
+        - string
+        - share: true
     - difficulty:
         - public.projectdifficulty
-    - mappingtypes:
-      - public.mappingtypes
-      - array: True
+    - mapping_types:
+        - public.mappingtypes
+        - array: true
     - osm_preset:
-      - string
+        - string
     - odk_preset:
-      - string
+        - string
     - josm_preset:
-      - string
+        - string
     - id_presets:
-      - string
+        - string
+        - array: true
     - extra_id_params:
-      - string
+        - string
     - license_id:
-      - int32
+        - int32
     - centroid:
-      - point
-      - share: True
+        - point
+        - share: true
     - odk_central_url:
-      - string
+        - string
     - odk_central_user:
-      - string
+        - string
     - odk_central_password:
-      - string
+        - string
     - extract_completed_count:
-      - int32
+        - int32
     - form_xls:
-      - bytes
+        - bytes
     - form_config_file:
-      - bytes
+        - bytes
     - data_extract_type:
-      - string
+        - string
     - task_split_type:
-      - string
+        - string
     - hashtags:
-      - string
-      - array: True
-      - share: True
-
-    
+        - string
+        - array: true
+        - share: true
