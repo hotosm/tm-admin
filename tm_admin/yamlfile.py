@@ -46,30 +46,38 @@ class YamlFile(object):
         self.filespec = filespec
         self.file = open(filespec, "rb").read()
         self.yaml = yaml.load(self.file, Loader=yaml.Loader)
+        self.data = dict()
 
+    def getEntries(self):
+        """
+        Convert the list from the YAML file into a searcable data structure
+        """
+        table = list(self.yaml[0].keys())[0]
+        for entry in self.yaml[0][table]:
+            for key, values in entry.items():
+                self.data[key] = {'array': False, 'required': False, 'share': False}
+                for item in values:
+                    # The only values that's a string is the data type
+                    if type(item) == str:
+                        if item[:7] == 'public.':
+                            self.data[key]['datatype'] = item[7:].capitalize()
+                        else:
+                            self.data[key]['datatype'] = item
+                    else:
+                        [[k, v]] = item.items()
+                        self.data[key][k] = v
+
+        return self.data
+    
     def dump(self):
         """Dump internal data structures, for debugging purposes only."""
         if self.filespec:
             print("YAML file: %s" % self.filespec)
-        if type(self.yaml) == list:
-            for key in self.yaml:
-                print(f"{key}")
-            return
-        for key, values in self.yaml.items():
+        for key, values in self.data.items():
             print(f"Key is: {key}")
-            for v in values:
-                if type(v) == dict:
-                    for k1, v1 in v.items():
-                        if type(v1) == list:
-                            for item in v1:
-                                for i, j in item.items():
-                                    print(f"\t{i} = {j}")
-                        else:
-                            print(f"\t{k1} = {v1}")
-                    print("------------------")
-                else:
-                    print(f"\t{v}")
-
+            for k, v in values.items():
+                print(f"\t{k} = {v}")
+            print("------------------")
 
 #
 # This script can be run standalone for debugging purposes. It's easier to debug
@@ -80,7 +88,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Read and parse a YAML file")
     parser.add_argument("-v", "--verbose", action="store_true", help="verbose output")
     parser.add_argument("-i", "--infile", required=True, default="./xforms.yaml", help="The YAML input file")
-    args = parser.parse_args()
+    args, known = parser.parse_known_args()
 
     # if verbose, dump to the terminal.
     if args.verbose is not None:
@@ -92,6 +100,8 @@ if __name__ == "__main__":
         log.addHandler(ch)
 
     yaml1 = YamlFile(args.infile)
+    
+    x = yaml1.getEntries()
     yaml1.dump()
 
     # table = ("nodes", "ways_poly")
