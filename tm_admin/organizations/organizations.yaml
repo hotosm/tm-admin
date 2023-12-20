@@ -5,31 +5,31 @@
 - organizations:
     - id:
         - int64
-        - required: True
-        - share: True
-        - sequence: True
-        - unique: True
+        - required: true
+        - share: true
+        - sequence: true
+        - unique: true
     - name:
         - string
-        - required: True
-        - share: True
+        - required: true
+        - share: true
     - slug:
         - string
-        - required: True
-        - share: True
+        - required: true
+        - share: true
     - logo:
         - string
-        - share: True
+        - share: true
     - description:
-      - string
-      - share: True
+        - string
+        - share: true
     - url:
-      - string
-      - share: True
+        - string
+        - share: true
     - type:
         - public.organizationtype
-        - required: True
-        - share: True
+        - required: true
+        - share: true
     - subscription_tier:
         - int32
-        - required: True
+        - required: true

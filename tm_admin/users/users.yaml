@@ -5,23 +5,23 @@
 - users:
     - id:
         - int64
-        - required: True
-        - share: True
-        - sequence: True
-        - unique: True
+        - required: true
+        - share: true
+        - sequence: true
+        - unique: true
     - username:
         - string
-        - share: True
+        - share: true
     - name:
         - string
-        - required: True
-        - share: True
+        - required: true
+        - share: true
     - city:
         - string
-        - share: True
+        - share: true
     - country:
         - string
-        - share: True
+        - share: true
     - email_address:
         - string
     - is_email_verified:
@@ -34,57 +34,57 @@
         - public.userrole
     - mapping_level:
         - public.mappinglevel
-        - required: True
+        - required: true
     - tasks_mapped:
         - int32
-        - share: False
+        - share: false
     - tasks_validated:
         - int32
     - tasks_invalidated:
         - int32
-        - share: False
+        - share: false
     - projects_mapped:
         - int32
-        - array: True
-        - share: False
+        - array: true
+        - share: false
     - date_registered:
         - timestamp
-        - share: False
+        - share: false
     - last_validation_date:
         - timestamp
-        - share: False
+        - share: false
     - password:
         - string
-        - share: True
+        - share: true
     - osm_id:
         - int64
-        - share: True
+        - share: true
     - facebook_id:
         - string
-        - share: True
+        - share: true
     - irc_id:
         - string
-        - share: True
+        - share: true
     - skype_id:
         - string
-        - share: True
+        - share: true
     - slack_id:
         - string
-        - share: True
+        - share: true
     - linkedin_id:
         - string
-        - share: True
+        - share: true
     - twitter_id:
         - string
-        - share: True
+        - share: true
     - default_editor:
         - string
     - picture_url:
         - string
-        - share: True
+        - share: true
     - gender:
         - int32
-        - share: True
+        - share: true
     - mentions_notifications:
         - bool
     - projects_notifications:
