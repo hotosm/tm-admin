@@ -42,11 +42,11 @@ from tm_admin.users.users_proto import UsersMessage
 from tm_admin.projects.projects_proto import ProjectsMessage
 from tm_admin.organizations.organizations_proto import OrganizationsMessage
 from tm_admin.yamlfile import YamlFile
-from tm_admin.commands import Notification, Request
+# from tm_admin.commands import Notification, Request
 from tm_admin.types_tm import Command, Notification
 
 # Instantiate logger
-log = logging.getLogger("tm-admin")
+log = logging.getLogger(__name__)
 
 import tm_admin as tma
 rootdir = tma.__path__[0]
@@ -137,13 +137,16 @@ def main():
     #     quit()
 
     # if verbose, dump to the terminal.
+    log_level = os.getenv("LOG_LEVEL", default="INFO")
     if args.verbose is not None:
-        log.setLevel(logging.DEBUG)
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("%(threadName)10s - %(name)s - %(levelname)s - %(message)s")
-        ch.setFormatter(formatter)
-        log.addHandler(ch)
+        log_level = logging.DEBUG
+
+    logging.basicConfig(
+        level=log_level,
+        format=("%(asctime)s.%(msecs)03d [%(levelname)s] " "%(name)s | %(funcName)s:%(lineno)d | %(message)s"),
+        datefmt="%y-%m-%d %H:%M:%S",
+        stream=sys.stdout,
+    )
 
     tm = TMClient('test')
 
