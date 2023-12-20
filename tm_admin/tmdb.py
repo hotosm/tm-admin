@@ -162,7 +162,7 @@ class TMImport(object):
             # bar.next()
             for key, val in record.items():
                 columns.append(key)
-                print(f"FIXME: {key} = {self.config[key]}")
+                # print(f"FIXME: {key} = {self.config[key]}")
                 # Booleans need to set 't' or 'f' for postgres.
                 if self.config[key]['datatype'] == 'bool':
                     if val:
@@ -207,9 +207,8 @@ class TMImport(object):
                             values += f"}}'::{self.config[key]['datatype'].lower()}[], "
                         continue
                     else:
-                        # The TM database has a bug, a 0 usually means tthere is no value,
+                        # The TM database has a bug, a 0 usually means there is no value,
                         # so we bump it up to pick the first entry in the enum.
-                        print(key, val)
                         if val is None:
                             values += f"'{{}}', "
                             continue
@@ -223,6 +222,9 @@ class TMImport(object):
                 else:
                     if self.config[key]['array']:
                         if val is not None:
+                            if len(val) == 0:
+                                values += "NULL, "
+                                continue
                             values += "ARRAY["
                             for item in val:
                                 esc = item.replace("'", "")
