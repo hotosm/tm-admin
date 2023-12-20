@@ -8,6 +8,10 @@ NEWS
 *__pycache__/
 
 # output files
+*proto.py
+*class.py
+*pb2*.py
+*.sql
 *.osm
 *.txt
 *.xml
