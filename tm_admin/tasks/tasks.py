@@ -37,9 +37,9 @@ log = logging.getLogger(__name__)
 
 class TasksDB(DBSupport):
     def __init__(self,
-                 dburi: str = "localhost/tm_admin",
+                dburi: str = "localhost/tm_admin",
                 ):
-         """
+        """
         A class to access the tasks table.
 
         Args:
@@ -48,7 +48,6 @@ class TasksDB(DBSupport):
         Returns:
             (TasksDB): An instance of this class.
         """
-       self.pg = None
         self.profile = TasksTable()
         self.types = dir(tm_admin.types_tm)
         super().__init__('tasks', dburi)

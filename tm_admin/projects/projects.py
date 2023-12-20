@@ -30,13 +30,16 @@ import tm_admin.types_tm
 import geojson
 from shapely.geometry import shape
 from shapely import centroid
-
+from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty
+from shapely import wkb, get_coordinates
 from tm_admin.dbsupport import DBSupport
-from tm_admin.projects.projects_class import ProjectsTable
+from tm_admin.generator import Generator
 from osm_rawdata.postgres import uriParser, PostgresClient
+import re
 
 # Instantiate logger
 log = logging.getLogger(__name__)
+
 
 class ProjectsDB(DBSupport):
     def __init__(self,
