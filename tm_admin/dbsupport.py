@@ -244,7 +244,7 @@ class DBSupport(object):
             (list): The results of the query
         """
         sql = f"SELECT * FROM {self.table} WHERE {where}"
-        # print(sql)
+        print(sql)
         result = self.pg.dbcursor.execute(sql)
         data = dict()
         entry = self.pg.dbcursor.fetchone()
