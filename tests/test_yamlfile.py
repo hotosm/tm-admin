@@ -38,14 +38,16 @@ config = f'{rootdir}/projects/projects.yaml'
 def test_all():
     yaml = YamlFile(config)
     # yaml.dump()
-    data = yaml.getEntries()
+    # data = yaml.getEntries()
     hits = 0
+    # Test for the datatype
     if data['id']['datatype'] == 'int64':
         hits += 1
 
     if data['difficulty']['datatype'] == 'Projectdifficulty':
         hits += 1
 
+    # Test for one of the flags
     if data['mapper_level']['share'] == True:
         hits += 1
 

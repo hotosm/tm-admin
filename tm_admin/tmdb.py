@@ -30,7 +30,9 @@ from datetime import datetime
 from osm_rawdata.postgres import uriParser, PostgresClient
 from progress.bar import Bar, PixelBar
 from tm_admin.types_tm import Userrole, Mappinglevel, Organizationtype, Taskcreationmode, Projectstatus, Permissions, Projectpriority, Projectdifficulty, Mappingtypes, Editors
-
+from tm_admin.yamlfile import YamlFile
+# from tm_admin.users.users import createSQLValues
+# from tm_admin.organizations.organizations import createSQLValues
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -43,19 +45,22 @@ class TMImport(object):
     def __init__(self,
                 inuri: str,
                 outuri: str,
+                table: str,
                 ):
         """
-        This class contains support to accessing a Tasking Manager database, and importing
-        it in the TM Admin database. This works because the TM Admin database schema is based
-        on the ones used by FMTM and TM. The schemas have been merged into a single one, and
-        all of the column names are the same across the two schemas except in a few rare cases.
+        This class contains support to accessing a Tasking Manager database, and
+        importing it in the TM Admin database. This works because the TM Admin
+        database schema is based on the ones used by FMTM and TM. The schemas
+        have been merged into a single one, and all of the column names are
+        the same across the two schemas except in a few rare cases.
 
-        The other change is in TM many columns are enums, but the database type is in. The integer
-        values from TM are converted to the proper TM Admin enum value.
+        The other change is in TM many columns are enums, but the database type
+        is in. The integer values from TM are converted to the proper TM Admin enum value.
         
         Args:
             inuri (str): The URI for the TM database
             outuri (str): The URI for the TM Admin database
+            table (str): The table in the TM Admin database
 
         Returns:
             (TMImport): An instance of this class
@@ -66,6 +71,10 @@ class TMImport(object):
         self.admindb = PostgresClient(outuri)
         self.columns = list()
         self.data = list()
+
+        yaml = YamlFile(f"{rootdir}/{table}/{table}.yaml")
+        # yaml.dump()
+        self.config = yaml.getEntries()
 
     def getColumns(self,
                     table: str,
@@ -142,12 +151,100 @@ class TMImport(object):
             data (list): The table data from TM
             table str(): The table to get the columns for.
         """
+        builtins = ['int32', 'int64', 'string', 'timestamp', 'bool']
         #bar = Bar('Importing into TMAdmin', max=len(data))
         for record in data:
-            columns = str(list(record.keys()))[1:-1].replace("'", "")
+            # columns = str(list(record.keys()))[1:-1].replace("'", "")
+            columns = list()
             values = ""
+            # values += createSQLValues(record, self.config)
+            # print(values)
             # bar.next()
             for key, val in record.items():
+                columns.append(key)
+                print(f"FIXME: {key} = {self.config[key]}")
+                # Booleans need to set 't' or 'f' for postgres.
+                if self.config[key]['datatype'] == 'bool':
+                    if val:
+                        values += f"'t', "
+                    else:
+                        values += f"'f', "
+                    continue
+                if self.config[key]['datatype'] == 'timestamp':
+                    if val is None:
+                        values += f"NULL, "
+                    else:
+                        values += f"'{val}', "
+                    continue
+                    
+                # If it's not a standard datatype, it's an enum in types_tm.py
+                if self.config[key]['datatype'] not in builtins:
+                    if self.config[key]['datatype'] == 'point':
+                        geom = get_coordinates(wkb.loads(val))
+                        values += f"point({geom[0][0]}, {geom[0][1]}), "
+                        continue
+                    elif self.config[key]['datatype'] == 'polygon':
+                        geom = get_coordinates(wkb.loads(val))
+                        poly = ''
+                        for x, y in geom:
+                            poly += f"({x},{y}), "
+                        values += f"polygon('({poly[:-2]})'), "
+                        continue
+                    elif type(val) == list:
+                        values += "'{"
+                        for entry in val:
+                            # The TM database has a bug, since it doesn't use enums,
+                            # which have to start with a value of 1.
+                            if entry == 0:
+                                entry += 1
+                            exec = f"{self.config[key]['datatype']}({entry})"
+                            enumval = eval(exec)
+                            values += f"{enumval.name}, "
+                        if len(val) == 0:
+                            values = values[:-2] + "'{}', "
+                        else:
+                            values = values[:-2]
+                            values += f"}}'::{self.config[key]['datatype'].lower()}[], "
+                        continue
+                    else:
+                        # The TM database has a bug, a 0 usually means tthere is no value,
+                        # so we bump it up to pick the first entry in the enum.
+                        print(key, val)
+                        if val is None:
+                            values += f"'{{}}', "
+                            continue
+                        elif val == 0:
+                            val += 1
+                            #values += f"'{{}}', "
+                        exec = f"{self.config[key]['datatype']}({val})"
+                        enumval = eval(exec)
+                        values += f"'{enumval.name}', "
+                        continue
+                else:
+                    if self.config[key]['array']:
+                        if val is not None:
+                            values += "ARRAY["
+                            for item in val:
+                                esc = item.replace("'", "")
+                                values += f"'{esc}', "
+                            values = values[:-2]
+                            values += "], "
+                            continue
+                        else:
+                            values += f"NULL, "
+                    elif self.config[key]['datatype'][:3] == 'int':
+                        if val is None:
+                            values += f"NULL, "
+                        else:
+                            values += f"{val}, "
+                    else:
+                        if val is None:
+                            values += f"NULL, "
+                        else:
+                            esc = val.replace("'", "")
+                            values += f"'{esc}', "
+                continue
+
                 # In TM, role is an integer, but it's also an enum, so use the
                 # correct enum instead of the integer. Python Enums start with
                 # a 1 instead of 0, but in the TM database it starts at 0, so
@@ -185,117 +282,138 @@ class TMImport(object):
                             values += f"{val}, "                            
                         continue
                 elif table == 'projects':
-                    # Sometimes there is no value for these booleans
-                    if key == 'progress_email_sent' or key == 'enforce_random_task_selection' or key == 'rapid_power_user' or key == 'private' or key == 'featured':
-                        if val is None:
-                            values += f"'f', "
-                        elif val:
-                            values += f"'t', "
-                        else:
-                            values += f"'f', "
-                        continue
-                    # 
-                    if key == 'task_creation_mode':
-                        task = Taskcreationmode(val + 1)
-                        values += f"'{task.name}', "
-                        continue
-                    elif key == 'status':
-                        proj = Projectstatus(val)
-                        values += f"'{proj.name}', "
-                        continue
-                    elif key == 'mapping_permission':
-                        perm = Permissions(val + 1)
-                        values += f"'{perm.name}', "
-                        continue
-                    elif key == 'validation_permission':
-                        perm = Permissions(val + 1)
-                        values += f"'{perm.name}', "
-                        continue
-                    elif key == 'country':
-                        values += "ARRAY["
-                        for entry in val:                            
-                            values += f"'{entry}', "
-                        values = values[:-2]
-                        values += "], "
-                        continue
-                    elif key == 'mapping_types':
-                        values += "'{"
-                        for entry in val:                            
-                            perm = Mappingtypes(entry)
-                            values += f"{perm.name}, "
-                        values = values[:-2]
-                        values += "}'::mappingtypes[], "
-                        continue
-                    elif key == 'mapper_level':
-                        level = Mappinglevel(val)
-                        values += f"'{level.name}', "
-                        continue
-                    elif key == 'priority':
-                        priority = Projectpriority(val)
-                        values += f"'{priority.name}', "
-                        continue
-                    elif key == 'mapping_permissions':
-                        perm = Permissions(perm + 1)
-                        values += f"'{org.name}', "
-                        continue
-                    elif key == 'difficulty':
-                        diff = Projectdifficulty(val)
-                        values += f"'{diff.name}', "
-                        continue
-                    elif key == 'mapping_editors':
-                        values += "'{"
-                        for ed in val:
-                            med = Editors(ed + 1)
-                            values += f"{med.name}, "
-                        values = values[:-2]
-                        values += "}'::editors[], "
-                        continue
-                    elif key == 'validation_editors':
-                        values += "'{"
-                        for ed in val:
-                            ved = Editors(ed + 1)
-                            values += f"{ved.name}, "
-                        values = values[:-2]
-                        values += "}'::editors[], "
-                        continue
-                    elif key == 'geometry':
-                        geom = get_coordinates(wkb.loads(val))
-                        poly = ''
-                        for x, y in geom:
-                            poly += f"({x},{y}), "
-                        values += f"polygon('({poly[:-2]})'), "
-                        # values += f"ST_MakePolygon(ST_GeomFromText('{wkb.loads(val)}')), "
-                        continue
-                    elif key == key == 'centroid':
-                        geom = get_coordinates(wkb.loads(val))
-                        values += f"point({geom[0][0]}, {geom[0][1]}), "
-                        continue
+                    if key == 'id' and val == 409 and key == 'created':
+                        pass
+                    # continue
+                    # # Sometimes there is no value for these booleans
+                    # if key == 'progress_email_sent' or key == 'enforce_random_task_selection' or key == 'rapid_power_user' or key == 'private' or key == 'featured':
+                    #     if val is None:
+                    #         values += f"'f', "
+                    #     elif val:
+                    #         values += f"'t', "
+                    #     else:
+                    #         values += f"'f', "
+                    #     continue
+                    # #
+                    # if key == 'created':
+                    #     pass
+                    # if key == 'task_creation_mode':
+                    #     task = Taskcreationmode(val + 1)
+                    #     values += f"'{task.name}', "
+                    #     continue
+                    # elif key == 'status':
+                    #     proj = Projectstatus(val + 1)
+                    #     values += f"'{proj.name}', "
+                    #     continue
+                    # elif key == 'mapping_permission':
+                    #     perm = Permissions(val + 1)
+                    #     values += f"'{perm.name}', "
+                    #     continue
+                    # elif key == 'validation_permission':
+                    #     perm = Permissions(val + 1)
+                    #     values += f"'{perm.name}', "
+                    #     continue
+                    # elif key == 'id_presets':
+                    #     if val is not None:
+                    #         values += "ARRAY["
+                    #         for entry in val:                            
+                    #             values += f"'{entry}', "
+                    #         values = values[:-2]
+                    #         values += "], "
+                    #         continue
+                    # elif key == 'country':
+                    #     values += "ARRAY["
+                    #     for entry in val:                            
+                    #         values += f"'{entry}', "
+                    #     values = values[:-2]
+                    #     values += "], "
+                    #     continue
+                    # elif key == 'mapping_types':
+                    #     if val is not None:
+                    #         values += "'{"
+                    #         for entry in val:
+                    #             perm = Mappingtypes(entry)
+                    #             values += f"{perm.name}, "
+                    #         values = values[:-2]
+                    #         values += "}'::mappingtypes[], "
+                    #         continue
+                    # elif key == 'mapper_level':
+                    #     level = Mappinglevel(val)
+                    #     values += f"'{level.name}', "
+                    #     continue
+                    # elif key == 'priority':
+                    #     priority = Projectpriority(val)
+                    #     values += f"'{priority.name}', "
+                    #     continue
+                    # elif key == 'mapping_permissions':
+                    #     perm = Permissions(perm + 1)
+                    #     values += f"'{org.name}', "
+                    #     continue
+                    # elif key == 'difficulty':
+                    #     diff = Projectdifficulty(val)
+                    #     values += f"'{diff.name}', "
+                    #     continue
+                    # elif key == 'mapping_editors':
+                    #     values += "'{"
+                    #     for ed in val:
+                    #         med = Editors(ed + 1)
+                    #         values += f"{med.name}, "
+                    #     values = values[:-2]
+                    #     values += "}'::editors[], "
+                    #     continue
+                    # elif key == 'validation_editors':
+                    #     values += "'{"
+                    #     for ed in val:
+                    #         ved = Editors(ed + 1)
+                    #         values += f"{ved.name}, "
+                    #     values = values[:-2]
+                    #     values += "}'::editors[], "
+                    #     continue
+                    # elif key == 'geometry':
+                    #     geom = get_coordinates(wkb.loads(val))
+                    #     poly = ''
+                    #     for x, y in geom:
+                    #         poly += f"({x},{y}), "
+                    #     values += f"polygon('({poly[:-2]})'), "
+                    #     # values += f"ST_MakePolygon(ST_GeomFromText('{wkb.loads(val)}')), "
+                    #     continue
+                    # elif key == key == 'centroid':
+                    #     geom = get_coordinates(wkb.loads(val))
+                    #     values += f"point({geom[0][0]}, {geom[0][1]}), "
+                    #     continue
 
-                # All tables
-                if type(val) == str:
-                    tmp = val.replace("'", "&apos;")
-                    values += f"'{tmp}', "
-                elif type(val) == datetime:
-                    values += f"'{val}', "
-                elif type(val) == bool:
-                    if val:
-                        values += f"'t', "
-                    else:
-                        values += f"'f', "
-                elif type(val) == list:
-                    tmp = str(val)[1:-1]
-                    values += f"'{{{tmp}}}', "
-                elif val is None:
-                    if key == 'projects_mapped':
-                        values += f"'{{}}', "
-                    elif key == 'name':
-                        values += f"'{{}}', "
-                    else:
-                        values += f"NULL, "
-                else:
-                    values += f"'{val}', "
+                # # All tables
+                # if type(val) == str:
+                #     tmp = val.replace("'", "&apos;")
+                #     values += f"'{tmp}', "
+                #     continue
+                # elif type(val) == datetime:
+                #     values += f"'{val}', "
+                #     continue
+                # elif type(val) == int:
+                #     values += f"{val}, "
+                #     continue
+                # elif type(val) == bool:
+                #     if val:
+                #         values += f"'t', "
+                #     else:
+                #         values += f"'f', "
+                #     continue
+                # elif type(val) == list:
+                #     tmp = str(val)[1:-1]
+                #     values += f"'{{{tmp}}}', "
+                #     continue
+                # elif val is None:
+                #     if key == 'projects_mapped':
+                #         values += f"'{{}}', "
+                #     elif key == 'name':
+                #         values += f"'{{}}', "
+                #     else:
+                #         values += f"NULL, "
+                # else:
+                #     values += f"'{val}', "
 
-            sql = f"INSERT INTO {table}({columns}) VALUES({values[:-2]})"
+            sql = f"INSERT INTO {table}({str(columns)[1:-1].replace("'", "")}) VALUES({values[:-2]})"
             # sql = f"INSERT INTO organizations VALUES({values[:-2]})"
             print(sql)
             results = self.admindb.queryLocal(sql)
@@ -334,8 +452,8 @@ def main():
         stream=sys.stdout,
     )
 
-    doit = TMImport(args.inuri, args.outuri)
-
+    doit = TMImport(args.inuri, args.outuri, args.table)
+    
     table = args.table
     # You have to love subtle culture spelling differences.
     if table == 'organizations':
