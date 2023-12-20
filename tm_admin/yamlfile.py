@@ -47,6 +47,7 @@ class YamlFile(object):
         self.file = open(filespec, "rb").read()
         self.yaml = yaml.load(self.file, Loader=yaml.Loader)
         self.data = dict()
+        # self.getEntries()
 
     def getEntries(self):
         """
