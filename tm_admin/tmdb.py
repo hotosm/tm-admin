@@ -227,8 +227,11 @@ class TMImport(object):
                                 continue
                             values += "ARRAY["
                             for item in val:
-                                esc = item.replace("'", "")
-                                values += f"'{esc}', "
+                                if type(item) == str:
+                                    esc = item.replace("'", "")
+                                    values += f"'{esc}', "
+                                elif type(item) == int:
+                                    values += f"{item}, "
                             values = values[:-2]
                             values += "], "
                             continue
@@ -241,7 +244,10 @@ class TMImport(object):
                             values += f"{val}, "
                     else:
                         if val is None:
-                            values += f"NULL, "
+                            if self.config[key]['required']:
+                                values += f"'', "
+                            else:
+                                values += f"NULL, "
                         else:
                             esc = val.replace("'", "")
                             values += f"'{esc}', "
