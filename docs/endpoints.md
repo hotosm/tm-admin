@@ -24,7 +24,7 @@ Endpoints for managing User profiles.
 |Allows user to enable or disable expert mode||UsersDB.updateExpert()|
 |Allows PMs to set a user's mapping level||UsersDB.updateMappingLevel()|
 |Allows PMs to set a user's role||UsersDB.updateRole()
-|Get a list of tasks a user has interacted with||
+|Get a list of tasks a user has interacted with||UsersDB.getByWhere()|
 |Resends the verification email token to the logged in user||
 |Get recommended projects for a user||
 |Get details from OpenStreetMap for a specified username||
