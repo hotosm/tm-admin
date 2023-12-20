@@ -38,7 +38,7 @@ config = f'{rootdir}/projects/projects.yaml'
 def test_all():
     yaml = YamlFile(config)
     # yaml.dump()
-    # data = yaml.getEntries()
+    data = yaml.getEntries()
     hits = 0
     # Test for the datatype
     if data['id']['datatype'] == 'int64':
