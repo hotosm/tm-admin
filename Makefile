@@ -22,13 +22,6 @@ PACKAGE := org.tm-admin.py
 NAME := tm-admin
 VERSION := 0.1.0
 
-PROTOC = protoc
-SQL := $(wildcard */*.sql)
-PROTOS :=  $(SQL:.sql=.proto)
-PBUFS := $(PROTOS:.proto=.py)
-GENP := $(wildcard */*_pb2.py)
-FILES := $(wildcard ./tm_admin/*.py)
-
 all:
 	@cd tm_admin ; $(MAKE)
 
@@ -41,5 +34,8 @@ clean:
 
 realclean:
 	@cd tm_admin ; make clean
+
+check: force
+	-pytest
 
 force:
