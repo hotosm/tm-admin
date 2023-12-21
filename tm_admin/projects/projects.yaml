@@ -75,10 +75,10 @@
     - private:
         - bool
         - share: true
-    - mapper_level:
-        - public.mappinglevel
-        - share: true
-        - required: true
+#    - mapper_level:
+#        - public.mappinglevel
+#        - share: true
+#        - required: true
     - priority:
         - public.projectpriority
         - share: true
