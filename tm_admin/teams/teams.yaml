@@ -29,3 +29,5 @@
         - public.teamvisibility
         - required: true
         - share: true
+    - join_method:
+        - int32
