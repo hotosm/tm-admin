@@ -41,19 +41,105 @@ rootdir = tma.__path__[0]
 
 organization = OrganizationsDB('localhost/tm_admin')
 
-def test_all():
-    all = organization.getAll()
-    assert len(all) > 0
-    
-def test_by_id():
-    id = 100
-    all = organization.getByID(id)
-    assert len(all) > 0
-    
-def test_by_name():
-    name = 'Peace Corps'
-    all = organization.getByName(name)
-    assert len(all) > 0
+def get_organisation_by_id():
+    log.debug(f"get_organisation_by_id()")
+    # organisation_id: int) -> Organisation:
+    pass
+
+def get_organisation_by_name():
+    # organisation_name: str) -> Organisation:
+    log.debug(f"get_organisation_by_name() unimplemented!")
+    pass
+
+def get_organisation_name_by_id():
+    # organisation_id: int) -> str:
+    log.debug(f"get_organisation_name_by_id() unimplemented!")
+    pass
+
+def create_organisation():
+    # new_organisation_dto: NewOrganisationDTO) -> int:
+    log.debug(f"create_organisation() unimplemented!")
+    pass
+
+def update_organisation():
+    # organisation_dto: UpdateOrganisationDTO) -> Organisation:
+    log.debug(f"update_organisation() unimplemented!")
+    pass
+
+def delete_organisation():
+    # organisation_id: int):
+    log.debug(f"delete_organisation() unimplemented!")
+    pass
+
+def get_organisations():
+    # manager_user_id: int):
+    log.debug(f"get_organisations() unimplemented!")
+    pass
+
+def get_organisations_managed_by_user():
+    # user_id: int):
+    log.debug(f"get_organisations_managed_by_user() unimplemented!")
+    pass
+
+def get_organisations_managed_by_user_as_dto():
+    # user_id: int) -> ListOrganisationsDTO:
+    log.debug(f"get_organisations_managed_by_user_as_dto() unimplemented!")
+    pass
+
+def get_projects_by_organisation_id():
+    # organisation_id: int) -> Organisation:
+    log.debug(f"get_projects_by_organisation_id() unimplemented!")
+    pass
+
+def get_organisation_stats():
+    #
+    log.debug(f"get_organisation_stats() unimplemented!")
+    pass
+
+def assert_validate_name():
+    # org: Organisation, name: str):
+    log.debug(f"assert_validate_name() unimplemented!")
+    pass
+
+def assert_validate_users():
+    # organisation_dto: OrganisationDTO):
+    log.debug(f"assert_validate_users() unimplemented!")
+    pass
+
+def can_user_manage_organisation():
+    # organisation_id: int, user_id: int):
+    log.debug(f"can_user_manage_organisation() unimplemented!")
+    pass
+
+def is_user_an_org_manager():
+    # organisation_id: int, user_id: int):
+    log.debug(f"is_user_an_org_manager() unimplemented!")
+    pass
+
+def get_campaign_organisations_as_dto():
+    # campaign_id: int, user_id: int):
+    log.debug(f"get_campaign_organisations_as_dto() unimplemented!")
+    pass
+
+def get_organisation_by_id_as_dto():
+    #
+    log.debug(f"get_organisation_by_id_as_dto() unimplemented!")
+    pass
+
+def get_organisation_by_slug_as_dto():
+    # slug: str, user_id: int, abbreviated: bool):
+    log.debug(f"get_organisation_by_slug_as_dto() unimplemented!")
+    pass
+
+def get_organisation_dto():
+    # org, user_id: int, abbreviated: bool):
+    log.debug(f"get_organisation_dto() unimplemented!")
+    pass
+
+def get_organisations_as_dto():
+    #
+    log.debug(f"get_organisations_as_dto() unimplemented!")
+    pass
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -72,13 +158,23 @@ if __name__ == "__main__":
         stream=sys.stdout,
     )
 
-    print("--- test_by_id() ---")
-    test_by_id()
-
-    print("--- test_by_name() ---")
-    test_by_name()
-
-    print("--- test_all() ---")
-    test_all()
-    
-    
+    get_organisation_by_id()
+    get_organisation_by_name()
+    get_organisation_name_by_id()
+    create_organisation()
+    update_organisation()
+    delete_organisation()
+    get_organisations()
+    get_organisations_managed_by_user()
+    get_projects_by_organisation_id()
+    get_organisation_stats()
+    assert_validate_name()
+    assert_validate_users()
+    can_user_manage_organisation()
+    is_user_an_org_manager()
+    # get_campaign_organisations_as_dto()
+    # get_organisations_managed_by_user_as_dto()
+    # get_organisation_by_id_as_dto()
+    # get_organisation_by_slug_as_dto()
+    # get_organisation_dto()
+    # get_organisations_as_dto(

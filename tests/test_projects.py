@@ -48,121 +48,122 @@ project = ProjectsDB('localhost/testdata')
 
 def get_project_by_id():
     # project_id: int) -> Project:
-    pass
+    log.debug(f"get_project_by_id() unimplemented!")
 
 def exists():
     # project_id: int) -> bool:
-    pass
+    log.debug(f"exists() unimplemented!")
 
 def get_project_by_name():
     # project_id: int) -> Project:
-    pass
+    log.debug(f"get_project_by_name() unimplemented!")
 
 def auto_unlock_tasks():
     # project_id: int):
-    pass
+    log.debug(f"auto_unlock_tasks() unimplemented!")
 
 def delete_tasks():
     # project_id: int, tasks_ids):
-    pass
+    log.debug(f"delete_tasks() unimplemented!")
 
 def get_contribs_by_day():
     # project_id: int) -> ProjectContribsDTO:
-    pass
+    log.debug(f"get_contribs_by_day() unimplemented!")
 
 def get_project_dto_for_mapper():
-    pass
+    log.debug(f"get_project_dto_for_mapper() unimplemented!")
 
 def get_project_tasks():
-    pass
+    #
+    log.debug(f"get_project_tasks() unimplemented!")
 
 def get_project_aoi():
     # project_id):
-    pass
+    log.debug(f"get_project_aoi() unimplemented!")
 
 def get_project_priority_areas():
     # project_id):
-    pass
+    log.debug(f"get_project_priority_areas() unimplemented!")
 
 def get_task_for_logged_in_user():
     # user_id: int):
-    pass
+    log.debug(f"get_task_for_logged_in_user() unimplemented!")
 
 def get_task_details_for_logged_in_user():
     # user_id: int, preferred_locale: str):
-    pass
+    log.debug(f"get_task_details_for_logged_in_user() unimplemented!")
 
 def is_user_in_the_allowed_list():
     # allowed_users: list, current_user_id: int):
-    pass
+    log.debug(f"is_user_in_the_allowed_list() unimplemented!")
 
 def evaluate_mapping_permission():
-    pass
+    log.debug(f"evaluate_mapping_permission() unimplemented!")
 
 def evaluate_validation_permission():
-    pass
+    log.debug(f"evaluate_validation_permission() unimplemented!")
 
 def is_user_permitted_to_validate():
     # project_id, user_id):
-    pass
+    log.debug(f") unimplemented!")
 
 def is_user_permitted_to_map():
     # project_id, user_id):
-    pass
+    log.debug(f"is_user_permitted_to_map() unimplemented!")
 
 def get_cached_project_summary():
-    pass
+    log.debug(f"get_cached_project_summary() unimplemented!")
 
 def get_project_summary():
-    pass
+    log.debug(f") unimplemented!")
 
 def set_project_as_featured():
     # project_id: int):
-    pass
+    log.debug(f"set_project_as_featured() unimplemented!")
 
 def unset_project_as_featured():
     # project_id: int):
-    pass
+    log.debug(f"unset_project_as_featured() unimplemented!")
 
 def get_featured_projects():
     # preferred_locale):
-    pass
+    log.debug(f"get_featured_projects() unimplemented!")
 
 def is_favorited():
     # project_id: int, user_id: int) -> bool:
-    pass
+    log.debug(f"is_favorited() unimplemented!")
 
 def favorite():
     # project_id: int, user_id: int):
-    pass
+    log.debug(f"favorite() unimplemented!")
 
 def unfavorite():
     # project_id: int, user_id: int):
-    pass
+    log.debug(f"unfavorite() unimplemented!")
 
 def get_project_title():
     # project_id: int, preferred_locale: str = "en") -> str:
-    pass
+    log.debug(f"get_project_title() unimplemented!")
 
 def get_project_stats():
     # project_id: int) -> ProjectStatsDTO:
-    pass
+    log.debug(f"get_project_stats() unimplemented!")
 
 def get_project_user_stats():
     # project_id: int, username: str) -> ProjectUserStatsDTO:
-    pass
+    log.debug(f"get_project_user_stats() unimplemented!")
 
 def get_project_teams():
     # project_id: int):
-    pass
+    log.debug(f"get_project_teams() unimplemented!")
 
 def get_project_organisation():
     # project_id: int) -> Organisation:
-    pass
+    log.debug(f"get_project_organisation() unimplemented!")
 
 def send_email_on_project_progress():
     # project_id):
-    pass
+    log.debug(f"send_email_on_project_progress() unimplemented!")
             
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
