@@ -115,7 +115,7 @@ def get_cached_project_summary():
     log.debug(f"get_cached_project_summary() unimplemented!")
 
 def get_project_summary():
-    log.debug(f") unimplemented!")
+    log.debug(f"get_project_summary() unimplemented!")
 
 def set_project_as_featured():
     # project_id: int):
