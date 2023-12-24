@@ -21,14 +21,7 @@ PACKAGE := org.tm-admin.py
 NAME := tm-admin
 VERSION := 0.1.0
 
-PROTOC = python -m grpc_tools.protoc
-
-SQL := $(wildcard */*.sql)
-PROTOS :=  $(SQL:.sql=.proto)
-PBUFS := $(PROTOS:.proto=.py)
-GENP := $(wildcard */*_pb2*.py*)
-YAML := $(wildcard */*.yaml)
-OUTSQL := $(YAML:.yaml=.sql)
+SQL := $(wildcard *.sql)
 
 # Developer only! This requires a Tasking Manager database running on your local machine.
 # This is used to update the test data if any changes to the TM database schema are made.
@@ -50,6 +43,10 @@ tmtestdata:
 	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM teams LIMIT 10"
 	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/teams/ > tmteams.sql
 
-.SUFFIXES: .py .sql .yaml .proto
+import:
+	-for i in $(SQL); do \
+		echo "Importing $${i} into $(DB)"; \
+		psql -d $(DB) -f $${i}; \
+	done
 
 force:
