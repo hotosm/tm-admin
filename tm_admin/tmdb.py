@@ -99,15 +99,19 @@ class TMImport(object):
             #  continue
             if column[1][:9] == 'timestamp':
                 table[column[0]] = None
+                #self.accessor[column[0]] = f" WHERE {column[0]}='{test}'"
             elif column[1][:5] == 'ARRAY':
                 table[column[0]] = None
+                # self.accessor[column[0]] = f" WHERE {column[0]}={test}"
             elif column[1] == 'boolean':
                 table[column[0]] = False
             elif column[1] == 'bigint' or column[1] == 'integer':
                 table[column[0]] = 0
+                #self.accessor[column[0]] = f" WHERE {column[0]}={test}"
             else:
-                # it's character varying
+                # it's character varying or one of the Enums in types_tm.py
                 table[column[0]] = ''
+                #self.accessor[column[0]] = f" WHERE {column[0]}='XXXX'"
 
         if len(results) > 0:
             self.columns = list(table.keys())
@@ -153,6 +157,7 @@ class TMImport(object):
         """
         builtins = ['int32', 'int64', 'string', 'timestamp', 'bool']
         #bar = Bar('Importing into TMAdmin', max=len(data))
+        # columns2 = self.getColumns(table)
         for record in data:
             # columns = str(list(record.keys()))[1:-1].replace("'", "")
             columns = list()
@@ -200,11 +205,18 @@ class TMImport(object):
                             exec = f"{self.config[key]['datatype']}({entry})"
                             enumval = eval(exec)
                             values += f"{enumval.name}, "
-                        if len(val) == 0:
+                        if len(val) == 0: # FIXME: is this still valid ?
                             values = values[:-2] + "'{}', "
                         else:
                             values = values[:-2]
                             values += f"}}'::{self.config[key]['datatype'].lower()}[], "
+                        continue
+                    elif type(val) == int:
+                        if val <= 0:
+                            val = 1
+                        exec = f"{self.config[key]['datatype']}({val})"
+                        enumval = eval(exec)
+                        values += f"'{enumval.name}', "
                         continue
                     else:
                         # The TM database has a bug, a 0 usually means there is no value,
@@ -212,13 +224,15 @@ class TMImport(object):
                         if val is None:
                             values += f"'{{}}', "
                             continue
-                        elif val <= 0:
+                        elif type(val) == int and val <= 0:
                             val = 1
                             #values += f"'{{}}', "
-                        exec = f"{self.config[key]['datatype']}({val})"
-                        enumval = eval(exec)
-                        values += f"'{enumval.name}', "
-                        continue
+                            exec = f"{self.config[key]['datatype']}({val})"
+                            enumval = eval(exec)
+                            values += f"'{enumval.name}', "
+                            continue
+                        elif type(str):
+                            values += f"'{val}', "
                 else:
                     if self.config[key]['array']:
                         if val is not None:
@@ -256,8 +270,26 @@ class TMImport(object):
                             values += f"'{esc}', "
                 continue
 
-            sql = f"INSERT INTO {table}({str(columns)[1:-1].replace("'", "")}) VALUES({values[:-2]})"
-            # sql = f"INSERT INTO organizations VALUES({values[:-2]})"
+            # This covers the columns in the config file that are considered
+            # required in the output database, but aren't in the input database.
+            for key, val in self.config.items():
+                if 'required' in val and key not in columns:
+                    # log.debug(f"REQUIRED: {key} = {val['required']}")
+                    if val['required']:
+                        log.debug(f"Key '{key}' is required")
+                        columns.append(key)
+                        # FIXME: don't hardcode
+                        if self.config[key]['datatype'] not in builtins:
+                            # log.debug(f"Key '{key}' is an Enum")
+                            exec = f"{self.config[key]['datatype']}(1)"
+                            enumval = eval(exec)
+                            values += f"'{enumval.name}', "
+                        else:
+                            log.warning(f"No support yet for {key}!")
+                    
+
+            # foo = f"str(columns)[1:-1].replace("'", "")
+            sql = f"""INSERT INTO {table}({str(columns)[1:-1].replace("'", "")}) VALUES({values[:-2]})"""
             print(sql)
             results = self.admindb.queryLocal(sql)
 
@@ -296,9 +328,8 @@ def main():
     )
 
     doit = TMImport(args.inuri, args.outuri, args.table)
-    
     table = args.table
-    # You have to love subtle culture spelling differences.
+    # You have to love subtle cultural spelling differences.
     if table == 'organizations':
         data = doit.getAllData('organisations')
     else:
