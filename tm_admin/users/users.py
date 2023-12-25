@@ -37,6 +37,7 @@ from tm_admin.types_tm import Userrole
 # Instantiate logger
 log = logging.getLogger(__name__)
 
+
 class UsersDB(DBSupport):
     def __init__(self,
                  dburi: str = "localhost/tm_admin",
@@ -54,6 +55,59 @@ class UsersDB(DBSupport):
         self.profile = UsersTable()
         self.types = dir(tm_admin.types_tm)
         super().__init__('users', dburi)
+
+    def mergeInterests(self):
+        table = 'user_interests'
+        # FIXME: this shouldn't be hardcoded
+        pg = PostgresClient('localhost/tm4')
+        sql = f"SELECT row_to_json({table}) as row FROM {table}"
+        print(sql)
+        try:
+            result = pg.dbcursor.execute(sql)
+        except:
+            log.error(f"Couldn't execute query! {sql}")
+            return False
+
+        result = pg.dbcursor.fetchall()
+
+        data = dict()
+        for record in result:
+            entry = record[0]   # there's only one item in the input data
+            if entry['user_id'] not in data:
+                data[entry['user_id']] = list()
+            data[entry['user_id']].append(entry['interest_id'])
+
+        for uid, value in data.items():
+            sql = f" UPDATE users SET interests = ARRAY{str(value)} WHERE id={uid}"
+            print(sql)
+            try:
+                result = self.pg.dbcursor.execute(f"{sql};")
+            except:
+                return False
+
+        return True
+
+    def mergeLicenses(self):
+        table = 'user_licenses'
+        pg = PostgresClient(inuri)
+        sql = f"SELECT row_to_json({table}) as row FROM {table}"
+        # print(sql)
+        try:
+            result = pg.dbcursor.execute(sql)
+        except:
+            log.error(f"Couldn't execute query! {sql}")
+            return False
+
+    def mergeFavorites(self):
+        table = 'project_favorites'
+        pg = PostgresClient(inuri)
+        sql = f"SELECT row_to_json({table}) as row FROM {table}"
+        # print(sql)
+        try:
+            result = pg.dbcursor.execute(sql)
+        except:
+            log.error(f"Couldn't execute query! {sql}")
+            return False
 
     # These are just convience wrappers to support the REST API.
     def updateRole(self,
@@ -140,22 +194,26 @@ def main():
     )
 
     user = UsersDB(args.uri)
+
+    if user.mergeInterests():
+        log.info("UserDB.mergeInterests worked!")
+
     # user.resetSequence()
-    all = user.getAll()
-    # Don't pass id, let postgres auto increment
-    ut = UsersTable(name='test', mapping_level='BEGINNER',
-                    email_address='foo@bar.com')
-    user.createTable(ut)
+    # all = user.getAll()
+    # # Don't pass id, let postgres auto increment
+    # ut = UsersTable(name='test', mapping_level='BEGINNER',
+    #                 email_address='foo@bar.com')
+    # user.createTable(ut)
+    # # print(all)
+
+    # all = user.getByID(1)
+    # print(all)
+            
+    # all = user.getByName('test')
     # print(all)
 
-    all = user.getByID(1)
-    print(all)
-            
-    all = user.getByName('test')
-    print(all)
-
-    ut = UsersTable(name='foobar', email_address="bar@foo.com", mapping_level='INTERMEDIATE')
-    # This is obviously only for manjal testing
+    # ut = UsersTable(name='foobar', email_address="bar@foo.com", mapping_level='INTERMEDIATE')
+    # This is obviously only for manual testing
     #user.updateTable(ut, 17)
 
 if __name__ == "__main__":
