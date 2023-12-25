@@ -24,6 +24,7 @@ import logging
 import sys
 import os
 from sys import argv
+import psycopg2.extensions
 from datetime import datetime
 from dateutil.parser import parse
 import tm_admin.types_tm
@@ -61,6 +62,8 @@ class DBSupport(object):
         if dburi:
             self.pg = PostgresClient(dburi)
         self.types = dir(tm_admin.types_tm)
+        self.schema = self.getColumns(table)
+        #self.accessors = dict()
 
     def createTable(self,
                     obj,
@@ -167,20 +170,14 @@ class DBSupport(object):
             id (int): The ID of the dataset to retrieve.
 
         Returns:
-            (list): The results of the query
+            (dict): The results of the query
         """
-        sql = f"SELECT * FROM {self.table} WHERE id='{id}'"
-        result = self.pg.dbcursor.execute(sql)
-        data = dict()
-        entry = self.pg.dbcursor.fetchone()
-        if entry:
-            for column in self.profile.data.keys():
-                index = 0
-                for column in self.profile.data.keys():
-                    data[column] = entry[index]
-                    index += 1
 
-        return [data]
+        data = self.getByWhere(f" id={id}")
+        if len(data) == 0:
+            return dict()
+        else:
+            return data[0][0]
 
     def getByName(self,
                 name: str,
@@ -194,17 +191,50 @@ class DBSupport(object):
         Returns:
             (list): The results of the query
         """
-        sql = f"SELECT * FROM {self.table} WHERE username='{name}' LIMIT 1"
-        self.pg.dbcursor.execute(sql)
-        data = dict()
-        entry = self.pg.dbcursor.fetchone()
-        for column in self.profile.data.keys():
-            index = 0
-            for column in self.profile.data.keys():
-                data[column] = entry[index]
-                index += 1
+        data = self.getByWhere(f" name='{name}'")
 
-        return [data]
+        if len(data) == 0:
+            return dict()
+        else:
+            return data[0][0]
+
+    def getColumns(self,
+                    table: str,
+                    ):
+        """
+        Create the data structure for the database table with default values.
+
+        Args:
+            table str(): The table to get the columns for.
+
+        Returns:
+            (dict): The table definition.
+        """
+        sql = f"SELECT column_name, data_type,column_default  FROM information_schema.columns WHERE table_name = '{table}' ORDER BY dtd_identifier;"
+        results = self.pg.queryLocal(sql)
+        log.info(f"There are {len(results)} columns in the TM '{table}' table")
+        table = dict()
+        for column in results:
+            # print(f"FIXME: {column}")
+            # if column[2] and column[2][:7] == 'nextval':
+            # log.debug(f"Dropping SEQUENCE variable '{column[2]}'")
+            #  continue
+            if column[1][:9] == 'timestamp':
+                table[column[0]] = None
+            elif column[1][:5] == 'ARRAY':
+                table[column[0]] = None
+            elif column[1] == 'boolean':
+                table[column[0]] = False
+            elif column[1] == 'bigint' or column[1] == 'integer':
+                table[column[0]] = 0
+            else:
+                # it's character varying
+                table[column[0]] = ''
+
+        if len(results) > 0:
+            self.columns = list(table.keys())
+
+        return table
 
     def getAll(self):
         """
@@ -213,23 +243,11 @@ class DBSupport(object):
         Returns:
             (list): The results of the query
         """
-        sql = f"SELECT * FROM {self.table};"
+        sql = f"SELECT row_to_json({self.table}) as row FROM {self.table}"
         self.pg.dbcursor.execute(sql)
         result = self.pg.dbcursor.fetchall()
-        out = list()
-        if result:
-            for entry in result:
-                data = dict()
-                for column in self.profile.data.keys():
-                    index = 0
-                    for column in self.profile.data.keys():
-                        data[column] = entry[index]
-                        index += 1
-                out.append(data)
-        else:
-            log.debug(f"No data returned from query")
 
-        return out
+        return result
 
     def getByWhere(self,
                 where: str,
@@ -238,24 +256,16 @@ class DBSupport(object):
         Return the data for the where clause in the table.
 
         Args:
-            where (str): The where clzuse of the dataset to retrieve.
+            where (str): The where clause of the dataset to retrieve.
 
         Returns:
             (list): The results of the query
         """
-        sql = f"SELECT * FROM {self.table} WHERE {where}"
-        print(sql)
-        result = self.pg.dbcursor.execute(sql)
-        data = dict()
-        entry = self.pg.dbcursor.fetchone()
-        if entry:
-            for column in self.profile.data.keys():
-                index = 0
-                for column in self.profile.data.keys():
-                    data[column] = entry[index]
-                    index += 1
+        sql = f"SELECT row_to_json({self.table}) as row FROM {self.table} WHERE {where}"
+        self.pg.dbcursor.execute(sql)
+        result = self.pg.dbcursor.fetchall()
 
-        return [data]
+        return result
 
     def getByLocation(self,
                 location: Point,
@@ -272,16 +282,11 @@ class DBSupport(object):
         """
         data = dict()
         ewkt = shape(location)
-        sql = f"SELECT * FROM {table} WHERE ST_CONTAINS(ST_GeomFromEWKT('SRID=4326;{ewkt}') geom)"
+        sql = f"SELECT row_to_json({self.table}) as row FROM {table} WHERE ST_CONTAINS(ST_GeomFromEWKT('SRID=4326;{ewkt}') geom)"
         self.pg.dbcursor.execute(sql)
-        entry = self.pg.dbcursor.fetchall()
-        for column in self.profile.data.keys():
-            index = 0
-            for column in self.profile.data.keys():
-                data[column] = entry[index]
-                index += 1
+        result = self.pg.dbcursor.fetchall()
 
-        return [data]
+        return result
 
     def deleteByID(self,
                 id: int,
@@ -294,6 +299,7 @@ class DBSupport(object):
         """
         sql = f"DELETE FROM {self.table} WHERE id='{id}'"
         result = self.pg.dbcursor.execute(sql)
+        return True
 
     def updateColumn(self,
                     id: int,
