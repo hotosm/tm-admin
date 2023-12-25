@@ -25,13 +25,14 @@ SQL := $(wildcard *.sql)
 
 # Developer only! This requires a Tasking Manager database running on your local machine.
 # This is used to update the test data if any changes to the TM database schema are made.
-DB=tm_admin
+# As we want to use the existing table, we only insert data, and not create and columns.
+DB=testdata
 tmtestdata:
 	@echo "Generating test data for users table..."
 	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM users WHERE id='4606673'"
 	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/users/ > tmusers.sql
 	@echo "Generating test data for projects table..."
-	-@ogr2ogr /tmp/tmp.sql PG:'dbname=$(DB)' -sql "SELECT * FROM projects LIMIT 10"
+	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM projects LIMIT 10"
 	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/projects/ > tmprojects.sql
 	@echo "Generating test data for organizations table..."
 	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM organizations LIMIT 10"
