@@ -75,10 +75,10 @@
     - private:
         - bool
         - share: true
-#    - mapper_level:
-#        - public.mappinglevel
-#        - share: true
-#        - required: true
+    - mapping_level:
+        - public.mappinglevel
+        - share: true
+        - required: true
     - priority:
         - public.projectpriority
         - share: true
@@ -140,3 +140,14 @@
         - string
         - array: true
         - share: true
+    - name:
+        - string
+        - share: true
+    - short_description:
+        - string
+    - description:
+        - string
+    - instructions:
+        - string
+#project_id_str|character varying|||
+#text_searchable|tsvector|||
