@@ -47,8 +47,8 @@ project = ProjectsDB('localhost/testdata')
 # def get_all_users(query: UserSearchQuery):
 def test_all():
     log.debug("--- test_all() ---")
-    all = user.getAll()
-    # assert len(all) > 0
+    result = user.getAll()
+    assert len(result) > 0
     
 #def get_user_by_id(user_id: int):
 def test_by_id():
@@ -60,10 +60,10 @@ def test_by_id():
     
 # def get_user_by_username(username: str):
 def test_by_name():
-    log.debug("--- test_by_name() ---")
-    name = 'rsavoye'
-    # all = user.getByName(name)
-    # assert len(all) > 0
+    log.debug("--- test_by_name() unimplemented! ---")
+    name = 'Rob Savoye'
+    result = user.getByName(name)
+    assert len(result) > 0
 
 # def add_role_to_user(admin_user_id: int, username: str, role: str):
 def test_role():
@@ -345,4 +345,3 @@ if __name__ == "__main__":
     # notify_level_upgrade() # Not part of this API
 
     test_all()
-    
