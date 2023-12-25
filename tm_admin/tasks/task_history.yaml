@@ -1,0 +1,19 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- task_history:
+    - id:
+        - int64
+    - project_id:
+        - int64
+    - task_id:
+        - int64
+    - action:
+        - string
+    - action_text:
+        - string
+    - action_date:
+        - timestamp
+    - user_id:
+        - int64
