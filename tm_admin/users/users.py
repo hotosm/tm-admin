@@ -89,7 +89,8 @@ class UsersDB(DBSupport):
 
     def mergeLicenses(self):
         table = 'user_licenses'
-        pg = PostgresClient(inuri)
+        # FIXME: this shouldn't be hardcoded!
+        pg = PostgresClient('localhost/tm4')
         sql = f"SELECT row_to_json({table}) as row FROM {table}"
         # print(sql)
         try:
@@ -97,6 +98,18 @@ class UsersDB(DBSupport):
         except:
             log.error(f"Couldn't execute query! {sql}")
             return False
+
+        result = pg.dbcursor.fetchall()
+
+        for record in result:
+            sql = f" UPDATE users SET licenses = ARRAY[{record[0]['license']}] WHERE id={record[0]['user']}"
+            print(sql)
+            try:
+                result = self.pg.dbcursor.execute(f"{sql};")
+            except:
+                return False
+
+        return True
 
     def mergeFavorites(self):
         table = 'project_favorites'
@@ -197,6 +210,9 @@ def main():
 
     if user.mergeInterests():
         log.info("UserDB.mergeInterests worked!")
+
+    if user.mergeLicenses():
+        log.info("UserDB.mergeLicenses worked!")
 
     # user.resetSequence()
     # all = user.getAll()
