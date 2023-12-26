@@ -63,6 +63,7 @@ class Generator(object):
                     'timestamp': 'timestamp without time zone',
                     'polygon': 'Polygon',
                     'point': 'Point',
+                    'json': 'dict',
                     }
 
         self.yaml2sql = {'int32': 'int',
@@ -73,6 +74,7 @@ class Generator(object):
                     'timestamp': 'timestamp without time zone',
                     'polygon': 'polygon',
                     'point': 'point',
+                    'json': 'json',
                     }
         
 
@@ -266,9 +268,9 @@ class {table.capitalize()}Table(object):
                             out += f"{k}: {datatype} = None, "
                         # print(k)
                         data += f"'{k}': {k}, "
-        out = out[:-2]
-        out += "):\n"
-        out += f"{data[:-2]}}}\n"
+            out = out[:-2]
+            out += "):\n"
+            out += f"{data[:-2]}}}\n"
 
         return out
     
@@ -335,10 +337,15 @@ class {table.capitalize()}Table(object):
                     # print(v)
                     # FIXME: if this produces an error, check the yaml file as this
                     # usually means the type field isn't first in the list.
-                    out += f"\t{k} {self.yaml2sql[v[0]]}{array}{required},\n"
+                    if v[0][:6] == 'table.':
+                        out += f"\t{k} {v[0][6:]},\n"
+                    else:
+                        out += f"\t{k} {self.yaml2sql[v[0]]}{array}{required},\n"
             if len(unique) > 0:
                 out += f"\tUNIQUE({unique})\n);\n"
 
+            if out[-2:] == ',\n':
+                out = f"{out[:-2]}\n);\n\n"
             if len(sequence) > 0:
                 for key in sequence:
                     out += f"""
