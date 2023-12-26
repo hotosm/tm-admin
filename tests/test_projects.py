@@ -116,16 +116,34 @@ def get_project_title():
     # project_id: int, preferred_locale: str = "en") -> str:
     log.debug(f"--- get_project_title() ---")
     pid = 150
-    result = user.getColumn(pid, 'name')
-    assert len(result) > 0 and result[0][0][10] == 'Mozambique'
+    result = project.getColumn(pid, 'name')
+    assert len(result) > 0 and result[0][0][:10] == 'Mozambique'
+
+def is_favorited():
+    # project_id: int, user_id: int) -> bool:
+    log.debug(f"--- is_favorited() ---")
+    uid = 4606673
+    pid = 5
+    result = user.getColumn(uid, 'favorite_projects')
+    # FIXME: this only works with our manually inserted
+    # project IDs. The testdata needs to be updated.
+    assert len(result) > 0 and pid in result[0][0]
 
 def favorite():
     # project_id: int, user_id: int):
-    log.debug(f"favorite() unimplemented!")
+    log.debug(f"--- favorite() ---")
+    uid = 4606673
+    pid = 5
+    result = user.appendColumn(uid, {'favorite_projects': pid})
+    assert result
 
 def unfavorite():
     # project_id: int, user_id: int):
-    log.debug(f"unfavorite() unimplemented!")
+    log.debug(f"--- unfavorite() ---")
+    uid = 4606673
+    pid = 5
+    result = user.removeColumn(uid, {'favorite_projects': pid})
+    assert result
 
 def auto_unlock_tasks():
     # project_id: int):
@@ -171,22 +189,6 @@ def unset_project_as_featured():
 def get_featured_projects():
     # preferred_locale):
     log.debug(f"get_featured_projects() unimplemented!")
-
-def is_favorited():
-    # project_id: int, user_id: int) -> bool:
-    log.debug(f"is_favorited() unimplemented!")
-
-def favorite():
-    # project_id: int, user_id: int):
-    log.debug(f"favorite() unimplemented!")
-
-def unfavorite():
-    # project_id: int, user_id: int):
-    log.debug(f"unfavorite() unimplemented!")
-
-def get_project_title():
-    # project_id: int, preferred_locale: str = "en") -> str:
-    log.debug(f"get_project_title() unimplemented!")
 
 def get_project_stats():
     # project_id: int) -> ProjectStatsDTO:
