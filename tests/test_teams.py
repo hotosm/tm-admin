@@ -29,6 +29,7 @@ from sys import argv
 from tm_admin.organizations.organizations import OrganizationsDB
 from tm_admin.types_tm import Organizationtype, Mappinglevel
 from datetime import datetime
+from tm_admin.teams.teams import TeamsDB
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -39,7 +40,18 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
-organization = OrganizationsDB('localhost/tm_admin')
+team = TeamsDB('localhost/tm_admin')
+
+def get_team_by_id():
+    log.debug(f"get_team_by_id() unimplemented!")
+    id = 1
+    # all = user.getByID(id)
+    result = team.getByWhere(f" id='{id}'")
+    # assert len(result) > 0
+
+def get_team_by_name():
+    log.debug(f"get_team_by_name() unimplemented!")
+      #  str) -> Tea
 
 def request_to_join_team():
     # team_id: int, user_id: int)
@@ -97,14 +109,6 @@ def change_team_role():
     log.debug(f"change_team_role() unimplemented!")
     #  int, project_id: int, role: str
     
-def get_team_by_id():
-    log.debug(f"get_team_by_id() unimplemented!")
-    # team_id: int) -> Tea
-                   
-def get_team_by_name():
-    log.debug(f"get_team_by_name() unimplemented!")
-      #  str) -> Tea
-                     
 def create_team():
     log.debug(f"create_team() unimplemented!")
     #  -> in

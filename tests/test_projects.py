@@ -45,18 +45,28 @@ rootdir = tma.__path__[0]
 user = UsersDB('localhost/testdata')
 project = ProjectsDB('localhost/testdata')
 
-
 def get_project_by_id():
     # project_id: int) -> Project:
-    log.debug(f"get_project_by_id() unimplemented!")
+    log.debug(f"--- get_project_by_id() ---")
+    id = 135
+    # all = user.getByID(id)
+    result = project.getByWhere(f" id='{id}'")
+    assert len(result) > 0
 
 def exists():
     # project_id: int) -> bool:
-    log.debug(f"exists() unimplemented!")
+    log.debug(f"--- exists() ---")
+    id = 1
+    # all = user.getByID(id)
+    result = project.getByID(id)
+    assert len(result) == 0
 
 def get_project_by_name():
     # project_id: int) -> Project:
-    log.debug(f"get_project_by_name() unimplemented!")
+    log.debug(f"--- get_project_by_name() ---")
+    name = '262628 Nigeria'
+    result = project.getByName(name)
+    # assert len(result) > 0
 
 def auto_unlock_tasks():
     # project_id: int):
