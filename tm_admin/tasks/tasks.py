@@ -35,6 +35,23 @@ from osm_rawdata.postgres import uriParser, PostgresClient
 # Instantiate logger
 log = logging.getLogger(__name__)
 
+class TaskHistoryDB(DBSupport):
+    def __init__(self,
+                dburi: str = "localhost/tm_admin",
+                ):
+        """
+        A class to access the task history table.
+
+        Args:
+            dburi (str): The URI string for the database connection.
+
+        Returns:
+            (TasksDB): An instance of this class.
+        """
+        self.profile = TaskHistoryTable()
+        self.types = dir(tm_admin.types_tm)
+        super().__init__('task_history', dburi)
+
 class TasksDB(DBSupport):
     def __init__(self,
                 dburi: str = "localhost/tm_admin",
