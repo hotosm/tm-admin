@@ -62,7 +62,7 @@ class DBSupport(object):
         if dburi:
             self.pg = PostgresClient(dburi)
         self.types = dir(tm_admin.types_tm)
-        self.schema = self.getColumns(table)
+        # self.schema = self.getColumns(table)
         #self.accessors = dict()
 
     def createTable(self,
@@ -198,44 +198,6 @@ class DBSupport(object):
         else:
             return data[0][0]
 
-    def getColumns(self,
-                    table: str,
-                    ):
-        """
-        Create the data structure for the database table with default values.
-
-        Args:
-            table str(): The table to get the columns for.
-
-        Returns:
-            (dict): The table definition.
-        """
-        sql = f"SELECT column_name, data_type,column_default  FROM information_schema.columns WHERE table_name = '{table}' ORDER BY dtd_identifier;"
-        results = self.pg.queryLocal(sql)
-        log.info(f"There are {len(results)} columns in the TM '{table}' table")
-        table = dict()
-        for column in results:
-            # print(f"FIXME: {column}")
-            # if column[2] and column[2][:7] == 'nextval':
-            # log.debug(f"Dropping SEQUENCE variable '{column[2]}'")
-            #  continue
-            if column[1][:9] == 'timestamp':
-                table[column[0]] = None
-            elif column[1][:5] == 'ARRAY':
-                table[column[0]] = None
-            elif column[1] == 'boolean':
-                table[column[0]] = False
-            elif column[1] == 'bigint' or column[1] == 'integer':
-                table[column[0]] = 0
-            else:
-                # it's character varying
-                table[column[0]] = ''
-
-        if len(results) > 0:
-            self.columns = list(table.keys())
-
-        return table
-
     def getAll(self):
         """
         Return all the data in the table.
@@ -301,8 +263,36 @@ class DBSupport(object):
         result = self.pg.dbcursor.execute(sql)
         return True
 
+    def getColumn(self,
+                 uid: int,
+                 column: str,
+                 ):
+        """
+        This gets a single column from the database.
+
+        Args:
+            uid (int): The ID of the user to update.
+            column (str): The column.
+
+        Returns:
+            (list): The column values
+        """
+        sql = f"SELECT {column} FROM {self.table} WHERE id={uid}"
+        try:
+            self.pg.dbcursor.execute(sql)
+        except:
+            log.error(f"Couldn't execute query {sql}")
+
+        result = self.pg.dbcursor.fetchall()
+
+        if len(result) == 1 and len(result[0]) == 1:
+            if result[0][0] is None:
+                return list()
+
+        return result
+
     def updateColumn(self,
-                    id: int,
+                    uid: int,
                     data: dict,
                     ):
         """
@@ -310,12 +300,34 @@ class DBSupport(object):
         use self.updateTable() instead.
 
         Args:
-            id (int): The ID of the user to update
+            uid (int): The ID of the user to update
             data (dict): The column and new value
         """
         [[column, value]] = data.items()
-        sql = f"UPDATE {self.table} SET {column}='{value}' WHERE id='{id}'"
+        sql = f"UPDATE {self.table} SET {column}='{value}' WHERE id='{uid}'"
         # print(sql)
+        try:
+            result = self.pg.dbcursor.execute(f"{sql};")
+            return True
+        except:
+            return False
+
+    def appendColumn(self,
+                    uid: int,
+                    data: dict,
+                    ):
+        """
+        This updates a single array column in the database. If you want to update
+        multiple columns, use self.updateTable() instead.
+
+        Args:
+            uid (int): The ID of the user to update
+            data (dict): The column and new value
+        """
+        [[column, value]] = data.items()
+        aval = "'{" + f"{value}" + "}"
+        sql = f"UPDATE {self.table} SET {column}={column}||{aval}' WHERE id='{uid}'"
+        print(sql)
         try:
             result = self.pg.dbcursor.execute(f"{sql};")
             return True
