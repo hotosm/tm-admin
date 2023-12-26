@@ -99,3 +99,60 @@ arrays.
 * mergeLicenses() - Merge the TM *user_licenses* table into TM Admin
 * mergeInterests() - Merge the TM *user_interests* table into TM Admin
 * mergeFavorites() - Merge the TM *project_favorites* table into TM Admin
+
+#### Projects Table
+
+There's a lot of project related tables.
+
+From project_info:
+
+* name
+* short_description
+* description
+* instructions
+
+From project_allowed_users
+* add array of users
+
+From project_favorites
+* add array of favorites
+
+From project_interests
+* add integer column
+
+From project_custom_editors
+* appears to only be used for Rapid, but it's in the Enum for editors,
+  so uneeded now
+
+From project_priority_areas
+* add array of priority areas
+
+From project_teams
+* FIXME: not sure
+
+#### Organizations Table
+
+From organisation_managers
+* Add array of manager's user IDs
+
+#### Tasks Table
+
+task_mapping_issues is now an Enum instead of a table
+
+##### Task Annotations
+
+TODO: not implemented yet
+
+##### Task History Table
+
+TODO: not implemented yet
+
+##### Task Invalidation History Table
+
+##### Notifications
+
+TODO: not implemented yet
+
+#### Project Chat
+
+TODO: not implemented yet
