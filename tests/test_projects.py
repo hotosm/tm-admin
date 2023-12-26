@@ -27,8 +27,9 @@ from sys import argv
 # from tm_admin.users.users_proto import UsersMessage
 #from tm_admin.yamlfile import YamlFile
 from tm_admin.users.users import UsersDB
+from tm_admin.tasks.tasks import TasksDB
 from tm_admin.projects.projects import ProjectsDB
-from tm_admin.types_tm import Mappinglevel
+from tm_admin.types_tm import Userrole, Mappinglevel
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
 from tm_admin.projects.projects_class import ProjectsTable
@@ -42,8 +43,10 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
-user = UsersDB('localhost/testdata')
-project = ProjectsDB('localhost/testdata')
+dbname = 'localhost/testdata'
+user = UsersDB(dbname)
+project = ProjectsDB(dbname)
+task = TasksDB(dbname)
 
 def get_project_by_id():
     # project_id: int) -> Project:
@@ -64,9 +67,65 @@ def exists():
 def get_project_by_name():
     # project_id: int) -> Project:
     log.debug(f"--- get_project_by_name() ---")
-    name = '262628 Nigeria'
+    name = 'Kigoma_13'
     result = project.getByName(name)
+    assert len(result) > 0
+
+def get_project_priority_areas():
+    # project_id):
+    log.debug(f"--- get_project_priority_areas() ---")
+    pid = 150
+    result = project.getColumn(pid, 'priority_areas')
+    assert len(result) > 0
+
+def get_project_tasks():
+    # project_id):
+    log.debug(f"--- get_project_tasks() ---")
+    pid = 150
+    result = task.getByWhere(f" project_id={pid}")
     # assert len(result) > 0
+
+def get_project_aoi():
+    # project_id):
+    log.debug(f"--- get_project_aoi() ---")
+    pid = 150
+    result = project.getColumn(pid, 'geometry')
+    # FIXME: this should test the geometry to make
+    # sure it's valid
+    assert len(result) > 0
+
+def is_user_permitted_to_validate():
+    # project_id, user_id):
+    log.debug(f"-- is_user_permitted_to_validate() ---")
+    id = 4606673
+    result = user.getColumn(id, 'role')
+    # FIXME: This only works if the user has the right role
+    # assert len(result) > 0 and result[0][0] == Userrole.VALIDATOR
+    assert len(result) > 0
+
+def is_user_permitted_to_map():
+    # project_id, user_id):
+    log.debug(f"--- is_user_permitted_to_map() ---")
+    id = 4606673
+    result = user.getColumn(id, 'role')
+    # FIXME: This only works if the user has the right role
+    # assert len(result) > 0 and result[0][0] != Userrole.USER_READ_ONLY
+    assert len(result) > 0
+
+def get_project_title():
+    # project_id: int, preferred_locale: str = "en") -> str:
+    log.debug(f"--- get_project_title() ---")
+    pid = 150
+    result = user.getColumn(pid, 'name')
+    assert len(result) > 0 and result[0][0][10] == 'Mozambique'
+
+def favorite():
+    # project_id: int, user_id: int):
+    log.debug(f"favorite() unimplemented!")
+
+def unfavorite():
+    # project_id: int, user_id: int):
+    log.debug(f"unfavorite() unimplemented!")
 
 def auto_unlock_tasks():
     # project_id: int):
@@ -74,26 +133,12 @@ def auto_unlock_tasks():
 
 def delete_tasks():
     # project_id: int, tasks_ids):
+    # FIXME: this requires the Tasks and Task History tables
     log.debug(f"delete_tasks() unimplemented!")
 
 def get_contribs_by_day():
     # project_id: int) -> ProjectContribsDTO:
     log.debug(f"get_contribs_by_day() unimplemented!")
-
-def get_project_dto_for_mapper():
-    log.debug(f"get_project_dto_for_mapper() unimplemented!")
-
-def get_project_tasks():
-    #
-    log.debug(f"get_project_tasks() unimplemented!")
-
-def get_project_aoi():
-    # project_id):
-    log.debug(f"get_project_aoi() unimplemented!")
-
-def get_project_priority_areas():
-    # project_id):
-    log.debug(f"get_project_priority_areas() unimplemented!")
 
 def get_task_for_logged_in_user():
     # user_id: int):
@@ -103,23 +148,11 @@ def get_task_details_for_logged_in_user():
     # user_id: int, preferred_locale: str):
     log.debug(f"get_task_details_for_logged_in_user() unimplemented!")
 
-def is_user_in_the_allowed_list():
-    # allowed_users: list, current_user_id: int):
-    log.debug(f"is_user_in_the_allowed_list() unimplemented!")
-
 def evaluate_mapping_permission():
     log.debug(f"evaluate_mapping_permission() unimplemented!")
 
 def evaluate_validation_permission():
     log.debug(f"evaluate_validation_permission() unimplemented!")
-
-def is_user_permitted_to_validate():
-    # project_id, user_id):
-    log.debug(f") unimplemented!")
-
-def is_user_permitted_to_map():
-    # project_id, user_id):
-    log.debug(f"is_user_permitted_to_map() unimplemented!")
 
 def get_cached_project_summary():
     log.debug(f"get_cached_project_summary() unimplemented!")
@@ -174,7 +207,13 @@ def get_project_organisation():
 def send_email_on_project_progress():
     # project_id):
     log.debug(f"send_email_on_project_progress() unimplemented!")
-            
+
+# This one seems silly, and needs no database access
+# def is_user_in_the_allowed_list():
+
+# we use the UsersTable() to represent the table schema
+# def get_project_dto_for_mapper():
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
@@ -199,13 +238,11 @@ if __name__ == "__main__":
     auto_unlock_tasks()
     delete_tasks()
     get_contribs_by_day()
-    get_project_dto_for_mapper()
     get_project_tasks()
     get_project_aoi()
     get_project_priority_areas()
     get_task_for_logged_in_user()
     get_task_details_for_logged_in_user()
-    is_user_in_the_allowed_list()
     evaluate_mapping_permission()
     is_user_permitted_to_map()
     #_is_user_intermediate_or_advanced()
@@ -225,3 +262,5 @@ if __name__ == "__main__":
     get_project_teams()
     get_project_organisation()
     send_email_on_project_progress()
+    # is_user_in_the_allowed_list()
+    # get_project_dto_for_mapper()
