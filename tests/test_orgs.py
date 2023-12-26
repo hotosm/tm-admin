@@ -42,19 +42,39 @@ rootdir = tma.__path__[0]
 organization = OrganizationsDB('localhost/tm_admin')
 
 def get_organisation_by_id():
-    log.debug(f"get_organisation_by_id()")
+    log.debug(f"--- get_organisation_by_id() ---")
     # organisation_id: int) -> Organisation:
-    pass
+    id = 1
+    # all = user.getByID(id)
+    result = organization.getByWhere(f" id='{id}'")
+    assert len(result) > 0
 
 def get_organisation_by_name():
     # organisation_name: str) -> Organisation:
-    log.debug(f"get_organisation_by_name() unimplemented!")
-    pass
+    log.debug(f"--- get_organisation_by_name() ---")
+    name= 'Other'
+    result = organization.getByWhere(f" name='{name}'")
+    assert len(result) > 0
 
 def get_organisation_name_by_id():
     # organisation_id: int) -> str:
-    log.debug(f"get_organisation_name_by_id() unimplemented!")
-    pass
+    log.debug(f"--- get_organisation_name_by_id() ---")
+    id = 1
+    result = organization.getByWhere(f" id='{id}'")
+    assert len(result) > 0 and result[0]['name'] == 'Other'
+
+def get_organisations():
+    # manager_user_id: int):
+    log.debug(f"--- get_organisations() ---")
+    result = organization.getAll()
+    assert len(result) > 0
+
+def delete_organisation():
+    # organisation_id: int):
+    log.debug(f"delete_organisation() unimplemented!")
+    id = 1
+    #result = organization.deleteByID(id)
+    #assert len(result) > 0
 
 def create_organisation():
     # new_organisation_dto: NewOrganisationDTO) -> int:
@@ -66,24 +86,9 @@ def update_organisation():
     log.debug(f"update_organisation() unimplemented!")
     pass
 
-def delete_organisation():
-    # organisation_id: int):
-    log.debug(f"delete_organisation() unimplemented!")
-    pass
-
-def get_organisations():
-    # manager_user_id: int):
-    log.debug(f"get_organisations() unimplemented!")
-    pass
-
 def get_organisations_managed_by_user():
     # user_id: int):
     log.debug(f"get_organisations_managed_by_user() unimplemented!")
-    pass
-
-def get_organisations_managed_by_user_as_dto():
-    # user_id: int) -> ListOrganisationsDTO:
-    log.debug(f"get_organisations_managed_by_user_as_dto() unimplemented!")
     pass
 
 def get_projects_by_organisation_id():
@@ -116,30 +121,15 @@ def is_user_an_org_manager():
     log.debug(f"is_user_an_org_manager() unimplemented!")
     pass
 
-def get_campaign_organisations_as_dto():
-    # campaign_id: int, user_id: int):
-    log.debug(f"get_campaign_organisations_as_dto() unimplemented!")
-    pass
+# We don't need to test these they are for sqlachemy, which we're not using. Instead
+# we use the UsersTable() to represent the table schema
+# def get_organisation_dto():
+# def get_organisations_managed_by_user_as_dto():
+# def get_organisations_as_dto():
+# def get_campaign_organisations_as_dto():
+# def get_organisation_by_id_as_dto():
+# def get_organisation_by_slug_as_dto():
 
-def get_organisation_by_id_as_dto():
-    #
-    log.debug(f"get_organisation_by_id_as_dto() unimplemented!")
-    pass
-
-def get_organisation_by_slug_as_dto():
-    # slug: str, user_id: int, abbreviated: bool):
-    log.debug(f"get_organisation_by_slug_as_dto() unimplemented!")
-    pass
-
-def get_organisation_dto():
-    # org, user_id: int, abbreviated: bool):
-    log.debug(f"get_organisation_dto() unimplemented!")
-    pass
-
-def get_organisations_as_dto():
-    #
-    log.debug(f"get_organisations_as_dto() unimplemented!")
-    pass
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
