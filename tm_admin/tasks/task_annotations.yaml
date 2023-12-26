@@ -1,0 +1,27 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- task_annotations:
+    - id:
+        - int32
+        - required: true
+        - share: true
+        - sequence: true
+        - unique: true
+    - project_id:
+        - int32
+        - required: true
+    - task_id:
+        - int32
+        - required: true
+    - annotation_type:
+        - string
+    - annotation_source:
+        - string
+    - updated_timestamp:
+        - timestamp
+        - required: true
+    - properties:
+        - json
+        - required: true

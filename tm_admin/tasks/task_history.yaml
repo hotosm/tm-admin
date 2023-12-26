@@ -5,10 +5,13 @@
 - task_history:
     - id:
         - int64
+        - required: true
     - project_id:
         - int64
+        - required: true
     - task_id:
         - int64
+        - required: true
     - action:
         - string
     - action_text:

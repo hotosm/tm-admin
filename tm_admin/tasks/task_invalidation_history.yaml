@@ -1,0 +1,33 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- task_invalidation_history:
+    - id:
+        - int32
+        - required: true
+        - share: true
+        - sequence: true
+        - unique: true
+    - project_id:
+        - int32
+    - task_id:
+        - int32
+    - is_closed:
+        - bool
+    - mapper_id:
+        - int64
+    - mapped_date:
+        - timestamp
+    - invalidator_id:
+        - int64
+    - invalidated_date:
+        - timestamp
+    - invalidation_history_id:
+        - in32
+    - validator_id:
+        - int64
+    - validated_date:
+        - timestamp
+    - updated_date:
+        - timestamp
