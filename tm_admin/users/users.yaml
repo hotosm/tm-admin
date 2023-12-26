@@ -97,3 +97,14 @@
         - bool
     - teams_announcement_notifications:
         - bool
+    - favorite_projects:
+        - int32
+        - array: true
+        - share: false
+    - licenses:
+        - int32
+        - array: true
+    - interests:
+        - int32
+        - array: true
+        - share: true
