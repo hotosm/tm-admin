@@ -2,6 +2,16 @@
 # This file is used to generate the full SQL to create database
 # tables, as well as the protobuf files.
 
+- team_members:
+    - team:
+        - int32
+    - active:
+        - bool
+    - function:
+        - public.teammemberfunctions
+#    - join_request_notifications:
+#        - bool
+
 - users:
     - id:
         - int64
@@ -108,3 +118,13 @@
         - int32
         - array: true
         - share: true
+    - team_members:
+        - table.team_members
+#    - join_request_notifications:
+#        - bool
+#    - team:
+#        - int32
+#    - active:
+#        - bool
+#    - function:
+#        - public.teammemberfunctions
