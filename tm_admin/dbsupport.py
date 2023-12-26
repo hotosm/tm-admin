@@ -224,6 +224,7 @@ class DBSupport(object):
             (list): The results of the query
         """
         sql = f"SELECT row_to_json({self.table}) as row FROM {self.table} WHERE {where}"
+        print(sql)
         self.pg.dbcursor.execute(sql)
         result = self.pg.dbcursor.fetchall()
 
@@ -312,13 +313,37 @@ class DBSupport(object):
         except:
             return False
 
+    def removeColumn(self,
+                    uid: int,
+                    data: dict,
+                    ):
+        """
+        This updates a single array column in the database.
+        If you want to update multiple columns, use self.updateTable()
+        instead.
+
+        Args:
+            uid (int): The ID of the user to update
+            data (dict): The column and new value
+        """
+        [[column, value]] = data.items()
+        aval = "'{" + f"{value}" + "}"
+        sql = f"UPDATE {self.table} SET {column}=array_remove({column}, {value}) WHERE id='{uid}'"
+        # print(sql)
+        try:
+            result = self.pg.dbcursor.execute(f"{sql};")
+            return True
+        except:
+            return False
+
     def appendColumn(self,
                     uid: int,
                     data: dict,
                     ):
         """
-        This updates a single array column in the database. If you want to update
-        multiple columns, use self.updateTable() instead.
+        This updates a single array column in the database.
+        If you want to update multiple columns, use self.updateTable()
+        instead.
 
         Args:
             uid (int): The ID of the user to update
