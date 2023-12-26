@@ -65,26 +65,8 @@ clean:
 realclean: clean
 	@$(RM) -f *~ */*~ rm -fr __pycache__/ */rm -fr __pycache__/
 
-
-# Developer only! This requires a Tasking Manager database running on your local machine.
-# This is used to update the test data if any changes to the TM database schema are made.
-tmtestdata:
-	@echo "Generating test data for users table..."
-	-@ogr2ogr ../tests/tmusers.sql PG:'dbname=tm4' -sql "SELECT * FROM users LIMIT 10"
-	-@sed -i -e '/ALTER/d' -e '/TABLE/d'  -e '/BEGIN/d' tmusers.sql
-	@echo "Generating test data for projects table..."
-	-@ogr2ogr ../tests/tmprojects.sql PG:'dbname=tm4' -sql "SELECT * FROM projects LIMIT 10"
-	-@sed -i -e '/ALTER/d' -e '/TABLE/d'  -e '/BEGIN/d' -e '/CREATE/d' ../tests/tmprojects.sql
-	@echo "Generating test data for organizations table..."
-	-@ogr2ogr ../tests/tmorganizations.sql PG:'dbname=tm4' -sql "SELECT * FROM organisations LIMIT 10"
-	-@sed -i -e '/ALTER/d' -e '/TABLE/d'  -e '/BEGIN/d' -e '/CREATE/d' ../tests/tmorganizations.sql
-	@echo "Generating test data for tasks table..."
-	-@ogr2ogr ../tests/tmtasks.sql PG:'dbname=tm4' -sql "SELECT * FROM tasks LIMIT 10"
-	-@sed -i -e '/ALTER/d' -e '/TABLE/d'  -e '/BEGIN/d' -e '/SELECT/d'  -e '/CREATE/d' ../tests/tmtasks.sql
-	@echo "Generating test data for teams table..."
-	-@ogr2ogr ../tests/tmteams.sql PG:'dbname=tm4' -sql "SELECT * FROM teams LIMIT 10"
-	-@sed -i -e '/ALTER/d' -e '/TABLE/d'  -e '/BEGIN/d' -e '/SELECT/d'  -e '/CREATE/d' ../tests/tmteams.sql
-
-.SUFFIXES: .py .sql .yaml .proto
+datafiles:
+	-pg_dump -d tm4 -t licenses --inserts > licenses.sql
+	-pg_dump -d tm4 -t interests --inserts > interests.sql
 
 force:
