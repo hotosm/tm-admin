@@ -141,9 +141,28 @@ def unfavorite():
     # project_id: int, user_id: int):
     log.debug(f"--- unfavorite() ---")
     uid = 4606673
-    pid = 5
+    pid = 1
     result = user.removeColumn(uid, {'favorite_projects': pid})
     assert result
+
+def set_project_as_featured():
+    # project_id: int):
+    log.debug(f"--- set_project_as_featured() ---")
+    pid = 2
+    result = project.updateColumn(pid, {'featured': True})
+    assert result
+
+def unset_project_as_featured():
+    # project_id: int):
+    log.debug(f"--- unset_project_as_featured() ---")
+    pid = 2
+    result = project.updateColumn(pid, {'featured': False})
+    assert result
+
+def get_featured_projects():
+    log.debug(f"--- get_featured_projects() ---")
+    result = project.getByWhere(f" featured=true")
+    assert len(result)
 
 def auto_unlock_tasks():
     # project_id: int):
@@ -177,18 +196,6 @@ def get_cached_project_summary():
 
 def get_project_summary():
     log.debug(f"get_project_summary() unimplemented!")
-
-def set_project_as_featured():
-    # project_id: int):
-    log.debug(f"set_project_as_featured() unimplemented!")
-
-def unset_project_as_featured():
-    # project_id: int):
-    log.debug(f"unset_project_as_featured() unimplemented!")
-
-def get_featured_projects():
-    # preferred_locale):
-    log.debug(f"get_featured_projects() unimplemented!")
 
 def get_project_stats():
     # project_id: int) -> ProjectStatsDTO:
