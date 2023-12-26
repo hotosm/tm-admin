@@ -1,0 +1,23 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- chat:
+    - id:
+        - int64
+        - required: true
+        - share: true
+        - sequence: true
+        - unique: true
+    - project_id:
+        - int32
+        - required: true
+    - user_id:
+        - int32
+        - required: true
+    - time_stamp:
+        - timestamp
+        - required: true
+    - message:
+        - string
+        - required: true
