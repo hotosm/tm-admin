@@ -1,0 +1,22 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- campaigns:
+    - id:
+        - int32
+    - name:
+        - string
+        - required: true
+    - logo:
+        - string
+    - url:
+        - string
+    - description:
+        - string
+    - projects:
+        - int32
+        - array: true
+    - organizations:
+        - int32
+        - array: true
