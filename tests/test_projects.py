@@ -28,8 +28,9 @@ from sys import argv
 #from tm_admin.yamlfile import YamlFile
 from tm_admin.users.users import UsersDB
 from tm_admin.tasks.tasks import TasksDB
+from tm_admin.teams.teams import TeamsDB
 from tm_admin.projects.projects import ProjectsDB
-from tm_admin.types_tm import Userrole, Mappinglevel
+from tm_admin.types_tm import Userrole, Mappinglevel, Teamroles, Permissions
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
 from tm_admin.projects.projects_class import ProjectsTable
@@ -47,6 +48,7 @@ dbname = 'localhost/testdata'
 user = UsersDB(dbname)
 project = ProjectsDB(dbname)
 task = TasksDB(dbname)
+team = TeamsDB(dbname)
 
 def get_project_by_id():
     # project_id: int) -> Project:
@@ -164,6 +166,28 @@ def get_featured_projects():
     result = project.getByWhere(f" featured=true")
     assert len(result)
 
+def evaluate_mapping_permission():
+    # project_id: int, user_id: int, mapping_permission: int
+    log.debug(f"evaluate_mapping_permission()")
+    uid = 4606673
+    pid = 16
+    perm = Permissions.ANY
+    userrole = user.getColumn(uid, 'role')
+    team = user.getColumn(uid, 'team_members')
+    mapperms = projects.getColumn(pid, 'mapping_permission')
+
+    #result = team.getByWhere(f" id={uid}")
+    #print(result)
+    allowed_roles = [
+            Teamroles.TEAM_MAPPER,
+            Teamroles.TEAM_VALIDATOR,
+            Teamroles.PROJECT_MANAGER,
+        ]
+
+
+def evaluate_validation_permission():
+    log.debug(f"evaluate_validation_permission() unimplemented!")
+
 def auto_unlock_tasks():
     # project_id: int):
     log.debug(f"auto_unlock_tasks() unimplemented!")
@@ -175,6 +199,7 @@ def delete_tasks():
 
 def get_contribs_by_day():
     # project_id: int) -> ProjectContribsDTO:
+    # FIXME: This needs the Task History Table
     log.debug(f"get_contribs_by_day() unimplemented!")
 
 def get_task_for_logged_in_user():
@@ -184,12 +209,6 @@ def get_task_for_logged_in_user():
 def get_task_details_for_logged_in_user():
     # user_id: int, preferred_locale: str):
     log.debug(f"get_task_details_for_logged_in_user() unimplemented!")
-
-def evaluate_mapping_permission():
-    log.debug(f"evaluate_mapping_permission() unimplemented!")
-
-def evaluate_validation_permission():
-    log.debug(f"evaluate_validation_permission() unimplemented!")
 
 def get_cached_project_summary():
     log.debug(f"get_cached_project_summary() unimplemented!")

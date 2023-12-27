@@ -61,7 +61,7 @@ def get_organisation_name_by_id():
     log.debug(f"--- get_organisation_name_by_id() ---")
     id = 1
     result = organization.getByWhere(f" id='{id}'")
-    assert len(result) > 0 and result[0]['name'] == 'Other'
+    assert len(result) > 0 and result[0][0]['name'] == 'Other'
 
 def get_organisations():
     # manager_user_id: int):

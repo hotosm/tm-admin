@@ -41,6 +41,9 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
+
+#UPDATE users SET favorite_projects = ARRAY[1,2,16,5];
+
 user = UsersDB('localhost/testdata')
 project = ProjectsDB('localhost/testdata')
 
@@ -70,8 +73,7 @@ def test_role():
     log.debug("--- test_role() ---")
     id = 4606673
     role = Userrole(Userrole.ADMIN)
-    #result = user.updateRole(id, role)
-    return user.updateColumn(id, {'role': role.name})
+    result user.updateColumn(id, {'role': role.name})
     assert result
     
 def get_mapping_level():
