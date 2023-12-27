@@ -75,6 +75,8 @@ nav:
       - Data Flow: dataflow.md
       - Data Exchange: dataexchange.md
       - Endpoints: endpoints.md
+      - TM Admin schema: schema.md
+      - Tasking Manager schema: tmschema.md
   - Code API: api.md
   - Protobuf API: protos-api.md
   - Class Hierarchy: apidocs/html/index.html

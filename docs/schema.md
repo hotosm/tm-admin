@@ -28,15 +28,19 @@ are minor differences in capitalization which are easily handled.
 
 ### types_tm.sql
 
-This file contains the definitions for postgres.
+This file contains the definitions for postgres. These add new types
+into postgres, which can then be used by the other tables.
 
 ### types_tm.py
 
-This file contains the definitions for python.
+This file contains the definitions for python. These are standard
+Python IntEnums, so it's possible to get both the name or the numeric
+value.
 
 ### types_tm.proto
 
-This file contains the definitions for gRPC.
+This file contains the protobuf definitions required by gRPC. These
+are needed to compile any of the other protobuf files.
 
 ## Regenerating the files
 
@@ -53,6 +57,29 @@ work with only one table, use the *generate.py* program. There is also
 a base class *Generator* that can be used by other programs.
 
 	generate.py users/users.yaml -v
+
+## The Python API
+
+There are two python files generated to work with the data structures
+directly. One is a direct representation of the database table
+schema. This is in the __*_class.py__ file. Each one contains a class
+for each table in the config file. For example, the *users* table has
+a **UsersTable** class. Each column in the table is a parameter with a
+default value, so the internal data is the same as the database. The
+internal data stucture is used throughout TM Admin. When instantiating
+an instance of this class, any column can be specified as a
+parameter. This class is used to insert data into the table, to update
+existing data, or to query data.
+
+	ut = UsersTable(name='foobar', email_address="bar@foo.com", mapping_level='INTERMEDIATE')
+
+The other is for managing protobuf messages. As a protobuf message
+does not contain the full record from the table, these are similar to
+the __*Table__ class, but just have less fields in the data
+structure. What is in the protobuf messages is defined in the config
+file using the [share keyword](configuring.md). This is only used to
+create and parse gRPC messages. Since all the field names between
+these two classes are the same, it's easy to exchange data.
 
 # Importing Data From Tasking Manager
 	
