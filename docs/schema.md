@@ -1,5 +1,9 @@
 # Changing The TM Admin Schema
 
+This document covers how to make changes to the data schemas used in
+TM Admin, and the changes that were made from the original Tasking
+Manager (TM).
+
 # The configuration file
 
 A simple YAML based config file is used as a single source for all the
@@ -7,6 +11,12 @@ data structures. This makes it easier to exchange data between
 postgres, protobuf, and python. The format for configuring a schema is
 explained in more detail in [this document](configuring.md). Any
 changes to the config file are propogated into the different formats.
+
+Updating the config file then requires regenerating all the output
+files. After any changes to the config files, the test cases should be
+run to make sure nothing breaks. If the config change is to support a
+new internal API, then that new function should be added to the test
+cases.
 
 ## The Types files
 
@@ -32,9 +42,17 @@ This file contains the definitions for gRPC.
 
 After any changes to one of the config files, the various output files
 must be generated. A utility program is included to regenerate all the
-files, and then updates the database tables too.
+files, and then updates the database table schemas too. Note that this
+will wipe any existing data, so is only used to initialize the
+database.
 
 	tmadmin-manager.py */*.yaml -v
+
+If you just want to regenerate the output files to view a change, or
+work with only one table, use the *generate.py* program. There is also
+a base class *Generator* that can be used by other programs.
+
+	generate.py users/users.yaml -v
 
 # Importing Data From Tasking Manager
 	
@@ -57,13 +75,29 @@ it's integer value.
 
 ## Importing the Data
 
-	./tmdb.py -t users -v
+There are two steps to import data from an existing Tasking Manager
+database into the schema used by TM Admin. The TM Admin schema is a
+superset, all columns in primary tables are the same in TM and TM
+Admin. Initially use the *tmdb.py* program to import the existing
+primary table iunto TM Admin.
 
-Zero bytes
-organisation_managers, project_teams, task_invalidation_history, user_licenses, user_roles
+	tmdb.py -t users -v
 
-No entries
-alembic_version, licenses, mapping_issue_categories, osm_lines, project_aoi, project_chat, task_mapping_issues, teams, layer, topology
+Since TM uses integers for Enum values, TM Admin uses the proper Enum
+as it makes the code easier to read and also forces all values to be
+in range. Once the primary table is imported, then each table has to
+be updated with the small utility tables. Those have all been replaced
+by using array columns, as most where just two columns anyway. The
+list of utility tables is covered later in this document. To import
+the remaining tables into the array columns, each base class has
+support for their format. For example, to import all the utility
+tables for the primary *users* table, do this:
+
+	users/users.py -v
+
+Note that the base classes have methods for importing everything, so
+they can be utilized by other programs. The simple terminal based way
+is of primary interest only to developers.
 
 ### Default Tables
 
@@ -77,7 +111,9 @@ just default values that get indexed by the other tables.
 The existing TM database schema has been extended multiple times over
 many years. One common theme is is often has multiple tables for a
 single record type. Many of these are small, and consist primarily of
-2 columns, usually two IDs. For example project_id and user_id.
+2 columns, usually two IDs. For example project_id and
+user_id. There's much more detail on the existing database schema
+[here](tmschema.md).
 
 #### User Table
 
@@ -87,6 +123,14 @@ been added as *favorite_projects*. Same with the *user_interests* and
 *user_licenses* is a single integer. The *users_with_email* columns
 has been removed as it's possible to just query the database for users
 with or without email addresses.
+
+The *users* tables also absorbed the team_members table, adding these
+columns to the *users* table.
+
+* join_request_notifications
+* team
+* active
+* function
 
 #### Import support
 
@@ -111,29 +155,47 @@ From project_info:
 * description
 * instructions
 
-From project_allowed_users
+From **project_allowed_users** table
+
 * add array of users
 
-From project_favorites
+From **project_favorites** table
+
 * add array of favorites
 
-From project_interests
+From **project_interests** table
+
 * add integer column
 
-From project_custom_editors
+From **project_custom_editors** table
+
 * appears to only be used for Rapid, but it's in the Enum for editors,
   so uneeded now
 
-From project_priority_areas
+From **project_priority_areas** tables
+
 * add array of priority areas
 
-From project_teams
+From **project_teams** table
+
 * FIXME: not sure
+* team_id, project_id, team_role
 
 #### Organizations Table
 
-From organisation_managers
+From **organisation_managers**
+
 * Add array of manager's user IDs
+
+#### Teams Table
+
+Added columns from team_members to TM Admin *users* table
+* Team ID
+* function (mapper or manager)
+* active
+
+The *join_request_notifications* column in team_members has been left
+out as this will be in the notification table.
 
 #### Tasks Table
 
@@ -153,6 +215,11 @@ TODO: not implemented yet
 
 TODO: not implemented yet
 
+##### Messages
+
+TODO: not implemented yet
+
 #### Project Chat
 
 TODO: not implemented yet
+
