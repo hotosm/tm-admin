@@ -41,8 +41,9 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
-user = UsersDB('localhost/testdata')
-project = ProjectsDB('localhost/testdata')
+dbname = os.getenv("TMDB", default="localhost/testdata")
+user = UsersDB(dbname)
+project = ProjectsDB(dbname)
 
 def get_campaign():
     """Gets the specified campaign"""

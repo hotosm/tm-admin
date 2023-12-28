@@ -39,7 +39,8 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
-organization = OrganizationsDB('localhost/tm_admin')
+dbname = os.getenv("TMDB", default="localhost/testdata")
+organization = OrganizationsDB(dbname)
 
 def get_organisation_by_id():
     log.debug(f"--- get_organisation_by_id() ---")
@@ -130,6 +131,28 @@ def is_user_an_org_manager():
 # def get_organisation_by_id_as_dto():
 # def get_organisation_by_slug_as_dto():
 
+# FMTM API tests
+def get_organisations():
+    log.debug(f"--- get_organisations() unimplemented!")
+
+def generate_slug():
+    # text: str) -> str:
+    log.debug(f"--- generate_slug() unimplemented!")
+
+def get_organisation_by_name():
+    # db: Session, name: str):
+    log.debug(f"--- get_organisation_by_name() unimplemented!")
+
+def upload_image():
+    # db: Session, file: UploadFile(None)):
+    log.debug(f"--- upload_image() unimplemented!")
+
+def create_organization():
+    log.debug(f"--- create_organization() unimplemented!")
+    # get_organisation_by_id(db: Session, id: int):
+
+def update_organization_info():
+    log.debug(f"--- update_organization_info() unimplemented!")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -168,3 +191,11 @@ if __name__ == "__main__":
     # get_organisation_by_slug_as_dto()
     # get_organisation_dto()
     # get_organisations_as_dto(
+
+    # FMTM Aget_organisations();
+    generate_slug()
+    get_organisation_by_name()
+    upload_image()
+    create_organization()
+    update_organization_info()
+    

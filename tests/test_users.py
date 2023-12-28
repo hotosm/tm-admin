@@ -44,8 +44,10 @@ rootdir = tma.__path__[0]
 
 #UPDATE users SET favorite_projects = ARRAY[1,2,16,5];
 
-user = UsersDB('localhost/testdata')
-project = ProjectsDB('localhost/testdata')
+tmdb = os.getenv("TMDB", default="localhost/testdata")
+
+user = UsersDB(tmdb)
+project = ProjectsDB(tmdb)
 
 # def get_all_users(query: UserSearchQuery):
 def test_all():
@@ -73,7 +75,7 @@ def test_role():
     log.debug("--- test_role() ---")
     id = 4606673
     role = Userrole(Userrole.ADMIN)
-    result user.updateColumn(id, {'role': role.name})
+    result = user.updateColumn(id, {'role': role.name})
     assert result
     
 def get_mapping_level():
@@ -312,7 +314,40 @@ def get_recommended_projects():
 # we use the UsersTable() to represent the table schema
 # def get_user_dto_by_username():
 # def get_user_dto_by_id(user: int, request_user: int):
+
+# test FMTM API    
+def get_users():
+    # db: Session, skip: int = 0, limit: int = 100):
+    log.debug(f"--- get_users() unimplemented!")
+
+def get_user():
+    # db: Session, user_id: int, db_obj: bool = False):
+    log.debug(f"--- get_user() unimplemented!")
+
+def get_user_by_username():
+    # db: Session, username: str):
+    log.debug(f"--- get_user_by_username() unimplemented!")
+
+def convert_to_app_user():
+    # db_user: db_models.DbUser):
+    log.debug(f"--- convert_to_app_user() unimplemented!")
+
+def convert_to_app_users():
+    # db_users: List[db_models.DbUser]):
+    log.debug(f"--- convert_to_app_users() unimplemented!")
+
+def get_user_role_by_user_id():
+    # db: Session, user_id: int):
+    log.debug(f"--- get_user_role_by_user_id() unimplemented!")
     
+def create_user_roles():
+    # user_role: user_schemas.UserRoles, db: Session):
+    log.debug(f"--- create_user_roles() unimplemented!")
+
+def get_user_by_id():
+    # db: Session, user_id: int):
+    log.debug(f"--- get_user_by_id() unimplemented!")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
@@ -331,8 +366,7 @@ if __name__ == "__main__":
         stream=sys.stdout,
     )
 
-    # user = UsersDB(args.uri)
-    
+    # Test TM API
     # get_user_dto_by_username()
     # get_user_dto_by_id()
     test_by_id()
@@ -370,5 +404,13 @@ if __name__ == "__main__":
     # is_user_the_project_author()
     # get_osm_details_for_user() # Not part of this API
     # notify_level_upgrade() # Not part of this API
-
     test_all()
+
+    # FMTM API tests
+    get_user()
+    get_user_by_username()
+    convert_to_app_user()
+    convert_to_app_users()
+    get_user_role_by_user_id()
+    create_user_roles()
+    get_user_by_id()
