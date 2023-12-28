@@ -27,7 +27,7 @@ from sys import argv
 from datetime import datetime
 from dateutil.parser import parse
 import tm_admin.types_tm
-from tm_admin.types_tm import Userrole, Mappinglevel
+from tm_admin.types_tm import Userrole, Mappinglevel, Teammemberfunctions
 import concurrent.futures
 from cpuinfo import get_cpu_info
 
@@ -43,7 +43,7 @@ log = logging.getLogger(__name__)
 info = get_cpu_info()
 cores = info["count"]
 
-def importThread(
+def updateThread(
     data: list,
     db: PostgresClient,
 ):
@@ -141,12 +141,39 @@ class UsersDB(DBSupport):
             block = 0
             while block <= entries:
                 log.debug("Dispatching Block %d:%d" % (block, block + chunk))
-                result = executor.submit(importThread, data[block : block + chunk], tmpg[index])
+                result = executor.submit(updateThread, data[block : block + chunk], tmpg[index])
                 block += chunk
                 index += 1
             executor.shutdown()
 
         return True
+
+    def mergeTeam(self):
+        table = 'team_members'
+        # FIXME: this shouldn't be hardcoded!
+        pg = PostgresClient('localhost/tm4')
+        sql = f"SELECT row_to_json({table}) as row FROM {table}"
+        print(sql)
+        try:
+            result = pg.dbcursor.execute(sql)
+        except:
+            log.error(f"Couldn't execute query! {sql}")
+            return False
+
+        result = pg.dbcursor.fetchall()
+        for record in result:
+            func = record[0]['function']
+            tmfunc = Teammemberfunctions(func)
+            sql = f"UPDATE {self.table} SET team_members.team={record[0]['team_id']}, team_members.active={record[0]['active']}, team_members.function='{tmfunc.name}' WHERE id={record[0]['user_id']}"
+            print(f"{sql};")
+            try:
+                # FIXME: this fails to execute, but if I write the out to a file,
+                # it works just fine.
+                # result = pg.dbcursor.execute(sql)
+                pass
+            except:
+                log.error(f"Couldn't execute query! '{sql}'")
+                return False
 
     def mergeFavorites(self):
         table = 'project_favorites'
@@ -265,14 +292,19 @@ def main():
     user = UsersDB(args.uri)
 
     # These may take a long time to complete
-    # if user.mergeInterests():
-    #     log.info("UserDB.mergeInterests worked!")
+    if user.mergeInterests():
+        log.info("UserDB.mergeInterests worked!")
 
-    if user.mergeLicenses():
-        log.info("UserDB.mergeLicenses worked!")
+    #if user.mergeLicenses():
+    #    log.info("UserDB.mergeLicenses worked!")
 
-    # if user.mergeFavorites():
-    #     log.info("UserDB.mergeFavorites worked!")
+    if user.mergeFavorites():
+        log.info("UserDB.mergeFavorites worked!")
+
+    if user.mergeTeam():
+        log.info("UserDB.mergeTeams worked!")
+    
+    # log.warning(f"Nothing to do!")
 
     # user.resetSequence()
     # all = user.getAll()
