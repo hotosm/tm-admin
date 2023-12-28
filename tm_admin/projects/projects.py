@@ -118,7 +118,8 @@ class ProjectsDB(DBSupport):
                 if type(val) == int:
                     entry = f"{key}={val}"
                 else:
-                    entry = f"{key}='{val.replace("'", "&apos;")}'"
+                    val = val.replace("'", "")
+                    entry = f"{key}='{val}'"
                 settings += f"{entry}, "
 
             sql = f"UPDATE projects SET {settings[:-2]} WHERE id={record[0]['project_id']};"
