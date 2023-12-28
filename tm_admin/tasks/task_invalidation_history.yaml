@@ -24,7 +24,7 @@
     - invalidated_date:
         - timestamp
     - invalidation_history_id:
-        - in32
+        - int32
     - validator_id:
         - int64
     - validated_date:
