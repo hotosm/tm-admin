@@ -40,7 +40,8 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
-team = TeamsDB('localhost/tm_admin')
+dbname = os.getenv("TMDB", default="localhost/testdata")
+teams = TeamsDB(dbname)
 
 def get_team_by_id():
     log.debug(f"get_team_by_id() unimplemented!")

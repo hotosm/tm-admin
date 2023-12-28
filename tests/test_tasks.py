@@ -38,6 +38,11 @@ log = logging.getLogger(__name__)
 import tm_admin as tma
 rootdir = tma.__path__[0]
 
+dbname = os.getenv("TMDB", default="localhost/testdata")
+user = UsersDB(dbname)
+project = ProjectsDB(dbname)
+task = TasksDB(dbname)
+
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
@@ -109,9 +114,58 @@ def extend_task_lock_time():
     log.debug(f"--- extend_task_lock_time() unimplemented!")
     #extend_dto: ExtendLockTimeDTO):
     
+# FMTM API tests
+def get_task_count_in_project():
+    # db: Session, project_id: int):
+    log.debug(f"--- get_task_count_in_project() unimplemented!")
 
-user = UsersDB('localhost/testdata')
-project = ProjectsDB('localhost/testdata')
+def get_task_lists():
+    # db: Session, project_id: int):
+    log.debug(f"--- get_task_lists() unimplemented!")
+
+def get_tasks():
+    #
+    log.debug(f"--- get_tasks() unimplemented!")
+
+def get_task():
+    # db: Session, task_id: int, db_obj: bool = False):
+    log.debug(f"--- get_task() unimplemented!")
+
+def update_task_status():
+    # db: Session, user_id: int, task_id: int, new_status: TaskStatus):
+    log.debug(f"--- update_task_status() unimplemented!")
+
+def update_qrcode():
+    log.debug(f"--- update_qrcode() unimplemented!")
+
+def create_task_history_for_status_change():
+    log.debug(f"--- create_task_history_for_status_change() unimplemented!")
+
+def convert_to_app_history():
+    # db_histories: List[db_models.DbTaskHistory]):
+    log.debug(f"--- convert_to_app_history() unimplemented!")
+
+def convert_to_app_task():
+    # db_task: db_models.DbTask):
+    log.debug(f"--- convert_to_app_task() unimplemented!")
+
+def convert_to_app_tasks():
+    # db_tasks: List[db_models.DbTask]):
+    log.debug(f"--- convert_to_app_tasks() unimplemented!")
+
+def get_qr_codes_for_task():
+    log.debug(f"--- get_qr_codes_for_task() unimplemented!")
+
+def get_task_by_id():
+    # db: Session, task_id: int):
+    log.debug(f"--- get_task_by_id() unimplemented!")
+
+def update_task_files():
+    log.debug(f"--- update_task_files() unimplemented!")
+
+def edit_task_boundary():
+    # db: Session, task_id: int, boundary: str):
+    log.debug(f"--- edit_task_boundary() unimplemented!")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -146,3 +200,18 @@ if __name__ == "__main__":
     reset_all_badimagery()
     lock_time_can_be_extended()
     extend_task_lock_time()
+
+    # FMTM API tests
+    
+    get_tasks()
+    get_task()
+    update_task_status()
+    update_qrcode()
+    create_task_history_for_status_change()
+    convert_to_app_history()
+    convert_to_app_task()
+    convert_to_app_tasks()
+    get_qr_codes_for_task()
+    get_task_by_id()
+    update_task_files()
+    edit_task_boundary()

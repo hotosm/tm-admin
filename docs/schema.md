@@ -2,7 +2,10 @@
 
 This document covers how to make changes to the data schemas used in
 TM Admin, and the changes that were made from the original Tasking
-Manager (TM).
+Manager (TM). The Field Mapping Tasking Manager (FMTM) database schema
+was originally based on the TM schema, but doesn't use all the tables,
+plus added columns. TM Admin has a unified schema that is designed to
+work with any tasking manager style project.
 
 # The configuration file
 
@@ -106,7 +109,7 @@ There are two steps to import data from an existing Tasking Manager
 database into the schema used by TM Admin. The TM Admin schema is a
 superset, all columns in primary tables are the same in TM and TM
 Admin. Initially use the *tmdb.py* program to import the existing
-primary table iunto TM Admin.
+primary table into TM Admin.
 
 	tmdb.py -t users -v
 
@@ -152,7 +155,9 @@ has been removed as it's possible to just query the database for users
 with or without email addresses.
 
 The *users* tables also absorbed the team_members table, adding these
-columns to the *users* table.
+columns to the *users* table as a nested table array. This lets a user
+have different functions or activity across multiple projects, which
+is currently not supported by TM.
 
 * join_request_notifications
 * team
@@ -217,6 +222,7 @@ From **organisation_managers**
 #### Teams Table
 
 Added columns from team_members to TM Admin *users* table
+
 * Team ID
 * function (mapper or manager)
 * active
@@ -249,4 +255,18 @@ TODO: not implemented yet
 #### Project Chat
 
 TODO: not implemented yet
+
+
+## Testing Changes
+
+The code has been designed to be flexible and dynamic. Most of the
+code extracts the keys & values from the data itself. There is a lot
+of looping through data structures to keep things self-adjusting.
+
+A test suite has been created from the internal APIs used by the
+backends of TM and FMTM. Many of the API endpoints are for
+convienince, getting the value of a column from the database, or
+updating existing data. Some are more functional, accessing one or
+more tables to produce the correct output. These tests duplicate the
+lower-level functionality the existing backends require.
 

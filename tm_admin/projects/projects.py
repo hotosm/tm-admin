@@ -47,7 +47,7 @@ cores = info["count"]
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-def importThread(
+def updateThread(
     data: list,
     db: PostgresClient,
 ):
@@ -59,7 +59,7 @@ def importThread(
     """
     for record in data:
         sql = f" UPDATE projects SET licenses = ARRAY[{record[0]['license']}] WHERE id={record[0]['user']}"
-        print(sql)
+        # print(sql)
         # try:
         #     result = db.dbcursor.execute(f"{sql};")
         # except:
@@ -123,7 +123,7 @@ class ProjectsDB(DBSupport):
                 settings += f"{entry}, "
 
             sql = f"UPDATE projects SET {settings[:-2]} WHERE id={record[0]['project_id']};"
-            print(sql)
+            # print(sql)
             results = self.pg.queryLocal(sql[:-2])
 
 def main():
