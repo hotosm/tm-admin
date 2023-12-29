@@ -158,5 +158,5 @@
         - array: true
         - share: true
 
-#project_id_str|character varying|||
-#text_searchable|tsvector|||
+# project_id_str|character varying|||
+# text_searchable|tsvector|||

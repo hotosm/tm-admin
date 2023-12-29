@@ -1,3 +1,7 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
 - team_members:
     - team:
         - int32
