@@ -26,11 +26,11 @@ SQL := $(wildcard *.sql)
 # Developer only! This requires a Tasking Manager database running on your local machine.
 # This is used to update the test data if any changes to the TM database schema are made.
 # As we want to use the existing table, we only insert data, and not create and columns.
-DB=testdata
+DB=tm_admin
 tmtestdata:
 	@echo "Generating test data for users table..."
-	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM users WHERE id='4606673'"
-	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/users/ > tmusers.sql
+	-ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM users WHERE id='4606673'"
+	-grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/users/ > tmusers.sql
 	@echo "Generating test data for projects table..."
 	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM projects LIMIT 10"
 	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/projects/ > tmprojects.sql
@@ -43,11 +43,17 @@ tmtestdata:
 	@echo "Generating test data for teams table..."
 	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM teams LIMIT 10"
 	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/teams/ > tmteams.sql
+	@echo "Generating test data for campaigns table..."
+	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM teams LIMIT 10"
+	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/campaigns/ > tmcampaigns.sql
+	@echo "Generating test data for messages table..."
+	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM messages LIMIT 10"
+	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/messages/ > tmmessages.sql
 
 import:
 	-for i in $(SQL); do \
-		echo "Importing $${i} into $(DB)"; \
-		psql -d $(DB) -f $${i}; \
+		echo "Importing $${i} into testdata"; \
+		psql -d testdata -f $${i}; \
 	done
 
 force:

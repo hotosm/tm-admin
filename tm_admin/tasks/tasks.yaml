@@ -45,3 +45,10 @@
         - int32
     - zoom:
         - int32
+    - history:
+        - table.task_history
+        - array: true
+    - invalidation_history:
+        - table.task_invalidation_history
+        - array: true
+
