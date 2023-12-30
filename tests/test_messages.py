@@ -27,10 +27,11 @@ from sys import argv
 # from tm_admin.users.users_proto import UsersMessage
 #from tm_admin.yamlfile import YamlFile
 from tm_admin.users.users import UsersDB
-from tm_admin.projects.projects import ProjectsDB
 from tm_admin.types_tm import Userrole, Mappinglevel
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
+from tm_admin.messages.messages import MessagesDB
+from tm_admin.messages.messages_class import MessagesTable
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -41,10 +42,24 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
-dbname = os.getenv("TMDB", default="localhost/testdata")
-user = UsersDB(dbname)
-project = ProjectsDB(dbname)
-task = TasksDB(dbname)
+user = None
+msg = None
+
+
+def get_all_messages():
+    log.debug(f"--- get_all_messages() unimplemented!")
+    # user_id: int,
+    result = msg.getByWhere()
+    assert len(result) > 0
+
+def get_message():
+    """Gets the specified message to a user"""
+    log.debug(f"--- get_message() ---")
+    # message_id: int, to_ser_id: int) -> Message:
+    mid = 599781
+    uid = 8576693
+    result = msg.getByWhere(f" id={mid} AND to_user_id={uid}")
+    assert len(result) > 0
 
 def send_welcome_message():
     """Sends welcome message to new user at Sign up"""
@@ -122,16 +137,6 @@ def has_user_new_messages():
     """Determines if the user has any unread messages"""
     # user_id: int) -> dict:
     log.debug(f"--- has_user_new_messages() unimplemented!")
-
-def get_all_messages():
-    log.debug(f"--- get_all_messages() unimplemented!")
-    # user_id: int,
-
-def get_message():
-    """Gets the specified message"""
-    # message_id: int, user_id: int) -> Message:
-    log.debug(f"--- get_message() unimplemented!")
-
 def mark_all_messages_read():
     """Marks all messages as read for the user"""
     # user_id: int, message_type: str = None):
@@ -201,6 +206,9 @@ if __name__ == "__main__":
         datefmt="%y-%m-%d %H:%M:%S",
         stream=sys.stdout,
     )
+
+    user = UsersDB(args.uri)
+    msg = MessagesDB(args.uri)
 
     send_welcome_message()
     send_message_after_validation()
