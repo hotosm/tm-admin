@@ -44,10 +44,8 @@ rootdir = tma.__path__[0]
 
 #UPDATE users SET favorite_projects = ARRAY[1,2,16,5];
 
-tmdb = os.getenv("TMDB", default="localhost/testdata")
-
-user = UsersDB(tmdb)
-project = ProjectsDB(tmdb)
+user = None
+project = None
 
 # def get_all_users(query: UserSearchQuery):
 def test_all():
@@ -74,7 +72,7 @@ def test_by_name():
 def test_role():
     log.debug("--- test_role() ---")
     id = 4606673
-    role = Userrole(Userrole.ADMIN)
+    role = Userrole(Userrole.USER_READ_ONLY)
     result = user.updateColumn(id, {'role': role.name})
     assert result
     
@@ -130,17 +128,20 @@ def test_registered():
     
 def get_project_managers():
     log.debug("--- get_project_managers() ---")
-    role = Userrole(Userrole.ADMIN)
+    role = Userrole(Userrole.PROJECT_MANAGER)
     result = user.getByWhere(f" role='{role.name}'")
     # assert len(result) == 1
 
 def is_user_an_admin():
     log.debug("--- get_project_managers() ---")
     id = 4606673
-    role = Userrole(Userrole.ADMIN)
-    result = user.getByWhere(f" role='{role.name}' AND id={id}")
+    # Get the entire user record
+    result = user.getByID(id)
+    hits = 0
+    if result['role'] == Userrole.SUPER_ADMIN or result['role'] == Userrole.ORGANIZATION_ADMIN :
+        hits += 1
+    assert hits == 0
     # assert len(result) == 1 # FIXME: There are ADMIN in the test data yet
-    assert len(result) == 1
         
 def is_user_validator():
     log.debug("--- is_user_validator() ---")
@@ -245,7 +246,7 @@ def accept_license_terms():
 def get_general_admins():
     """Get all users that are ADMIN"""
     log.debug(f"--- get_general_admins() ---")
-    result = user.getByWhere(f" role='ADMIN'")
+    result = user.getByWhere(f" role='WEB_ADMIN'")
     # FIXME: there are no ADMINs yet in the test data
     # assert len(result) > 0
 
@@ -365,6 +366,9 @@ if __name__ == "__main__":
         datefmt="%y-%m-%d %H:%M:%S",
         stream=sys.stdout,
     )
+
+    user = UsersDB(args.uri)
+    project = ProjectsDB(args.uri)
 
     # Test TM API
     # get_user_dto_by_username()
