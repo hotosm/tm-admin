@@ -33,6 +33,8 @@ from tm_admin.users.users_class import UsersTable
 from tm_admin.teams.teams_class import TeamsTable
 from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.projects.projects_class import ProjectsTable
+from tm_admin.campaigns.campaigns_class import CampaignsTable
+from tm_admin.messages.messages_class import MessagesTable
 from tm_admin.organizations.organizations_class import OrganizationsTable
 from osm_rawdata.postgres import uriParser, PostgresClient
 from shapely.geometry import Polygon, Point, shape
@@ -224,7 +226,7 @@ class DBSupport(object):
             (list): The results of the query
         """
         sql = f"SELECT row_to_json({self.table}) as row FROM {self.table} WHERE {where}"
-        print(sql)
+        # print(sql)
         self.pg.dbcursor.execute(sql)
         result = self.pg.dbcursor.fetchall()
 
@@ -308,10 +310,11 @@ class DBSupport(object):
         sql = f"UPDATE {self.table} SET {column}='{value}' WHERE id='{uid}'"
         # print(sql)
         try:
-            result = self.pg.dbcursor.execute(f"{sql};")
-            return True
+            self.pg.dbcursor.execute(f"{sql};")
         except:
             return False
+
+        return True
 
     def removeColumn(self,
                     uid: int,
@@ -352,7 +355,7 @@ class DBSupport(object):
         [[column, value]] = data.items()
         aval = "'{" + f"{value}" + "}"
         sql = f"UPDATE {self.table} SET {column}={column}||{aval}' WHERE id='{uid}'"
-        print(sql)
+        #print(sql)
         try:
             result = self.pg.dbcursor.execute(f"{sql};")
             return True
