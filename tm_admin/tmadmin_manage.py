@@ -86,7 +86,7 @@ class TmAdminManage(object):
                 print(f"\t{k} = {v}")
 
     def createDB(self,
-                dburi: str = None,
+                files: list = list(),
                 ):
         """
         Create a postgres database.
@@ -97,13 +97,19 @@ class TmAdminManage(object):
 
         """
         # sql = "CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS hstore"
-        if dburi:
-            self.dburi = uriParser(dburi)
         # FIXME: CREATE DATABASE cannot run inside a transaction block
         # self.pg.createDB(self.dburi)
+        # The types file must be imported first
         with open(f"{rootdir}/types_tm.sql", 'r') as file:
             self.pg.dbcursor.execute(file.read())
             file.close()
+
+        # This requires all the generated files have been installed
+        for sql in files:
+            log.info(f"Creating table {sql} in database")
+            with open(f"{rootdir}/{sql}", 'r') as file:
+                self.pg.dbcursor.execute(file.read())
+                file.close()
 
     def createTable(self,
                     sqlfile: str,
@@ -177,13 +183,13 @@ def main():
         This should only be run standalone for debugging purposes.
         """,
     )
-    choices = ['create', 'migrate']
+    choices = ['generate', 'create', 'migrate', 'load']
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
     # parser.add_argument("-d", "--diff", help="SQL file diff for migrations")
     # parser.add_argument("-p", "--proto", help="Generate the .proto file from the YAML file")
     parser.add_argument("-u", "--uri", default='localhost/tm_admin',
                             help="Database URI")
-    parser.add_argument("-c", "--cmd", choices=choices, default='create',
+    parser.add_argument("-c", "--cmd", choices=choices, default='generate',
                             help="Command")
     args, known = parser.parse_known_args()
 
@@ -212,35 +218,44 @@ def main():
     result = tm.createTable(f"{rootdir}/schemas.sql")
 
     # This class generates all the output files.
-    gen = Generator()
-
-    for yamlfile in known:
-        gen.readConfig(yamlfile)
-        out = gen.createSQLTable()
-        name = yamlfile.replace('.yaml', '.sql')
-        with open(name, 'w') as file:
-            file.write(out)
-            log.info(f"Wrote {name} to disk")
-            file.close()
-        tm.createTable(name)
-        name = yamlfile.replace('.yaml', '.proto')
-        out = gen.createProtoMessage()
-        with open(name, 'w') as file:
-            file.writelines([str(i)+'\n' for i in out])
-            log.info(f"Wrote {name} to disk")
-            file.close()
-        out = gen.createPyClass()
-        py = yamlfile.replace('.yaml', '_class.py')
-        with open(py, 'w') as file:
-            file.write(out)
-            log.info(f"Wrote {py} to disk")
-            file.close()
-        out = gen.createPyMessage()
-        py = yamlfile.replace('.yaml', '_proto.py')
-        with open(py, 'w') as file:
-            file.write(out)
-            log.info(f"Wrote {py} to disk")
-            file.close()
+    if args.cmd == 'generate':
+        gen = Generator()
+        # Generate all the output file
+        for yamlfile in known:
+            gen.readConfig(yamlfile)
+            out = gen.createSQLTable()
+            name = yamlfile.replace('.yaml', '.sql')
+            with open(name, 'w') as file:
+                file.write(out)
+                log.info(f"Wrote {name} to disk")
+                file.close()
+            tm.createTable(name)
+            name = yamlfile.replace('.yaml', '.proto')
+            out = gen.createProtoMessage()
+            with open(name, 'w') as file:
+                file.writelines([str(i)+'\n' for i in out])
+                log.info(f"Wrote {name} to disk")
+                file.close()
+            out = gen.createPyClass()
+            py = yamlfile.replace('.yaml', '_class.py')
+            with open(py, 'w') as file:
+                file.write(out)
+                log.info(f"Wrote {py} to disk")
+                file.close()
+            out = gen.createPyMessage()
+            py = yamlfile.replace('.yaml', '_proto.py')
+            with open(py, 'w') as file:
+                file.write(out)
+                log.info(f"Wrote {py} to disk")
+                file.close()
+    elif args.cmd == 'create':
+        tm.createDB(known)
+    elif args.cmd == 'migrate':
+        # tm.migrateDB(known)
+        pass
+    elif args.cmd == 'load':
+        # tm.migrateDB(known)
+        pass
     # tm.dump()
 
 if __name__ == "__main__":

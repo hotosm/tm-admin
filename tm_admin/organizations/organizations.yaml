@@ -33,3 +33,6 @@
     - subscription_tier:
         - int32
         - required: true
+    - managers:
+        - int32
+        - array: true

@@ -149,5 +149,14 @@
         - string
     - instructions:
         - string
-#project_id_str|character varying|||
-#text_searchable|tsvector|||
+    - allowed_users:
+        - int64
+        - array: true
+        - share: true
+    - priority_areas:
+        - int64
+        - array: true
+        - share: true
+
+# project_id_str|character varying|||
+# text_searchable|tsvector|||
