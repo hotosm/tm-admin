@@ -21,15 +21,31 @@ PACKAGE := org.tm-admin.py
 NAME := tm-admin
 VERSION := 0.1.0
 
-DRAW := $(wildcard */*.odt)
+DRAW := $(wildcard E2E/*.odt)
+PNGS := $(DRAW:.odt=.png)
+PDFS := $(DRAW:.odt=.pdf)
 
-all: $(DRAW)
+all: pngs pdfs
+	@echo "$(DRAW)"
+
+pngs: $(PNGS)
+
+pdfs: $(PDFS)
 
 apidoc:
 	-@doxygen
 
 %.png: %.odt
 	@echo "Generating $@ file for use in Markdown files"
-	-libreoffice --draw --convert-to png "$<"
+	-libreoffice --draw --headless --convert-to png "$<"
+	# -@mv *Profile.png images/
+
+%.pdf: %.odt
+	@echo "Generating $@ file for use in Markdown files"
+	-libreoffice --draw --headless --convert-to pdf "$<"
+	# -@mv *Profile.png images
+
+clean:
+	-$(RM) *.png *.pdf
 
 force:
