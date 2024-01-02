@@ -35,6 +35,7 @@ import concurrent.futures
 from cpuinfo import get_cpu_info
 # from tm_admin.users.users import createSQLValues
 # from tm_admin.organizations.organizations import createSQLValues
+from tqdm import tqdm
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -44,7 +45,9 @@ rootdir = tma.__path__[0]
 
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
-cores = info["count"]
+# More threads. Shorter import time, higher CPU load. But this is a
+# pretty low CPU load proces anyway, so more is good.
+cores = info["count"] * 2
 
 def importThread(
     data: list,
@@ -97,6 +100,32 @@ class TMImport(object):
         yaml = YamlFile(f"{rootdir}/{table}/{table}.yaml")
         # yaml.dump()
         self.config = yaml.getEntries()
+
+    def getPage(self,
+                offset: int,
+                count: int,
+                ):
+        """
+        Return all the data in the table.
+
+        Returns:
+            (list): The results of the query
+        """
+        columns = self.getColumns(self.table)
+        keys = self.columns
+
+        columns = str(keys)[1:-1].replace("'", "")
+        # sql = f"SELECT row_to_json({self.table}) as row FROM {self.table} ORDER BY id LIMIT {count} OFFSET {offset}"
+        sql = f"SELECT {columns} FROM {self.table} ORDER BY id LIMIT {count} OFFSET {offset}"
+        # print(sql)
+        self.tmdb.dbcursor.execute(sql)
+        result = self.tmdb.dbcursor.fetchall()
+        data = list()
+        for record in result:
+            table = dict(zip(keys, record))
+            data.append(table)
+
+        return data
 
     def getColumns(self,
                     table: str,
@@ -158,13 +187,29 @@ class TMImport(object):
 
         columns = str(keys)[1:-1].replace("'", "")
         sql = f"SELECT {columns} FROM {table}"
+        # sql = f"SELECT row_to_json({table}) as row FROM {table}"
         results = self.tmdb.queryLocal(sql)
         log.info(f"There are {len(results)} records in the TM '{table}' table")
         data = list()
+        # this is actually faster than using row_to_json(), and the
+        # data is a little easier to navigate.
         for record in results:
             table = dict(zip(keys, record))
             data.append(table)
         return data
+
+    def getRecordCount(self):
+        sql = f"SELECT COUNT(id) FROM {self.table}"
+        # print(sql)
+        try:
+            result = self.tmdb.dbcursor.execute(sql)
+        except:
+            log.error(f"Couldn't execute query! {sql}")
+            return False
+        result = self.tmdb.dbcursor.fetchone()[0]
+        log.debug(f"There are {result} records in {self.table}")
+
+        return result
 
     def writeAllData(self,
                     data: list,
@@ -177,11 +222,13 @@ class TMImport(object):
             data (list): The table data from TM
             table str(): The table to get the columns for.
         """
-        #log.debug(f"Writing block {len(data)} to the database")
+        log.debug(f"Writing block {len(data)} to the database")
         builtins = ['int32', 'int64', 'string', 'timestamp', 'bool']
         #bar = Bar('Importing into TMAdmin', max=len(data))
         # columns2 = self.getColumns(table)
-        for record in data:
+        pbar = tqdm(data)
+        for record in pbar:
+        # for record in data:
             # columns = str(list(record.keys()))[1:-1].replace("'", "")
             columns = list()
             values = ""
@@ -299,7 +346,7 @@ class TMImport(object):
                 if 'required' in val and key not in columns:
                     # log.debug(f"REQUIRED: {key} = {val['required']}")
                     if val['required']:
-                        log.debug(f"Key '{key}' is required")
+                        # g.debug(f"Key '{key}' is required")
                         columns.append(key)
                         # FIXME: don't hardcode
                         if self.config[key]['datatype'] not in builtins:
@@ -313,7 +360,7 @@ class TMImport(object):
 
             # foo = f"str(columns)[1:-1].replace("'", "")
             sql = f"""INSERT INTO {table}({str(columns)[1:-1].replace("'", "")}) VALUES({values[:-2]})"""
-            print(sql)
+            # print(sql)
             results = self.admindb.queryLocal(sql)
 
         #bar.finish()
@@ -351,37 +398,62 @@ def main():
     )
 
     doit = TMImport(args.inuri, args.outuri, args.table)
-    # You have to love subtle cultural spelling differences.
-    data = list
-    if args.table == 'organizations':
-        data = doit.getAllData('organisations')
-    else:
-        data = doit.getAllData(args.table)
-
-    entries = len(data)
-    log.debug(f"There are {entries} entries in {args.table}")
+    entries = doit.getRecordCount()
+    block = 0
     chunk = round(entries / cores)
 
+    threshold = 10000
+    data = list()
     tmpg = list()
+
+    # Some tables in the input database are huge, and can either core
+    # dump python, or have performance issues. Past a certain threshold
+    # the data needs to be queried in pages instead of the entire table.
+    # For better performance, the page of data is still imported with
+    # threads for better performance.
     for i in range(0, cores + 1):
         tmpg.append(PostgresClient(args.outuri))
 
+        index = 0
+    if entries > threshold:
+        for block in range(0, entries, chunk):
+            data = doit.getPage(block, chunk)
+            page = round(len(data) / cores)
+            index = 0
+            # importThread(data[block : block + page], tmpg[0], doit)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
+                block = 0
+                while block <= entries:
+                    # log.debug("Dispatching Block %d:%d" % (block, block + page))
+                    result = executor.submit(importThread, data[block : block + page], PostgresClient(args.outuri), doit)
+                    block += page
+                    index += 1
+            executor.shutdown()
+    else:
+        data = list
+        # You have to love subtle cultural spelling differences.
+        if args.table == 'organizations':
+            data = doit.getAllData('organisations')
+        else:
+            data = doit.getAllData(args.table)
 
-    if entries < 10000:
-        importThread(data, tmpg[0], doit)
-        quit()
+        # entries = len(data)
+        # log.debug(f"There are {entries} entries in {args.table}")
+        # chunk = round(entries / cores)
 
-    index = 0
-    with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
-        block = 0
-        while block <= entries:
-            log.debug("Dispatching Block %d:%d" % (block, block + chunk))
-            result = executor.submit(importThread, data[block : block + chunk], tmpg[index], doit)
-            block += chunk
-            index += 1
-        # for future in tqdm(futures, desc=f"Dispatching Block {block}:{block + chunk}", total=chunk):
-        #     future.result()
-        executor.shutdown()
+        if entries < threshold:
+            importThread(data, tmpg[0], doit)
+            quit()
+
+        index = 0
+        with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
+            block = 0
+            while block <= entries:
+                log.debug("Dispatching Block %d:%d" % (block, block + chunk))
+                result = executor.submit(importThread, data[block : block + chunk], tmpg[index], doit)
+                block += chunk
+                index += 1
+            executor.shutdown()
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
