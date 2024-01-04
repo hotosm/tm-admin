@@ -228,8 +228,6 @@ class TMImport(object):
             return True
 
         builtins = ['int32', 'int64', 'string', 'timestamp', 'bool']
-        #bar = Bar('Importing into TMAdmin', max=len(data))
-        # columns2 = self.getColumns(table)
         pbar = tqdm(data)
         for record in pbar:
         # for record in data:
@@ -259,15 +257,14 @@ class TMImport(object):
                 # If it's not a standard datatype, it's an enum in types_tm.py
                 if self.config[key]['datatype'] not in builtins:
                     if self.config[key]['datatype'] == 'point':
-                        geom = get_coordinates(wkb.loads(val))
-                        values += f"point({geom[0][0]}, {geom[0][1]}), "
+                        geom = wkb.loads(val)
+                        # values += f"point({geom[0][0]}, {geom[0][1]}), "
+                        values += f"{geom.geoms[0].wkb_hex}, "
                         continue
                     elif self.config[key]['datatype'] == 'polygon':
-                        geom = get_coordinates(wkb.loads(val))
-                        poly = ''
-                        for x, y in geom:
-                            poly += f"({x},{y}), "
-                        values += f"polygon('({poly[:-2]})'), "
+                        geom = wkb.loads(val)
+                        values += f"'{geom.geoms[0].wkb_hex}', "
+                        # values += f"polygon('({poly[:-2]})'), "
                         continue
                     elif type(val) == list:
                         values += "'{"
@@ -419,13 +416,13 @@ def main():
     # dump python, or have performance issues. Past a certain threshold
     # the data needs to be queried in pages instead of the entire table.
     if entries > threshold:
-        # importThread(data, tmpg[0], doit)
         with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
             index = 0
             for block in range(0, entries, chunk):
                 data = doit.getPage(block, chunk)
                 page = round(len(data) / cores)
                 # log.debug(f"Dispatching Block {index}")
+                # importThread(data, tmpg[0], doit)
                 result = executor.submit(importThread, data, tmpg[index], doit)
                 index += 1
             executor.shutdown()
@@ -450,10 +447,15 @@ def main():
             block = 0
             while block <= entries:
                 log.debug("Dispatching Block %d:%d" % (block, block + chunk))
-                result = executor.submit(importThread, data[block : block + chunk], tmpg[index], doit)
+                importThread(data, tmpg[0], doit)
+                # result = executor.submit(importThread, data[block : block + chunk], tmpg[index], doit)
                 block += chunk
                 index += 1
             executor.shutdown()
+
+    # cleanup the connections
+    #for conn in tmpg:
+    #    conn.close()
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
