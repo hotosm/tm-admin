@@ -35,7 +35,6 @@ from tm_admin.dbsupport import DBSupport
 from tm_admin.users.users_class import UsersTable
 from osm_rawdata.postgres import uriParser, PostgresClient
 from tm_admin.types_tm import Userrole
-from alive_progress import alive_bar
 from tqdm import tqdm
 from codetiming import Timer
 import threading
@@ -60,13 +59,17 @@ def licensesThread(
     array = "licenses"
     column = "license"
 
-    for record in data:
-        sql = f" UPDATE users SET {array} = ARRAY[{record[0]['{column}']}] WHERE id={record[0]['user']}"
-        # print(sql)
+    pbar = tqdm(data)
+    for record in pbar:
+        uid = record[0]['user']
+        licenses = record[0]['license']
+        # sql = f" UPDATE users SET licenses = licenses||{licenses} WHERE id={uid}"
+        sql = f" UPDATE users SET licenses = ARRAY[{licenses}] WHERE id={uid}"
+        #print(sql)
         try:
             result = db.dbcursor.execute(f"{sql};")
         except:
-            return False
+            log.error(f"Couldn't execute query {sql}")
 
     return True
 
@@ -81,19 +84,39 @@ def interestsThread(
         db (PostgresClient): A database connection
     """
     data = dict()
-    for record in interests:
-        entry = record[0]   # there's only one item in the input data
-        if entry['user_id'] not in data:
-            data[entry['user_id']] = list()
-        data[entry['user_id']].append(entry['interest_id'])
+    pbar = tqdm(interests)
+    for record in pbar:
+        uid = record[0]['user_id']
+        interests = record[0]['interest_id']
+        sql = f" UPDATE users SET interests = interests||{interests} WHERE id={uid}"
+        # print(sql)
+        try:
+            result = db.dbcursor.execute(f"{sql};")
+        except:
+            log.error(f"Couldn't execute query {sql}")
+    return True
 
-        for uid, value in data.items():
-            sql = f" UPDATE users SET interests = ARRAY{str(value)} WHERE id={uid}"
-            print(sql)
-            try:
-                result = db.dbcursor.execute(f"{sql};")
-            except:
-                return False
+def favoritesThread(
+    favorites: list,
+    db: PostgresClient,
+):
+    """Thread to handle importing favorites
+
+    Args:
+        data (list): The list of records to import
+        db (PostgresClient): A database connection
+    """
+    data = dict()
+    pbar = tqdm(favorites)
+    for record in pbar:
+        uid = record[0]
+        projects = record[1][0]
+        sql = f" UPDATE users SET favorite_projects = ARRAY{projects} WHERE id={uid}"
+        # print(sql)
+        try:
+            result = db.dbcursor.execute(f"{sql};")
+        except:
+            log.error(f"Couldn't execute query {sql}")
 
     return True
 
@@ -125,7 +148,8 @@ class UsersDB(DBSupport):
             tmpg.append(PostgresClient('localhost/tm_admin'))
         pg = PostgresClient('localhost/tm4')
         sql = f"SELECT row_to_json({table}) as row FROM {table}"
-        # print(sql)
+        # sql = f"SELECT u.user_id,ARRAY(SELECT ARRAY(SELECT c.interest_id FROM {table} c WHERE c.user_id = u.user_id)) AS user_id FROM {table} u;"
+        print(sql)
         try:
             result = pg.dbcursor.execute(sql)
         except:
@@ -138,66 +162,96 @@ class UsersDB(DBSupport):
         log.debug(f"There are {entries} entries in {table}")
         chunk = round(entries / cores)
 
-        # if True:
-        #     interestsThread(result, tmpg[0])
 
         index = 0
         with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
             # futures = list()
             block = 0
             while block <= entries:
-                log.debug(f"Dispatching Block %d:%d" % (block, block + chunk))
+                #log.debug(f"Dispatching Block %d:%d" % (block, block + chunk))
+                #interestsThread(result, tmpg[0])
                 executor.submit(interestsThread, result[block : block + chunk], tmpg[index])
                 # futures.append(result)
                 block += chunk
                 index += 1
-            # for future in tqdm(futures, desc=f"Dispatching Block {block}:{block + chunk}", total=chunk):
+                # tqdm(futures, desc=f"Dispatching Block {block}:{block + chunk}", total=chunk):
             #     future.result()
             executor.shutdown()
 
-        timer.stop
+        # timer.stop
         return True
+
+    def getPage(self,
+                offset: int,
+                count: int,
+                pg: PostgresClient,
+                table: str,
+                ):
+        """
+        Return a page of data from the table.
+
+        Args:
+            offset (int): The starting record
+            count (int): The number of records
+            pg (PostgresClient): Database connection for the input data
+            table (str): The table to query for data
+
+        Returns:
+            (list): The results of the query
+        """
+        # It turns out to be much faster to use the columns specified in the
+        # SELECT statement, and construct our own dictionary than using row_to_json().
+        #columns = "user_licenses.user, license"
+
+        sql = f"SELECT row_to_json({table}) as row FROM {table} ORDER BY user LIMIT {count} OFFSET {offset}"
+        # sql = f"SELECT {columns} FROM {table} ORDER BY user LIMIT {count} OFFSET {offset}"
+        print(sql)
+        pg.dbcursor.execute(sql)
+        result = pg.dbcursor.fetchall()
+        # data = list()
+        # Since we're not using row_to_json(), build a data structure
+        # for record in result:
+        #     table = dict(zip(columns, record))
+        #     data.append(table)
+
+        return result
 
     def mergeLicenses(self):
         """Merge data from the TM user_licenses table into TM Admin."""
         table = 'user_licenses'
-        log.info(f"Merging licenses table...")
-        timer = Timer(text="merging liceneses table took {seconds:.0f}s")
+        # log.info(f"Merging licenses table...")
+        timer = Timer(initial_text="Merging licenses table...",
+                      text="merging liceneses table took {seconds:.0f}s",
+                      logger=log.debug,
+                    )
         timer.start()
 
         sql = f"SELECT row_to_json({table}) as row FROM {table}"
         # One database connection per thread
-        tmpg = list()
+        adminpg = list()
         for i in range(0, cores + 1):
-            tmpg.append(PostgresClient('localhost/tm_admin'))
+            adminpg.append(PostgresClient('localhost/tm_admin'))
 
         # just one thread to read the data
-        pg = PostgresClient('localhost/tm4')
+        tmpg = PostgresClient('localhost/tm4')
         try:
-            result = pg.dbcursor.execute(sql)
+            result = tmpg.dbcursor.execute(sql)
         except:
             log.error(f"Couldn't execute query! {sql}")
-            return False
 
-        data = pg.dbcursor.fetchall()
+        data = tmpg.dbcursor.fetchall()
         entries = len(data)
         log.debug(f"There are {entries} entries in {table}")
         chunk = round(entries / cores)
 
-        # if True:
-        #     licensesThread(data, tmpg[0])
         index = 0
         with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
-            # futures = list()
-            block = 0
-            while block <= entries:
-                log.debug("Dispatching Block %d:%d" % (block, block + chunk))
-                result = executor.submit(licensesThread, data[block : block + chunk], tmpg[index])
-                # futures.append(result)
-                block += chunk
+            index = 0
+            for block in range(0, entries, chunk):
+                data = self.getPage(block, chunk, tmpg, table)
+                #result = licensesThread(data, adminpg[0])
+                result = executor.submit(licensesThread, data, adminpg[index])
                 index += 1
-            # for future in tqdm(futures, desc=f"Dispatching Block {block}:{block + chunk}", total=chunk):
-            #     future.result()
             executor.shutdown()
 
         timer.stop
@@ -216,22 +270,18 @@ class UsersDB(DBSupport):
             result = pg.dbcursor.execute(sql)
         except:
             log.error(f"Couldn't execute query! {sql}")
-            return False
 
         result = pg.dbcursor.fetchall()
-        for record in result:
+        pbar = tqdm(result)
+        for record in pbar:
             func = record[0]['function']
             tmfunc = Teammemberfunctions(func)
             sql = f"UPDATE {self.table} SET team_members.team={record[0]['team_id']}, team_members.active={record[0]['active']}, team_members.function='{tmfunc.name}' WHERE id={record[0]['user_id']}"
-            #print(f"{sql};")
+            # print(f"{sql};")
             try:
-                # FIXME: this fails to execute, but if I write the out to a file,
-                # it works just fine.
-                # result = pg.dbcursor.execute(sql)
-                pass
+                result = self.pg.dbcursor.execute(sql)
             except:
                 log.error(f"Couldn't execute query! '{sql}'")
-                return False
 
         timer.stop()
         return True
@@ -243,29 +293,38 @@ class UsersDB(DBSupport):
         timer = Timer(text="merging favorites table took {seconds:.0f}s")
         timer.start()
         pg = PostgresClient('localhost/tm4')
-        sql = f"SELECT row_to_json({table}) as row FROM {table}"
+        sql = f"SELECT u.user_id,ARRAY(SELECT ARRAY(SELECT c.project_id FROM {table} c WHERE c.user_id = u.user_id)) AS user_id FROM {table} u;"
+        #sql = f"SELECT row_to_json({table}) as row FROM {table} ORDER BY user_id"
         # print(sql)
         try:
             result = pg.dbcursor.execute(sql)
         except:
             log.error(f"Couldn't execute query! {sql}")
-            return False
 
         result = pg.dbcursor.fetchall()
-        data = dict()
-        for record in result:
-            entry = record[0]   # there's only one item in the input data
-            if entry['user_id'] not in data:
-                data[entry['user_id']] = list()
-            data[entry['user_id']].append(entry['project_id'])
 
-        for uid, value in data.items():
-            sql = f" UPDATE users SET favorite_projects = ARRAY{str(value)} WHERE id={uid}"
-            # print(sql)
-            try:
-                result = self.pg.dbcursor.execute(f"{sql};")
-            except:
-                return False
+        entries = len(result)
+        log.debug(f"There are {entries} entries in {table}")
+        chunk = round(entries / cores)
+
+        tmpg = list()
+        for i in range(0, cores + 1):
+            # FIXME: this shouldn't be hardcoded
+            tmpg.append(PostgresClient('localhost/tm_admin'))
+
+        index = 0
+        with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
+            # futures = list()
+            block = 0
+            while block <= entries:
+                #log.debug(f"Dispatching Block %d:%d" % (block, block + chunk))
+                #favoritesThread(result, tmpg[0])
+                executor.submit(favoritesThread, result[block : block + chunk], tmpg[index])
+                # futures.append(result)
+                block += chunk
+                index += 1
+            executor.shutdown()
+
         timer.stop()
         return True
 
@@ -329,6 +388,23 @@ class UsersDB(DBSupport):
         where = f" date_registered > '{start}' and date_registered < '{end}'"
         return self.getByWhere(where)
 
+    def mergeAuxTables(self):
+        """
+        Merge more tables from TM into the unified users table.
+        """
+        # if self.mergeTeam():
+        #     log.info("UserDB.mergeTeams worked!")
+
+        # if self.mergeFavorites():
+        #     log.info("UserDB.mergeFavorites worked!")
+
+        # These may take a long time to complete
+        #if self.mergeInterests():
+        #    log.info("UserDB.mergeInterests worked!")
+
+        if self.mergeLicenses():
+            log.info("UserDB.mergeLicenses worked!")
+
 def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser()
@@ -354,22 +430,8 @@ def main():
     )
 
     user = UsersDB(args.uri)
-
-    # These may take a long time to complete
-    if user.mergeInterests():
-        log.info("UserDB.mergeInterests worked!")
-
-    if user.mergeLicenses():
-        log.info("UserDB.mergeLicenses worked!")
-
-    if user.mergeFavorites():
-        log.info("UserDB.mergeFavorites worked!")
-
-    if user.mergeTeam():
-        log.info("UserDB.mergeTeams worked!")
+    user.mergeAuxTables()
     
-    # log.warning(f"Nothing to do!")
-
     # user.resetSequence()
     # all = user.getAll()
     # # Don't pass id, let postgres auto increment
