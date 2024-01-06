@@ -47,7 +47,7 @@ rootdir = tma.__path__[0]
 info = get_cpu_info()
 # More threads. Shorter import time, higher CPU load. But this is a
 # pretty low CPU load proces anyway, so more is good.
-cores = info["count"] * 2
+cores = info["count"]
 
 def importThread(
     data: list,
@@ -61,6 +61,7 @@ def importThread(
         db (PostgresClient): A database connection
         tm (TMImport): the input handle
     """
+    # log.debug(f"There are {len(data)} data entries")
     tm.writeAllData(data, tm.table)
 
     return True
@@ -141,7 +142,7 @@ class TMImport(object):
         """
         sql = f"SELECT column_name, data_type,column_default  FROM information_schema.columns WHERE table_name = '{table}' ORDER BY dtd_identifier;"
         results = self.tmdb.queryLocal(sql)
-        log.info(f"There are {len(results)} columns in the TM '{table}' table")
+        # log.info(f"There are {len(results)} columns in the TM '{table}' table")
         table = dict()
         for column in results:
             # print(f"FIXME: {column}")
@@ -222,10 +223,11 @@ class TMImport(object):
             data (list): The table data from TM
             table str(): The table to get the columns for.
         """
-        log.debug(f"Writing block {len(data)} to the database")
+        # log.debug(f"Writing block {len(data)} to the database")
+        if len(data) == 0:
+            return True
+
         builtins = ['int32', 'int64', 'string', 'timestamp', 'bool']
-        #bar = Bar('Importing into TMAdmin', max=len(data))
-        # columns2 = self.getColumns(table)
         pbar = tqdm(data)
         for record in pbar:
         # for record in data:
@@ -255,15 +257,14 @@ class TMImport(object):
                 # If it's not a standard datatype, it's an enum in types_tm.py
                 if self.config[key]['datatype'] not in builtins:
                     if self.config[key]['datatype'] == 'point':
-                        geom = get_coordinates(wkb.loads(val))
-                        values += f"point({geom[0][0]}, {geom[0][1]}), "
+                        geom = wkb.loads(val)
+                        # values += f"point({geom[0][0]}, {geom[0][1]}), "
+                        values += f"{geom.geoms[0].wkb_hex}, "
                         continue
                     elif self.config[key]['datatype'] == 'polygon':
-                        geom = get_coordinates(wkb.loads(val))
-                        poly = ''
-                        for x, y in geom:
-                            poly += f"({x},{y}), "
-                        values += f"polygon('({poly[:-2]})'), "
+                        geom = wkb.loads(val)
+                        values += f"'{geom.geoms[0].wkb_hex}', "
+                        # values += f"polygon('({poly[:-2]})'), "
                         continue
                     elif type(val) == list:
                         values += "'{"
@@ -361,7 +362,7 @@ class TMImport(object):
             # foo = f"str(columns)[1:-1].replace("'", "")
             sql = f"""INSERT INTO {table}({str(columns)[1:-1].replace("'", "")}) VALUES({values[:-2]})"""
             # print(sql)
-            results = self.admindb.queryLocal(sql)
+            results = self.admindb.dbcursor.execute(sql)
 
         #bar.finish()
             
@@ -402,32 +403,28 @@ def main():
     block = 0
     chunk = round(entries / cores)
 
+    # this is the size of the pages in records
     threshold = 10000
     data = list()
     tmpg = list()
 
+    tmpg = list()
+    for i in range(0, cores + 1):
+        # FIXME: this shouldn't be hardcoded
+        tmpg.append(PostgresClient('localhost/tm4'))
     # Some tables in the input database are huge, and can either core
     # dump python, or have performance issues. Past a certain threshold
     # the data needs to be queried in pages instead of the entire table.
-    # For better performance, the page of data is still imported with
-    # threads for better performance.
-    for i in range(0, cores + 1):
-        tmpg.append(PostgresClient(args.outuri))
-
-        index = 0
     if entries > threshold:
-        for block in range(0, entries, chunk):
-            data = doit.getPage(block, chunk)
-            page = round(len(data) / cores)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
             index = 0
-            # importThread(data[block : block + page], tmpg[0], doit)
-            with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
-                block = 0
-                while block <= entries:
-                    # log.debug("Dispatching Block %d:%d" % (block, block + page))
-                    result = executor.submit(importThread, data[block : block + page], PostgresClient(args.outuri), doit)
-                    block += page
-                    index += 1
+            for block in range(0, entries, chunk):
+                data = doit.getPage(block, chunk)
+                page = round(len(data) / cores)
+                # log.debug(f"Dispatching Block {index}")
+                # importThread(data, tmpg[0], doit)
+                result = executor.submit(importThread, data, tmpg[index], doit)
+                index += 1
             executor.shutdown()
     else:
         data = list
@@ -450,10 +447,15 @@ def main():
             block = 0
             while block <= entries:
                 log.debug("Dispatching Block %d:%d" % (block, block + chunk))
-                result = executor.submit(importThread, data[block : block + chunk], tmpg[index], doit)
+                importThread(data, tmpg[0], doit)
+                # result = executor.submit(importThread, data[block : block + chunk], tmpg[index], doit)
                 block += chunk
                 index += 1
             executor.shutdown()
+
+    # cleanup the connections
+    #for conn in tmpg:
+    #    conn.close()
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""

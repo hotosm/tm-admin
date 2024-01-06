@@ -72,8 +72,8 @@ class Generator(object):
                     'string': 'character varying',
                     'bytes': 'bytea',
                     'timestamp': 'timestamp without time zone',
-                    'polygon': 'polygon',
-                    'point': 'point',
+                    'polygon': 'geometry(Polygon,4326)',
+                    'point': 'geometry(Point,4326)',
                     'json': 'json',
                     }
         
@@ -303,10 +303,10 @@ class {table.capitalize()}Table(object):
             for line in values:
                 # these are usually from the types.yaml file, which have no
                 # settings beyond the enum value.
-                # if type(line) == str:
-                #     print(f"SQL TABLE: {typedef} {line}")
-                #     typedef = table
-                #     continue
+                if type(line) == str:
+                    # print(f"SQL TABLE: {typedef} {line}")
+                    typedef = table
+                    continue
                 [[k, v]] = line.items()
                 required = ""
                 array = ""
