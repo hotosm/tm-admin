@@ -63,6 +63,9 @@ def licensesThread(
     for record in pbar:
         uid = record[0]['user']
         licenses = record[0]['license']
+        # FIXME: current TM has this as an int, but it seems a user might agree to
+        # more than one license. The database expects an array already, it'll just
+        # have a single entry.
         # sql = f" UPDATE users SET licenses = licenses||{licenses} WHERE id={uid}"
         sql = f" UPDATE users SET licenses = ARRAY[{licenses}] WHERE id={uid}"
         #print(sql)
