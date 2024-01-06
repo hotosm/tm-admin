@@ -211,7 +211,7 @@ def main():
 
     # The base class that does all the work
     tm = TmAdminManage(args.uri)
-    tm.createDB()
+    # tm.createDB()
 
     # This database tables stores the versions of the table schemas,
     # and is only used for updating the table schemas.
