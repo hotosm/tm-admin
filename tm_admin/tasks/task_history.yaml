@@ -3,23 +3,26 @@
 # tables, as well as the protobuf files.
 
 - task_history:
-#    - id:
-#        - int64
-#        - required: true
-#    - project_id:
-#        - int64
-#        - required: true
-#    - task_id:
-#        - int64
-#        - required: true
+    - id:
+        - int64
+        - required: true
+        - sequence: true
+    - project_id:
+        - int64
+        - required: true
+        - unique: true
+    - task_id:
+        - int64
+        - required: true
     - action:
-        - string
+        - public.taskaction
         - required: true
     - action_text:
         - string
     - action_date:
         - timestamp
         - required: true
+        - unique: true
     - user_id:
         - int64
         - required: true
