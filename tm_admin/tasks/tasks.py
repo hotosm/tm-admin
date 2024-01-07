@@ -124,11 +124,10 @@ def invalidationThread(
 
         # columns = f"id, project_id, invalidation_history.is_closed, invalidation_history.mapper_id, invalidation_history.mapped_date, invalidation_history.invalidator_id, invalidation_history.invalidated_date, invalidation_history.invalidation_history_id, invalidation_history.validator_id, invalidation_history.validated_date, invalidation_history.updated_date"
         # nested = f"{record['id']}, {record['project_id']}, {record['is_closed']}, {record['mapper_id']}, {map_timestamp}, {record['invalidator_id']}, {inval_timestamp}, {record['invalidation_history_id']}, {vid}, {val_timestamp}, {up_timestamp}"
-        # sql = f"INSERT INTO tasks ({columns}) VALUES({nested}) ON CONFLICT(id) DO UPDATE"
-        # sql = f"INSERT INTO tasks ({columns}) VALUES({nested})"
         sql = f"UPDATE tasks"
-        sql += f" SET invalidation_history.is_closed={record['is_closed']}, invalidation_history.mapper_id={record['mapper_id']}, invalidation_history.mapped_date={map_timestamp}, invalidation_history.invalidator_id={record['invalidator_id']}, invalidation_history.invalidated_date={inval_timestamp}, invalidation_history.invalidation_history_id={record['invalidation_history_id']}, invalidation_history.validator_id={vid}, invalidation_history.validated_date={val_timestamp}, invalidation_history.updated_date={up_timestamp}"
-        sql += f" WHERE id={record['id']} AND project_id={record['project_id']}"
+        #sql += f" SET invalidation_history.is_closed={record['is_closed']}, invalidation_history.mapper_id={record['mapper_id']}, invalidation_history.mapped_date={map_timestamp}, invalidation_history.invalidator_id={record['invalidator_id']}, invalidation_history.invalidated_date={inval_timestamp}, invalidation_history.invalidation_history_id={record['invalidation_history_id']}, invalidation_history.validator_id={vid}, invalidation_history.validated_date={val_timestamp}, invalidation_history.updated_date={up_timestamp}"
+        sql += f"  SET invalidation_history = (SELECT ARRAY_APPEND(invalidation_history,({record['is_closed']}, {record['mapper_id']}, {map_timestamp}, {record['invalidator_id']}, {inval_timestamp}, {record['invalidation_history_id']}, {vid}, {val_timestamp}, {up_timestamp})::task_invalidation_history)) "
+        sql += f"WHERE id={record['task_id']} AND project_id={record['project_id']}"
         # print(f"{sql};")
         try:
             result = db.dbcursor.execute(sql)
@@ -333,8 +332,8 @@ def main():
 
     tasks = TasksDB(args.uri)
     # tasks.mergeAxuTables()
-    tasks.mergeHistory()
-    # tasks.mergeInvalidations()
+    # tasks.mergeHistory()
+    tasks.mergeInvalidations()
 
     # # user.resetSequence()
     # all = task.getAll()
