@@ -232,15 +232,20 @@ out as this will be in the notification table.
 
 #### Tasks Table
 
-task_mapping_issues is now an Enum instead of a table
+* task_mapping_issues is now an Enum instead of a table
 
 ##### Task Annotations
 
-TODO: not implemented yet
+This table appears not to be used by TM yet.
 
 ##### Task History Table
 
-TODO: not implemented yet
+The *task_history* table is now a nested table within the tasks
+table. The *id* column is no longer needed, and the *project_id* and
+*task_id* are already in the tasks table. In TM the action is a
+string, which in TM Admin is a proper Enum, which is used instead. The
+*action_text*, *action_date* and *user_id* are all preserved in the
+nested table.
 
 ##### Task Invalidation History Table
 
@@ -256,6 +261,11 @@ TODO: not implemented yet
 
 TODO: not implemented yet
 
+#### Campaigns
+
+Currently in TM, campaigns are implemented as a primary table, and two
+utility ones. These two utility tables gone in TM Admin, and replaced
+by an array for each.
 
 ## Testing Changes
 
