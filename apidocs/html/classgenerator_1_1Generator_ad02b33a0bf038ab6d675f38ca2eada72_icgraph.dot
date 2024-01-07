@@ -1,0 +1,12 @@
+digraph "generator.Generator.readConfig"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="generator.Generator.read\lConfig",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="generator.Generator.create\lTypes",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classgenerator_1_1Generator.html#afcd126a3a51069384a3bf7627401ca45",tooltip=" "];
+  Node2 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="generator.Generator.\l__init__",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classgenerator_1_1Generator.html#a2aa8837803e7bffd62f976b077343a8d",tooltip=" "];
+}
