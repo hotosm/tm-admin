@@ -66,6 +66,10 @@ class CampaignsDB(DBSupport):
         super().__init__('campaigns', dburi)
 
     def mergeOrganizations(self):
+        """
+        A method to merge the contents of the TM campaign_organizations into
+        the campaigns table as an array.
+        """
         table = 'campaign_organisations'
         pg = PostgresClient("localhost/tm4")
         sql = f"SELECT row_to_json({table}) as row FROM {table} ORDER BY campaign_id"
@@ -93,6 +97,10 @@ class CampaignsDB(DBSupport):
             self.pg.dbcursor.execute(sql)
 
     def mergeProjects(self):
+        """
+        A method to merge the contents of the TM campaign_projects into
+        the campaigns table as an array.
+        """
         table = 'campaign_projects'
         pg = PostgresClient("localhost/tm4")
         sql = f"SELECT row_to_json({table}) as row FROM {table} ORDER BY campaign_id"

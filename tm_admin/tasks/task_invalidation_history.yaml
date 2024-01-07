@@ -3,16 +3,16 @@
 # tables, as well as the protobuf files.
 
 - task_invalidation_history:
-#    - id:
-#        - int32
-#        - required: true
-#        - share: true
-#        - sequence: true
-#        - unique: true
-#    - project_id:
-#        - int32
-#    - task_id:
-#        - int32
+    - id:
+        - int32
+        - required: true
+        - share: true
+        - sequence: true
+        - unique: true
+    - project_id:
+        - int32
+    - task_id:
+        - int32
     - is_closed:
         - bool
     - mapper_id:

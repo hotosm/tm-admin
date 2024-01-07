@@ -208,6 +208,7 @@ class DBSupport(object):
             (list): The results of the query
         """
         sql = f"SELECT row_to_json({self.table}) as row FROM {self.table}"
+        # print(sql)
         self.pg.dbcursor.execute(sql)
         result = self.pg.dbcursor.fetchall()
 

@@ -259,7 +259,7 @@ class TMImport(object):
                     if self.config[key]['datatype'] == 'point':
                         geom = wkb.loads(val)
                         # values += f"point({geom[0][0]}, {geom[0][1]}), "
-                        values += f"{geom.geoms[0].wkb_hex}, "
+                        values += f"'{geom.wkb_hex}', "
                         continue
                     elif self.config[key]['datatype'] == 'polygon':
                         geom = wkb.loads(val)
@@ -447,15 +447,15 @@ def main():
             block = 0
             while block <= entries:
                 log.debug("Dispatching Block %d:%d" % (block, block + chunk))
-                importThread(data, tmpg[0], doit)
-                # result = executor.submit(importThread, data[block : block + chunk], tmpg[index], doit)
+                #importThread(data, tmpg[0], doit)
+                result = executor.submit(importThread, data[block : block + chunk], tmpg[index], doit)
                 block += chunk
                 index += 1
             executor.shutdown()
 
     # cleanup the connections
-    #for conn in tmpg:
-    #    conn.close()
+    for conn in tmpg:
+        conn.dbshell.close()
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""

@@ -12,14 +12,15 @@
     - project_id:
         - int32
         - required: true
+        - unique: true
     - project_task_index:
         - int32
     - project_task_name:
         - string
         - share: true
-    - outline:
-        - polygon
-        - share: true
+#    - outline:
+#        - polygon
+#        - share: true
     - geometry:
         - polygon
         - share: true
