@@ -69,11 +69,30 @@ A task is the area for a mapper to map. Task management is obviously a
 key function of the Tasking Manager.
 
 * tasks - Primary table
-* task_annotations - Utility table for something, it apperas to be
+* task_annotations - Utility table for something, it appears to be
   unused anywhere
 * task_history - Table for task history
 * task_invalidation_history - Table for task invalidation history
 * task_mapping_issues - Table for issues with a task
+
+### Task History Table
+
+This table is used to track the state changes for a task, not
+including a task being invalidated. It contains a description of the
+status change, when it changed, and the user ID when the task is
+locked for mapping. A single task for a project may go through several
+state changes during it's lifespan.
+
+### Task Invalidation History Table
+
+This table is used to track tasks that are invalidated. Unlike simple
+state changes in the task history table, this tracks which validator
+invalidated the task, when it was invalidated, and when the issue is
+resolved.
+
+### Task Mapping Issues
+
+TBD
 
 ## Team Tables
 
