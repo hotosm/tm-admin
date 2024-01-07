@@ -1,9 +1,202 @@
-# Changlog
-
 ## Unreleased
 
 ### Fix
 
+- refactor importing invalidation history
+- Don't create the database by default, it's now an option
+- Add comment about int vs int array
+- Add some block comments for mkdocs
+- Refactor to update the array of nested tables for history
+- Drop outline, it's a duplicate of geometry, which is what TM uses
+- fix: Add the id and project_id so they're in the SQL query
+- Add the id and project_id so they're in the SQL query
+- Process WKB for points correctly
+- be less verbose
+- Uses Geometry() instead of point or polygon
+- Improve performance of importing data by using pages
+- Add threaded paging support for task_history table
+- Refactor to import large datasets in pages and threading
+- generate pngs for Markdown and PDFs from the .odt drawings
+- Don't store pngs, they can be automatically generated
+- Add threaded progress bars, paginate large postgres tables
+- Add campaigns table, import the utility tables into this table
+- Add messages config file
+- Drop duplicate columns as this table is now nested in the tasks table
+- Add task history and invalidation history as nested tables
+- Implement a few tests for a sanity check
+- Generate more test data for messages and campaigns
+- Update after role enum changes
+- pg.execute doesn't return anything
+- Start implementing commands, now all generated SQL tables can get loaded into the database
+- Minor tweaks to keep yamlint happy
+- Make importing the primary table multi-threaded to improve performance
+- Fix typo in type
+- Make id a unique sequence variable
+- Add array for managers
+- Move team_members to it's own file
+- Add enums for message types
+- Add nested table definition
+- Updated with more data
+- Make importing data multi-threaded, it still takes a long time
+- Add section on testing
+- Add env variable for test database
+- Add env variable to change the test database
+- Add more API test case stubs
+- Add more detail to reduce the pain of a new developer
+- Add more content, update the intro section
+- Add doc on the TM database schema as it exists now
+- Add config file for campaigns
+- Create team_members table for the users table
+- Add support json as a data type, and nested tables
+- Add tests for the featured column
+- Implement methods for favorite projects
+- Add method to remove an element from an array
+- Add more project tests
+- Add content on projects table
+- Add more task related config files
+- Add project_chat table
+- Start on adding Task History support
+- Add support for getting a single column, or updating an array
+- Add target dump licenses and interests tables
+- Add more test cases
+- Add more tests
+- Add 3 more columns from other tables
+- Add support to merge the TM project_info data into the TM Admin projects table
+- Add columns from the TM project_info table
+- Make merging from user_licenses multi-threaded
+- New config file for task_history table
+- Regenerated after populating interests, licenses, and favorites with data from TM
+- Import into testdata DB, not tm_admin
+- Add more info on the user tables
+- Add support to import from the TM4 user_licenses table into the licenses array in the tm_admin table
+- Add support to merge the TM user_interests table into the tm_admin users table as an array
+- Update tests after dbsupport changes
+- Use row_to_json() in all queries
+- Add target to import all .sql files into the test database
+- Use testdata generated from postgres
+- Handle required database columns not in the input source
+- Move target to build test data files to tests from top level
+- Add teams API tests
+- Add more tests, add unimplemented debug to stubs
+- Add stubs for all the TM internal APIs
+- Add more tests from the TM backend
+- Add data for test cases
+- Comment out mapper_level for now
+- Add join_method
+- Fix logging
+- Add more generated files
+- Minor cleanup, no code changes
+- Add check target to run pytests
+- Get Entries here
+- Add one more endpoint to the doc
+- Don't get Entries in the constructor
+- Minor changes to keep yamllint happy
+- be less verbose
+- If required, use '' instead of NULL
+- Escape strings to remove embedded single quotes
+- Handle zero length arrays
+- Refactor creating the INSERT command, use the config file for datatypes
+- Ad dminimal testcase for YAML config file parsing
+- Refactor the YAML into a dict, instead of a list of lists
+- Keep yamllint happy, adjust indents
+- Import the TM projects table is starting to work, whew
+- Add test case for organizations table
+- Don't import UsersMessage
+- Make userDB global to keep pytest happy
+- Add more comments
+- Add delete by ID
+- Recursively scan for source files
+- Add endpoints doc
+- Add more API docs for the table classes
+- Add more endpoints from TM admin
+- Add wrappers for common SQL queries to the user table
+- New test case for User table endpoint support
+- Add column to tables for if supported by TM Admin
+- Add draft of a doc on comparing endpoints between TM and FMTM
+- Add comment about bugs in config file
+- Add subscription_tier
+- Import TM organisations table into TM Admin database
+- for SQL, int64 generates a bigint
+- Add a target to generate test date from TM
+- New module for importing data from a Tasking Manager database into a TM Admin database
+- Add more columns used by TM
+- Convert int64 to bigint for SQL
+- Some ID fileds are strings, not integers
+- Add endpoints to receive data of profiles
+- Make VALIDATOR unique
+- Add methode to find a project or task by location
+- Fix type in comment block
+- fix module name
+- Add more content in dataexchange page, add to index page
+- Initial draft of a deep dive into exchaning data between multiple projects
+- Minor typo repair
+- Add dbsupport to API docs
+- Add apidocs produced by doxygen
+- Add protobuf API doc
+- Use Markdown output instead of HTML so it works better with Github Pages
+- Add doxygen support
+- For docs target, also make the protobuf api docs
+- Add links to tech deep dives
+- Remove stupid comment
+- Add more mkdocs comments
+- Add more mkdocs comments
+- Change the name of the output file for protobuf files
+- Add mkdocs_protobuf plugin
+- Use protoc-gen-docs to generate documentation for all the protobuf files
+- Add mkdocs comment block
+- Add mkdocs block comments
+- aAdd more request types
+- WHen converting Point or Polygon, it needs to stay upper case
+- Comment out the other endpoints but request and notifications
+- Use DBSupport as a base class
+- Minor refactoring to support testing
+- Refactor table classes to use a shared base class
+- Update versions
+- Updatw versions to the current one
+- Comment out for now unimplemented optioms
+- Improve logging setup
+- Use new dbsupport class to avoid code duplication
+- Use DBSupport for all methods
+- Use lowercsase
+- Use new dbsupport class to avoid code duplication
+- Improve how logging works
+- Add email to test case
+- Use polygon or point instaed of public.geometry
+- Use polygon or point instead of the whole public.geometry line
+- Support for organizations tanble
+- Add error for unimplemented requests
+- Add more fields to the request and response messages
+- Return single entry in list for query by ID or name to be comsistent
+- Process request for user profile
+- convert response to dict
+- Include dict in protobuf response
+- Use IntEnum instead of just Enum
+- Only have one namespace, since it has to be shared between server and client
+- Delete reuests.proto
+- he type file has a _tm appended
+- Build protobuf docs
+- Add request and notification enums
+- gRPC prefers a single top lecel service
+- Exhchange messages
+- Start workong with new data structures
+- COnvert geometry to bytes
+- Don't use package
+- Add more generated files
+- Close the file after writing it
+- Add stubs for requests and datga exchange
+- Add comments about modified enums used by TM, which was needed to avoid duplication
+- For protobuf, all enum values must be unique globally
+- Be less verbose
+- Add more enum from TM statues file
+- handle protobuf enums better
+- Handle public enums better for protobuf files
+- FIx indenting problems
+- Add Mappinglevel enum that somehow got missed
+- These don't work fully yet, just for development
+- Start adding endpoints
+- Drop the index page
+- Fix a few typos
+- Update CHANGELOG
 - Fix typo in password settings
 - Oops, add colon to tag
 - Add more columns from TM
@@ -76,3 +269,7 @@
 - Add default docs
 - Install the module
 - sloppy merge for new code into a real git repo
+
+### Refactor
+
+- rename tmadmin-manage --> tmadmin_manage
