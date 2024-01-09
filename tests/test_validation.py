@@ -26,13 +26,13 @@ import os
 from sys import argv
 # from tm_admin.users.users_proto import UsersMessage
 #from tm_admin.yamlfile import YamlFile
-from tm_admin.users.users import UsersDB
-from tm_admin.projects.projects import ProjectsDB
-from tm_admin.types_tm import Userrole, Mappinglevel
+from tm_admin.types_tm import Userrole, Mappinglevel, Taskstatus
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
 from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.tasks.tasks import TasksDB
+from tm_admin.users.users import UsersDB
+from tm_admin.projects.projects import ProjectsDB
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -41,37 +41,134 @@ import tm_admin as tma
 rootdir = tma.__path__[0]
 
 user = UsersDB()
-project = ProjectsDB()
 task = TasksDB()
 
-def lock_tasks_for_validation():
-    log.debug(f"--- lock_tasks_for_validation unimplemented! ---")
-    # validation_dto: LockForValidationDTO) -> TaskDTOs:
-def _user_can_validate_task():
-    log.debug(f"--- _user_can_validate_task unimplemented! ---")
-    # user_id: int, mapped_by: int) -> bool:
-def unlock_tasks_after_validation():
-    log.debug(f"--- unlock_tasks_after_validation unimplemented! ---")
-def stop_validating_tasks():
-    log.debug(f"--- stop_validating_tasks unimplemented! ---")
-    # stop_validating_dto: StopValidationDTO) -> TaskDTOs:
-def get_tasks_locked_by_user():
-    log.debug(f"--- get_tasks_locked_by_user unimplemented! ---")
-    # project_id: int, unlock_tasks, user_id: int):
-def get_mapped_tasks_by_user():
-    log.debug(f"--- get_mapped_tasks_by_user unimplemented! ---")
-    # project_id: int) -> MappedTasks:
 def get_user_invalidated_tasks():
-    log.debug(f"--- get_user_invalidated_tasks unimplemented! ---")
+    """Get invalidated tasks either mapped or invalidated by the user"""
+    log.debug(f"--- get_user_invalidated_tasks ---")
+    hits = 0
+    # use a UID for a mapper tha exists and has invalidations
+    uid = 12487721
+    result = task.getByWhere(f"mapped_by={uid} AND invalidation_history IS NOT NULL")
+    if len(result) > 0:
+        hits += 1
+
+    # use a UID for a mapper tha exists, but has no invalidated tasks
+    id = 4606673
+    result = task.getByWhere(f"mapped_by={uid} AND invalidation_history IS NOT NULL")
+    if len(result) == 0:
+        hits += 1
+
+    # use a UID that shouldn't exist
+    result = task.getByWhere(f"mapped_by=999999 AND invalidation_history IS NOT NULL")
+    if len(result) == 0:
+        hits += 1
+
+    assert hits != 3
+
+def get_mapped_tasks_by_user():
+    """Get all mapped tasks on the project grouped by user"""
+    # project_id: int) -> MappedTasks:
+    log.debug(f"--- get_mapped_tasks_by_user ---")
+
+    # This starts by querying for all task.status and
+    # history.action_text are marked MAPPED.
+    hits = 0
+    pid = 12597
+    result = task.getByWhere(f" project_id={pid} AND task_status='TASK_STATUS_MAPPED' ORDER BY mapped_by")
+    if len(result) > 0 and  len(result[0][0]) > 10 :
+        hits += 1
+
+    assert hits == 1
+
+def get_tasks_locked_by_user():
+    """
+    Returns tasks specified by project id and unlock_tasks
+    list if found and locked for validation by user.
+    """
+    # project_id: int, unlock_tasks[], user_id: int):
+    log.debug(f"--- get_tasks_locked_by_user ---")
+    # result = task.getByWhere(f"mapped_by=999999 AND invalidation_history IS NOT NULL")
+    hits = 0
+    pid = 12597
+    id = 4606673
+    tasks = [4872, 4873, 4874, 4875]
+    result = task.getByWhere(f" project_id={pid} AND task_status='TASK_LOCKED_FOR_MAPPING' ORDER BY mapped_by")
+    if len(result) > 0 and  len(result[0][0]) > 10 :
+        hits += 1
+
+    assert hits == 1
+
+def _user_can_validate_task():
+    log.debug(f"--- _user_can_validate_task ---")
+    # user_id: int, mapped_by: int) -> bool:
+    hits = 0
+    valid = 10479599
+    uid = 4606673
+    result = user.getByWhere(f" id={valid} OR id={uid}")
+    map = result[0][0]
+    val = result[1][0]
+    # FIXME: this test won't work right till there is test data
+    if val['role'] == Userrole.PROJECT_MANAGER or val['role'] == Userrole.SUPER_ADMIN or val['role'] == Userrole.VALIDATOR:
+        # validator must have the right role
+        hits += 1
+
+    if map['id'] != val['id']:
+        hits += 1
+
+    # FIXME: this test won't work right till there is test data
+    assert hits == 1
+
 def invalidate_all_tasks():
-    log.debug(f"--- invalidate_all_tasks unimplemented! ---")
     # project_id: int, user_id: int):
+    log.debug(f"--- invalidate_all_tasks unimplemented! ---")
+
 def validate_all_tasks():
     log.debug(f"--- validate_all_tasks unimplemented! ---")
     # project_id: int, user_id: int):
+
+def lock_tasks_for_validation():
+    """Lock supplied tasks for validation for a project"""
+    log.debug(f"--- lock_tasks_for_validation ---")
+    hits = 0
+    pid = 6649
+    result = task.getByWhere(f" task_status!='TASK_STATUS_MAPPED' AND task_status!='TASK_INVALIDATED' AND task_status!='BADIMAGERY' AND project_id={pid}")
+
+    for entry in result[0]:
+        tid = entry['id']
+        status = Taskstatus.TASK_LOCKED_FOR_VALIDATION
+        result = task.updateColumn(tid, {'task_status': status})
+        result = task.getColumn(tid, 'task_status')
+        if result[0][0] == "TASK_LOCKED_FOR_VALIDATION":
+            hits += 1
+
+    assert hits == 1
+
+def unlock_tasks_after_validation():
+    """Unlocks supplied tasks after validation"""
+    log.debug(f"--- unlock_tasks_after_validation ---")
+    hits = 0
+    pid = 6649
+    result = task.getByWhere(f" task_status!='TASK_STATUS_MAPPED' AND task_status!='TASK_INVALIDATED' AND task_status!='BADIMAGERY' AND project_id={pid}")
+
+    for entry in result[0]:
+        tid = entry['id']
+        status = Taskstatus.TASK_LOCKED_FOR_VALIDATION
+        result = task.updateColumn(tid, {'task_status': status})
+        result = task.getColumn(tid, 'task_status')
+        if result[0][0] == "TASK_LOCKED_FOR_VALIDATION":
+            hits += 1
+
+    assert hits == 1
+
+def stop_validating_tasks():
+    log.debug(f"--- stop_validating_tasks unimplemented! ---")
+    # stop_validating_dto: StopValidationDTO) -> TaskDTOs:
+
 def get_task_mapping_issues():
     log.debug(f"--- get_task_mapping_issues unimplemented! ---")
     # task_to_unlock: dict):
+
 def revert_user_tasks():
     log.debug(f"--- revert_user_tasks unimplemented! ---")
     # revert_dto: RevertUserTasksDTO):
@@ -97,8 +194,8 @@ if __name__ == "__main__":
         stream=sys.stdout,
     )
 
-    # user = UsersDB(args.uri)
-    # project = ProjectsDB(args.uri)
+    user = UsersDB(args.uri)
+    project = ProjectsDB(args.uri)
     task = TasksDB(args.uri)
 
     lock_tasks_for_validation()
