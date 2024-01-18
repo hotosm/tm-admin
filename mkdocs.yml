@@ -47,6 +47,7 @@ plugins:
   #  - mkdocs_protobuf:
   #      proto_dir: */*.proto *.proto
   - search
+  - git-revision-date-localized
   - exclude:
       glob:
         - plugins/*
