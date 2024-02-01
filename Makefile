@@ -22,6 +22,8 @@ PACKAGE := org.tm-admin.py
 NAME := tm-admin
 VERSION := 0.1.0
 
+drawings := $(wildcard docs/*.odt)
+
 all:
 	@cd tm_admin ; $(MAKE)
 
@@ -37,5 +39,13 @@ realclean:
 
 check: force
 	-pytest
+
+pngs:
+
+%.sql: %.yaml
+	@echo "Generating $@ file for postgres"
+	-@./generator.py $<
+
+#libreoffice --draw --convert-to png  my.odg
 
 force:

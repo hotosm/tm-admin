@@ -32,21 +32,24 @@ OUTSQL := $(YAML:.yaml=.sql)
 
 GRPC = --grpc_python_out=. --plugin=protoc-gen-grpc_python=/usr/bin/grpc_python_plugin
 
-all: generate compile
+all:  support generate create
 
 # The SQL files are now generated from YAML based config files
-generate: $(OUTSQL)
+generate: support $(OUTSQL)
 
-compile: $(PBUFS)
+support: $(PBUFS)
+	@echo "Generating the types files"
+	-@./generator.py -v types.yaml
 	@echo "Build services"
-	-@$(PROTOC) -I. --python_out=. $(GRPC) types_tm.proto services.proto
-	#-@$(PROTOC) -I. --python_out=. --pyi_out=. services.proto
-	# --plugin=protoc-gen-grpc_python=/usr/local/bin/grpc_python_plugin
+	-@$(PROTOC) -I. --python_out=. $(GRPC) services.proto
+
+#-@$(PROTOC) -I. --python_out=. --pyi_out=. services.proto
+# --plugin=protoc-gen-grpc_python=/usr/local/bin/grpc_python_plugin
 
 docs:
-	-$(PROTOC) --doc_out=../docs --doc_opt=html,protos-api.html services.proto types_tm.proto * */*.proto
-	#protoc --doc_out=./foo --doc_opt=html,index.html services.proto */*.proto
-
+	-$(PROTOC) --doc_out=../docs --doc_opt=html,protos-api.html  --proto_path . services.proto types_tm.proto * */*.proto
+#protoc --doc_out=./foo --doc_opt=html,index.html services.proto */*.proto
+#-@cd .. && make apidoc
 
 %.sql: %.yaml
 	@echo "Generating $@ file for postgres"
@@ -55,8 +58,25 @@ docs:
 %.py: %.proto
 	@echo "Converting $< to a protobuf python stubs file"
 	-@$(PROTOC) -I. --python_out=. $(GRPC) types_tm.proto  $*.proto
-	@# FIXME: --pyi_out= seems to have been replaced by --grpc_python_out
-	@#-@$(PROTOC) -I. --python_out=. --pyi_out=. types.proto $*.proto
+# @FIXME: --pyi_out= seems to have been replaced by --grpc_python_out
+# @-@$(PROTOC) -I. --python_out=. --pyi_out=. types.proto $*.proto
+
+# Note that this requires the person running make has access to
+# postgres without a user name or password required.
+create:
+	@echo "Creating the tm_admin database"
+	-@createdb tm_admin
+	-@./tmadmin_manage.py -v -c create */*.sql
+
+# Note that this can take considerable time, like hours or days, so
+# plan ahead.
+import:
+	dirs="`find -type d`"; \
+	for i in $$dirs; do \
+		if test -e $$i/$$i.yaml; then \
+			./db/py -v -i localhost/tm4 -o localhost/tm_admin -t $$i; \"; \
+		fi; \
+	done
 
 clean:
 	@echo "Removing all generated files!"
