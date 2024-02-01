@@ -29,7 +29,7 @@
   <a href="https://pypistats.org/packages/tm-admin" target="_blank">
       <img src="https://img.shields.io/pypi/dm/tm-admin.svg" alt="Downloads">
   </a>
-  <a href="https://github.com/hotosm/tm-admin/blob/main/LICENSE" target="_blank">
+  <a href="https://github.com/hotosm/tm-admin/blob/main/LICENSE.md" target="_blank">
       <img src="https://img.shields.io/github/license/hotosm/tm-admin.svg" alt="License">
   </a>
 </p>
