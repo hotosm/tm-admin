@@ -81,7 +81,7 @@ def main():
     # organization.resetSequence()
     all = organization.getAll()
     # Don't pass id, let postgres auto increment
-    ut = OrganizationsTable(name='fixme', slug='slug', orgtype='FREE')
+    ut = OrganizationsTable(name='fixme', slug='slug', type='FREE')
     organization.createTable(ut)
     # print(all)
 

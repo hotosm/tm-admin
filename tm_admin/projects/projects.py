@@ -39,6 +39,8 @@ from tm_admin.dbsupport import DBSupport
 from tm_admin.generator import Generator
 from osm_rawdata.postgres import uriParser, PostgresClient
 import re
+# from progress import Bar, PixelBar
+from tqdm import tqdm
 
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
@@ -99,9 +101,11 @@ class ProjectsDB(DBSupport):
             return False
 
         ignore = ['project_id', 'project_id_str', 'text_searchable', 'per_task_instructions']
-        # Extract the list of columns
-        id = 0
-        for record in pg.dbcursor.fetchall():
+        result = pg.dbcursor.fetchall()
+        index = 0
+        pbar = tqdm(result)
+        for record in pbar:
+            index += 1
             settings = ""
             column = list()
             for key, val in record[0].items():
@@ -124,7 +128,7 @@ class ProjectsDB(DBSupport):
 
             sql = f"UPDATE projects SET {settings[:-2]} WHERE id={record[0]['project_id']};"
             # print(sql)
-            results = self.pg.queryLocal(sql[:-2])
+            self.pg.dbcursor.execute(sql[:-2])
 
 def main():
     """This main function lets this class be run standalone by a bash script."""
@@ -157,7 +161,7 @@ def main():
 
     proj = ProjectsDB(args.outuri)
     # user.resetSequence()
-    all = proj.getAll()
+    #all = proj.getAll()
 
     proj.mergeProjectInfo(args.inuri)
 

@@ -153,10 +153,10 @@ def unlock_tasks_after_validation():
 
     for entry in result[0]:
         tid = entry['id']
-        status = Taskstatus.TASK_LOCKED_FOR_VALIDATION
-        result = task.updateColumn(tid, {'task_status': status})
+        status = Taskstatus.TASK_VALIDATED
+        task.updateColumn(tid, {'task_status': status.name})
         result = task.getColumn(tid, 'task_status')
-        if result[0][0] == "TASK_LOCKED_FOR_VALIDATION":
+        if result[0][0] == "TASK_VALIDATED":
             hits += 1
 
     assert hits == 1

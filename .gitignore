@@ -11,6 +11,7 @@ NEWS
 *proto.py
 *class.py
 *pb2*.py
+*.png
 *.sql
 *.osm
 *.txt

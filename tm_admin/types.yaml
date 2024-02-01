@@ -46,6 +46,7 @@
     - BAD
     - SPLIT
     - TASK_ARCHIVED
+    - BADIMAGERY
 
 - projectstatus:
     - ARCHIVED

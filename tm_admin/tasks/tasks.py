@@ -39,7 +39,8 @@ import threading
 from cpuinfo import get_cpu_info
 import psycopg2.extensions
 from dateutil.parser import parse
-
+import time
+from itertools import batched
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -48,19 +49,31 @@ log = logging.getLogger(__name__)
 info = get_cpu_info()
 cores = info["count"]
 
+def foo(
+    data: list,
+    db: PostgresClient,
+    table: str = "tasks",
+):
+    print(f"Foo Thread {table}")
+    time.sleep(1)
+
 def historyThread(
     data: list,
     db: PostgresClient,
+    table: str = "tasks",
 ):
     """Thread to handle importing
 
     Args:
         data (list): The list of records to import
         db (PostgresClient): A database connection
+        table (str): The table to update
     """
-    pbar = tqdm(data)
-    for record in pbar:
-        entry = record[0]       # there is only one entry
+    # pbar = tqdm(data)
+    for record in data:
+        # there is only one entry if using row_to_json()
+        entry = record[0]
+        uid = entry['id']
         action = entry['action']
         date = entry['action_date']
         # Remove embedded single quotes
@@ -69,23 +82,24 @@ def historyThread(
             text = "NULL"
         else:
             text = entry['action_text'].replace("'", "")
+        timestamp = str(entry['action_date'])
         # timestamp = "{%Y-%m-%dT%H:%M:%S}".format(date)
-        timestamp = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
-        entry['action_date'] = "NULL" # timestamp
+        # timestamp = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+        # entry['action_date'] = timestamp
         # FIXME: currently the schema has this as an int, it's actully an enum
         func = eval(f"Taskaction.{action}")
-        entry['action'] = func.value
+        entry['action'] = func.vanlue
         # columns = f"id, project_id, history.action, history.action_text, history.action_date, history.user_id"
         # nested = f"{record['id']}, {record['project_id']}, {func.value}, '{text}', '{timestamp}', {record['user_id']}"
-        sql = f"UPDATE tasks "
-        # sql += f" SET history.action='{func.value}', history.action_text='{text}', history.action_date='{timestamp}' WHERE id={record['task_id']} AND project_id={record['project_id']}"
-        sql += f" SET history = (SELECT ARRAY_APPEND(history,({func.value}, '{text}', '{timestamp}', {entry['user_id']})::task_history)) "
-        sql += f"WHERE id={entry['task_id']} AND project_id={entry['project_id']}"
-        # print(f"{sql};")
-        try:
-            result = db.dbcursor.execute(sql)
-        except:
-            log.error(f"Couldn't execute query! '{sql}'")
+        sql = f"UPDATE {table} "
+        sql += f" SET history=history||({func.value}, '{text}', '{timestamp}', {uid})::task_history"
+        # sql += f" SET history = (SELECT ARRAY_APPEND(history,({func.value}, '{text}', '{timestamp}', {entry['user_id']})::task_history)) "
+        sql += f" WHERE id={entry['task_id']} AND project_id={entry['project_id']}"
+        print(f"{sql};")
+        #try:
+        result = db.dbcursor.execute(sql)
+        #except:
+        #    log.error(f"Couldn't execute query! '{sql}'")
 
     return True
 
@@ -160,6 +174,7 @@ class TasksDB(DBSupport):
                 end: int,
                 pg: PostgresClient,
                 table: str,
+                view: str,
                 ):
         """
         Return a page of data from the table.
@@ -169,12 +184,13 @@ class TasksDB(DBSupport):
             count (int): The number of records
             pg (PostgresClient): Database connection for the input data
             table (str): The table to query for data
+            view (str): The table view to create
 
         Returns:
             (list): The results of the query
         """
-        sql = f"DROP VIEW IF EXISTS {table}_view; CREATE VIEW {table}_view AS SELECT * FROM {table} WHERE project_id>={start} AND project_id<={end}"
-        # print(sql)
+        sql = f"DROP VIEW IF EXISTS {view}; CREATE VIEW {view} AS SELECT * FROM {table} WHERE project_id>={start} AND project_id<={end}"
+        print(sql)
         result = list()
         try:
             pg.dbcursor.execute(sql)
@@ -182,15 +198,14 @@ class TasksDB(DBSupport):
             log.error(f"Couldn't execute: {sql}")
 
         # FIXME: now that we're using views, row_to_json() has acceptable performance.
-        # # It turns out to be much faster to use the columns specified in the
-        # # SELECT statement, and construct our own dictionary than using row_to_json().
-        # tmp = f"{table.capitalize()}Table()"
-        # tt = eval(tmp)
-        # columns = str(tt.data.keys())[11:-2].replace("'", "")
+        # It turns out to be much faster to use the columns specified in the
+        # SELECT statement, and construct our own dictionary than using row_to_json().
+        tmp = f"{table.capitalize()}Table()"
+        tt = eval(tmp)
+        columns = str(tt.data.keys())[11:-2].replace("'", "")
 
-        # sql = f"SELECT row_to_json({self.table}) as row FROM {self.table} ORDER BY id LIMIT {count} OFFSET {offset}"
-        sql = f"SELECT row_to_json({table}_view) as row FROM {table}_view ORDER BY project_id"
-        # sql = f"SELECT {columns} FROM {table}_view ORDER BY project_id"
+        # sql = f"SELECT row_to_json({view}) as row FROM {view} ORDER BY project_id"
+        sql = f"SELECT {columns} FROM {view} ORDER BY project_id"
         # print(sql)
         result = list()
         try:
@@ -200,8 +215,11 @@ class TasksDB(DBSupport):
 
         data = list()
         # result = pg.dbcursor.fetchmany(end-start)
-        result = pg.dbcursor.fetchall()
-        return result
+        try:
+            result = pg.dbcursor.fetchall()
+        except:
+            log.debug(f"No results for {sql}.")
+
         # for entry in pg.dbcursor.fetchone():
         #     # print(entry)
         #     try:
@@ -211,10 +229,10 @@ class TasksDB(DBSupport):
         #         continue
         #     data.append(entry)
 
-        # # Since we're not using row_to_json(), build a data structure
-        # for record in result:
-        #     table = dict(zip(tt.data.keys(), record))
-        #     data.append(table)
+        # FIXME: if not using row_to_json(), build a data structure
+        for record in result:
+            table = dict(zip(tt.data.keys(), record))
+            data.append(table)
 
         return data
 
@@ -232,15 +250,12 @@ class TasksDB(DBSupport):
             # tmpg.append(PostgresClient('localhost/tm4'))
 
         pg = PostgresClient('localhost/tm4')
-        sql = f"SELECT MIN(id),MAX(id) FROM task_history"
-        # sql = f"SELECT id, project_id, task_id, action, action_text, action_date, user_id FROM task_history"
-        # print(sql)
+        sql = f"SELECT MIN(project_id),MAX(project_id) FROM task_history"
         try:
             pg.dbcursor.execute(sql)
         except:
             log.error(f"Couldn't execute query! {sql}")
             return False
-        # data = pg.dbcursor.fetchall()
         result = pg.dbcursor.fetchone()
         minid = result[0]
         maxid = result[1]
@@ -249,10 +264,10 @@ class TasksDB(DBSupport):
         records = round(maxid/cores)
         blocks = list()
         previous = 0
-        for id in range(0, maxid, 1000):
+        for id in range(0, maxid, 500):
             if id == 0:
                 continue
-            blocks.append([previous, id + 1])
+            blocks.append([previous + 1, id])
             previous = id
 
         # This input data is huge! Make smaller chunks
@@ -262,32 +277,59 @@ class TasksDB(DBSupport):
         # dump python, or have performance issues. Past a certain threshold
         # the data needs to be queried in pages instead of the entire table
         # This is a huge table, we can't read in the entire thing
-        with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
+
+        futures = list()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
             # adminpg = PostgresClient('localhost/tm_admin'))
             # tmpg = PostgresClient('localhost/tm4'))
-            for entry in blocks:
-                # for block in range(0, entries, chunk):
-                adminpg = PostgresClient('localhost/tm_admin')
-                try:
-                    data = self.getPage(entry[0], entry[1], pg, table)
-                    if len(data) == 0:
-                        log.error(f"getPage() returned no data for {block}:{chunk}")
-                        # data = self.getPage(block, chunk, pg, table)
-                        # if len(data) == 0:
-                        #     log.error(f"getPage() returned no data for {block}:{chunk}, second attempt")
-                        #     continue
-                except:
-                    #tmpg[index].dbshell.close()
-                    #tmpg[index] = PostgresClient('localhost/tm4')
-                    log.error(f"Couldn't get a page of data!")
-                    continue
-                try:
-                    log.error(f"Dispatching thread...")
-                    # result = historyThread(data, adminpg)
-                    result = executor.submit(historyThread, data, adminpg)
+            index = 0
+            while index < len(blocks):
+                for core in range(0, cores):
+                    start = blocks[index][0]
+                    end   = blocks[index][1]
+                    data = list()
+                    data = self.getPage(start, end, pg, table,
+                                        f"{table}{core}_view")
+                    # adminpg = PostgresClient('localhost/tm_admin')
+                    log.debug(f"Dispatching thread {core} {start}:{end}... {len(data)} records")
+                    result = executor.submit(foo, data, PostgresClient('localhost/tm_admin'), f"{table}{core}_view")
+                    futures.append(result)
                     index += 1
-                except:
-                    log.error(f"Couldn't dispatch thread for block {entry[0]}-{entry[1]}")
+                    # if core == cores:
+                    #for future in concurrent.futures.as_completed(futures):
+                for future in concurrent.futures.wait(futures, return_when='ALL_COMPLETED'):
+                    #log.debug("Waiting for thread to complete..")
+                    pass
+                log.debug(f"thread {index} done..")
+             #     # for block in range(0, entries, chunk):
+            # adminpg = PostgresClient('localhost/tm_admin')
+            # try:
+            #     #data = self.getPage(entry[0], entry[1], pg, table)
+            #     data = self.getPage(1, 200, pg, table)
+            #     if len(data) == 0:
+            #         log.error(f"getPage() returned no data for ({entry[0]}, {entry[1]})")
+            #         # data = self.getPage(block, chunk, pg, table)
+            #         # if len(data) == 0:
+            #         #     log.error(f"getPage() returned no data for {block}:{chunk}, second attempt")
+            #         # continue
+            #         pass
+            # except:
+            #     #tmpg[index].dbshell.close()
+            #     #tmpg[index] = PostgresClient('localhost/tm4')
+            #     log.error(f"Couldn't get a page of data!")
+            #     #continue
+            #     # try:
+            #     # sql = f"DROP VIEW IF EXISTS tasks{index}_view; CREATE VIEW tasks{index}_view AS SELECT * FROM tasks WHERE project_id>={entry[0]} AND project_id<={entry[1]}"
+            #     # adminpg.dbcursor.execute(sql)
+            #     # time.sleep(0.5)
+            # log.error(f"Dispatching thread... {index} {len(data)} records.")
+            #     # result = historyThread(data, adminpg, f"tasks{index}_view")
+            #     # result = executor.submit(historyThread, data, adminpg, f"tasks{index}_view")
+            #     # If we spawn threads too fast, python chokes.
+            #     # time.sleep(1)
+            #index += 1
+                #except:
+                #    log.error(f"Couldn't dispatch thread for block {entry[0]}-{entry[1]}")
             executor.shutdown()
 
         # # cleanup the connections

@@ -50,10 +50,6 @@ def get_task():
     log.debug(f"--- get_task() unimplemented!")
     # task_id: int, project_id: int) -> Task:
 
-def get_task_as_dto():
-    log.debug(f"--- get_task_as_dto( unimplemented!")
-    # task_id: int,
-
 def _is_task_undoable():
     """Determines if the current task status can be undone by the logged in user"""
     log.debug(f"--- _is_task_undoable() unimplemented!")
@@ -113,6 +109,10 @@ def lock_time_can_be_extended():
 def extend_task_lock_time():
     log.debug(f"--- extend_task_lock_time() unimplemented!")
     #extend_dto: ExtendLockTimeDTO):
+
+def get_task_as_dto():
+    log.debug(f"--- get_task_as_dto( unimplemented!")
+    # task_id: int,
     
 # FMTM API tests
 def get_task_count_in_project():

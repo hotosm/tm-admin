@@ -248,7 +248,9 @@ class UsersDB(DBSupport):
         chunk = round(entries / cores)
 
         index = 0
-        with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+                thread_name_prefix="users",
+                max_workers=cores) as executor:
             index = 0
             for block in range(0, entries, chunk):
                 data = self.getPage(block, chunk, tmpg, table)

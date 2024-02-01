@@ -582,6 +582,8 @@ CREATE TABLE public.users (
     is_email_verified boolean,
     is_expert boolean,
     tasks_notifications boolean,
+    role public.userrole,
+    mapping_level public.mappinglevel NOT NULL,
     tasks_mapped integer,
     tasks_validated integer,
     tasks_invalidated integer,

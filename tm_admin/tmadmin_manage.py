@@ -101,7 +101,9 @@ class TmAdminManage(object):
         # self.pg.createDB(self.dburi)
         # The types file must be imported first
         with open(f"{rootdir}/types_tm.sql", 'r') as file:
-            self.pg.dbcursor.execute(file.read())
+            log.info(f"Importing Types into {self.pg.uri['dbname']}")
+            data = file.read()
+            self.pg.dbcursor.execute(data)
             file.close()
 
         # This requires all the generated files have been installed
@@ -119,7 +121,6 @@ class TmAdminManage(object):
 
         Args:
             sqlfile (str): The SQL schema for this table
-            dburi (str): The URI string for the database connection.
 
         Returns:
             (bool): The table creation status
@@ -183,10 +184,10 @@ def main():
         This should only be run standalone for debugging purposes.
         """,
     )
-    choices = ['generate', 'create', 'migrate', 'load']
+    choices = ['generate', 'create', 'migrate']
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
     # parser.add_argument("-d", "--diff", help="SQL file diff for migrations")
-    # parser.add_argument("-p", "--proto", help="Generate the .proto file from the YAML file")
+    # parser.add_argument("-p", "--proto", default='types.yaml', help="Generate the .proto file from the YAML file")
     parser.add_argument("-u", "--uri", default='localhost/tm_admin',
                             help="Database URI")
     parser.add_argument("-c", "--cmd", choices=choices, default='generate',
@@ -220,7 +221,7 @@ def main():
     # This class generates all the output files.
     if args.cmd == 'generate':
         gen = Generator()
-        # Generate all the output file
+        # Generate all the output files
         for yamlfile in known:
             gen.readConfig(yamlfile)
             out = gen.createSQLTable()
@@ -253,9 +254,7 @@ def main():
     elif args.cmd == 'migrate':
         # tm.migrateDB(known)
         pass
-    elif args.cmd == 'load':
-        # tm.migrateDB(known)
-        pass
+
     # tm.dump()
 
 if __name__ == "__main__":

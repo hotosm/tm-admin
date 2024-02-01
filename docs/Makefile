@@ -25,6 +25,9 @@ DRAW := $(wildcard E2E/*.odt)
 PNGS := $(DRAW:.odt=.png)
 PDFS := $(DRAW:.odt=.pdf)
 
+# Automate the building of pngs and pdfs from the libreoffice draw
+# source files, insted of having to commit both to git after
+# any changes.
 all: pngs pdfs
 	@echo "$(DRAW)"
 

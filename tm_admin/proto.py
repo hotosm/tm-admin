@@ -95,8 +95,11 @@ class ProtoBuf(object):
                 out.append(f"message {key} {{")
                 optional = ""
                 repeated = ""
+                # print(f"VALUE: {value}")
                 for data in value:
-                    # print(f"DATA: {data}")
+                    #if type(data) == str:
+                    #    log.warning(f"ENUM: {data}")
+                    #    continue
                     for entry, settings in data.items():
                         # print(f"DATA: {entry} = {settings}")
                         #    datatype = settings[0][7:].capitalize()

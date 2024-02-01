@@ -38,13 +38,13 @@ tmtestdata:
 	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM organizations LIMIT 10"
 	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/organizations/ > tmorganizations.sql
 	@echo "Generating test data for tasks table..."
-	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM tasks LIMIT 10"
+	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM tasks WHERE (invalidation_history).mapper_id IS NOT NULL"
 	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/tasks/ > tmtasks.sql
 	@echo "Generating test data for teams table..."
 	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM teams LIMIT 10"
 	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/teams/ > tmteams.sql
 	@echo "Generating test data for campaigns table..."
-	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM teams LIMIT 10"
+	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM campaigns LIMIT 10"
 	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/campaigns/ > tmcampaigns.sql
 	@echo "Generating test data for messages table..."
 	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM messages LIMIT 10"
