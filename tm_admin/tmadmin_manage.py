@@ -85,6 +85,19 @@ class TmAdminManage(object):
             if v is not None:
                 print(f"\t{k} = {v}")
 
+    def updateDB(self,
+                progs: list = list(),
+                ):
+        """
+        Create a postgres database.
+
+        Args:
+            progs (str): The programs to run
+        """
+        # This requires all the generated files have been installed
+        for sql in progs:
+            log.info(f"Updating table {sql} in database")
+
     def createDB(self,
                 files: list = list(),
                 ):
@@ -184,7 +197,7 @@ def main():
         This should only be run standalone for debugging purposes.
         """,
     )
-    choices = ['generate', 'create', 'migrate']
+    choices = ['generate', 'create', 'update', 'migrate']
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
     # parser.add_argument("-d", "--diff", help="SQL file diff for migrations")
     # parser.add_argument("-p", "--proto", default='types.yaml', help="Generate the .proto file from the YAML file")
@@ -251,6 +264,8 @@ def main():
                 file.close()
     elif args.cmd == 'create':
         tm.createDB(known)
+    elif args.cmd == 'update':
+        tm.updateDB(known)
     elif args.cmd == 'migrate':
         # tm.migrateDB(known)
         pass
