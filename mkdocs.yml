@@ -68,7 +68,11 @@ nav:
   - Home: index.md
   - About: about.md
   - Utilities:
-      - TM-Manager: tmadmin-manage.md
+      - tmadmin-manager: tmadmin-manage.md
+      - tmdb: tmdb.md
+      - generator: generator.md
+  - Getting Started: getting_started.md
+  - Importing TM data: importing.md
   - Deep Dives:
       - Building: build.md
       - Configuring: configuring.md
@@ -76,12 +80,12 @@ nav:
       - Data Flow: dataflow.md
       - Data Exchange: dataexchange.md
       - Endpoints: endpoints.md
-      - TM Admin schema: schema.md
-      - Tasking Manager schema: tmschema.md
-  - Code API: api.md
-  - Protobuf API: protos-api.md
-  - Class Hierarchy: apidocs/html/index.html
+      - Database schema: schema.md
+  - For Developers:
+      - Code API: api.md
+      - Protobuf API: protos-api.md
+      - Class Hierarchy: apidocs/html/index.html
+      - Versioning: https://docs.hotosm.org/dev-guide/version-control/#creating-releases
   - License: LICENSE.md
   - Changelog: CHANGELOG.md
   - Code of Conduct: https://docs.hotosm.org/code-of-conduct
-  - Versioning: https://docs.hotosm.org/dev-guide/version-control/#creating-releases
