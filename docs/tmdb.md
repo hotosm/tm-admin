@@ -1,9 +1,10 @@
 # tmdb.py
 
 This program imports existing data from the HOT Tasking Manager into
-this modified database schema.
+this modified database schema. This would only be done when
+preserving data from Tasking Manager v4 to Tasking Manager v5.
 
-	usage: tmclient [-h] [-v [VERBOSE]] [-i INURI] [-o OUTURI] -t TABLE
+	usage: tmdb.py [-h] [-v [VERBOSE]] [-i INURI] [-o OUTURI] -t TABLE
 
 	options:
 		-h, --help                 show this help message and exit
