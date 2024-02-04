@@ -338,7 +338,7 @@ class {table.capitalize()}Table(object):
                     # FIXME: if this produces an error, check the yaml file as this
                     # usually means the type field isn't first in the list.
                     if v[0][:6] == 'table.':
-                        out += f"\t{k} {v[0][6:]},\n"
+                        out += f"\t{k} {v[0][6:]}{array},\n"
                     else:
                         out += f"\t{k} {self.yaml2sql[v[0]]}{array}{required},\n"
             if len(unique) > 0:
