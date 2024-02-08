@@ -25,17 +25,20 @@ import sys
 from sys import argv
 import os
 from shapely import wkb, get_coordinates
-from shapely.geometry import Polygon, Point, shape
+from shapely.geometry import MultiPolygon, Polygon, Point, shape
 from datetime import datetime
-from osm_rawdata.postgres import uriParser, PostgresClient
+from osm_rawdata.pgasync import PostgresClient
+# from osm_rawdata.postgres import uriParser, PostgresClient
 from progress.bar import Bar, PixelBar
 from tm_admin.types_tm import Userrole, Mappinglevel, Organizationtype, Taskcreationmode, Projectstatus, Permissions, Projectpriority, Projectdifficulty, Mappingtypes, Editors, Teamvisibility, Taskstatus
 from tm_admin.yamlfile import YamlFile
 import concurrent.futures
 from cpuinfo import get_cpu_info
+import asyncio
 # from tm_admin.users.users import createSQLValues
 # from tm_admin.organizations.organizations import createSQLValues
 from tqdm import tqdm
+import tqdm.asyncio
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -49,12 +52,13 @@ info = get_cpu_info()
 # pretty low CPU load proces anyway, so more is good.
 cores = info["count"]
 
-def importThread(
+async def importThread(
     data: list,
     db: PostgresClient,
     tm,
 ):
-    """Thread to handle importing
+    """
+    Thread to handle importing
 
     Args:
         data (list): The list of records to import
@@ -62,12 +66,33 @@ def importThread(
         tm (TMImport): the input handle
     """
     # log.debug(f"There are {len(data)} data entries")
-    tm.writeAllData(data, tm.table)
+    await tm.writeAllData(data, tm.table, db)
 
     return True
 
 class TMImport(object):
-    def __init__(self,
+    def __init__(self):
+        """
+        This class contains support to accessing a Tasking Manager database, and
+        importing it in the TM Admin database. This works because the TM Admin
+        database schema is based on the ones used by FMTM and TM. The schemas
+        have been merged into a single one, and all of the column names are
+        the same across the two schemas except in a few rare cases.
+
+        The other change is in TM many columns are enums, but the database type
+        is in. The integer values from TM are converted to the proper TM Admin enum value.
+
+        Returns:
+            (TMImport): An instance of this class
+        """
+        self.tmdb = None
+        self.admindb = None
+        self.table = None
+        self.columns = list()
+        self.data = list()
+        self.config = dict()
+
+    async def connect(self,
                 inuri: str,
                 outuri: str,
                 table: str,
@@ -86,14 +111,13 @@ class TMImport(object):
             inuri (str): The URI for the TM database
             outuri (str): The URI for the TM Admin database
             table (str): The table in the TM Admin database
-
-        Returns:
-            (TMImport): An instance of this class
-        """
+"""
         # The Tasking Manager database
-        self.tmdb = PostgresClient(inuri)
+        self.tmdb = PostgresClient()
+        await self.tmdb.connect(inuri)
         # The TMAdmin database
-        self.admindb = PostgresClient(outuri)
+        self.admindb = PostgresClient()
+        await self.admindb.connect(outuri)
         self.columns = list()
         self.data = list()
         self.table = table
@@ -102,7 +126,7 @@ class TMImport(object):
         # yaml.dump()
         self.config = yaml.getEntries()
 
-    def getPage(self,
+    async def getPage(self,
                 offset: int,
                 count: int,
                 ):
@@ -112,23 +136,27 @@ class TMImport(object):
         Returns:
             (list): The results of the query
         """
-        columns = self.getColumns(self.table)
-        keys = self.columns
 
-        columns = str(keys)[1:-1].replace("'", "")
-        # sql = f"SELECT row_to_json({self.table}) as row FROM {self.table} ORDER BY id LIMIT {count} OFFSET {offset}"
-        sql = f"SELECT {columns} FROM {self.table} ORDER BY id LIMIT {count} OFFSET {offset}"
+
+        # columns = await self.getColumns(self.table)
+        # keys = self.columns
+
+        # columns = str(keys)[1:-1].replace("'", "")
+        if offset == 0:
+            sql = f"SELECT row_to_json({self.table}) as row FROM {self.table} LIMIT {count}"
+        else:
+            sql = f"SELECT row_to_json({self.table}) as row FROM {self.table} LIMIT {count} OFFSET {offset}"
+        # sql = f"SELECT {columns} FROM {self.table} ORDER BY id LIMIT {count} OFFSET {offset}"
         # print(sql)
-        self.tmdb.dbcursor.execute(sql)
-        result = self.tmdb.dbcursor.fetchall()
+        result = await self.tmdb.execute(sql)
         data = list()
         for record in result:
-            table = dict(zip(keys, record))
+            table = dict(record)['row']
             data.append(table)
 
         return data
 
-    def getColumns(self,
+    async def getColumns(self,
                     table: str,
                     ):
         """
@@ -141,7 +169,7 @@ class TMImport(object):
             (dict): The table definition.
         """
         sql = f"SELECT column_name, data_type,column_default  FROM information_schema.columns WHERE table_name = '{table}' ORDER BY dtd_identifier;"
-        results = self.tmdb.queryLocal(sql)
+        results = await self.tmdb.queryLocal(sql)
         # log.info(f"There are {len(results)} columns in the TM '{table}' table")
         table = dict()
         for column in results:
@@ -170,7 +198,7 @@ class TMImport(object):
 
         return table
         
-    def getAllData(self,
+    async def getAllData(self,
                    table: str,
                 ):
         """
@@ -199,22 +227,18 @@ class TMImport(object):
             data.append(table)
         return data
 
-    def getRecordCount(self):
-        sql = f"SELECT COUNT(id) FROM {self.table}"
+    async def getRecordCount(self):
+        sql = f"SELECT reltuples::bigint AS estimate FROM  pg_class WHERE oid = 'public.{self.table}'::regclass;"
         # print(sql)
-        try:
-            result = self.tmdb.dbcursor.execute(sql)
-        except:
-            log.error(f"Couldn't execute query! {sql}")
-            return False
-        result = self.tmdb.dbcursor.fetchone()[0]
-        log.debug(f"There are {result} records in {self.table}")
+        result = await self.tmdb.execute(sql)
+        log.debug(f"There are {result[0]['estimate']} records in {self.table}")
 
-        return result
+        return result[0]['estimate']
 
-    def writeAllData(self,
+    async def writeAllData(self,
                     data: list,
                     table: str,
+                    db: PostgresClient,
                     ):
         """
         Write the data into table in TM Admin.
@@ -228,16 +252,24 @@ class TMImport(object):
             return True
 
         builtins = ['int32', 'int64', 'string', 'timestamp', 'bool']
-        pbar = tqdm(data)
+
+        # tr = self.admindb.pg.transaction()
+        # await tr.start()
+
+        pbar = tqdm.tqdm(data)
         for record in pbar:
         # for record in data:
             # columns = str(list(record.keys()))[1:-1].replace("'", "")
+            null = None
+            true = True
+            false = False
             columns = list()
             values = ""
             # values += createSQLValues(record, self.config)
             # print(values)
             # bar.next()
-            for key, val in record.items():
+            x = eval(record)
+            for key, val in x.items():
                 columns.append(key)
                 # print(f"FIXME: {key} = {self.config[key]}")
                 # Booleans need to set 't' or 'f' for postgres.
@@ -257,12 +289,18 @@ class TMImport(object):
                 # If it's not a standard datatype, it's an enum in types_tm.py
                 if self.config[key]['datatype'] not in builtins:
                     if self.config[key]['datatype'] == 'point':
-                        geom = wkb.loads(val)
+                        if type(val) == dict:
+                            geom = shape(val)
+                        else:
+                            geom = wkb.loads(val)
                         # values += f"point({geom[0][0]}, {geom[0][1]}), "
                         values += f"'{geom.wkb_hex}', "
                         continue
                     elif self.config[key]['datatype'] == 'polygon':
-                        geom = wkb.loads(val)
+                        if type(val) == dict:
+                            geom = shape(val)
+                        else:
+                            geom = wkb.loads(val)
                         values += f"'{geom.geoms[0].wkb_hex}', "
                         # values += f"polygon('({poly[:-2]})'), "
                         continue
@@ -362,11 +400,12 @@ class TMImport(object):
             # foo = f"str(columns)[1:-1].replace("'", "")
             sql = f"""INSERT INTO {table}({str(columns)[1:-1].replace("'", "")}) VALUES({values[:-2]})"""
             # print(sql)
-            results = self.admindb.dbcursor.execute(sql)
+            results = await db.execute(sql)
+        #await tr.commit()
 
         #bar.finish()
             
-def main():
+async def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser(
         prog="tmclient",
@@ -398,8 +437,9 @@ def main():
         stream=sys.stdout,
     )
 
-    doit = TMImport(args.inuri, args.outuri, args.table)
-    entries = doit.getRecordCount()
+    doit = TMImport()
+    await doit.connect(args.inuri, args.outuri, args.table)
+    entries = await doit.getRecordCount()
     block = 0
     chunk = round(entries / cores)
 
@@ -409,23 +449,23 @@ def main():
     tmpg = list()
 
     tmpg = list()
+    tasks = list()
     for i in range(0, cores + 1):
-        # FIXME: this shouldn't be hardcoded
-        tmpg.append(PostgresClient('localhost/tm4'))
+        pg = PostgresClient()
+        await pg.connect(args.outuri)
+        tmpg.append(pg)
     # Some tables in the input database are huge, and can either core
     # dump python, or have performance issues. Past a certain threshold
     # the data needs to be queried in pages instead of the entire table.
     if entries > threshold:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
+        futures = list()
+        async with asyncio.TaskGroup() as tg:
             index = 0
             for block in range(0, entries, chunk):
-                data = doit.getPage(block, chunk)
-                page = round(len(data) / cores)
-                # log.debug(f"Dispatching Block {index}")
-                # importThread(data, tmpg[0], doit)
-                result = executor.submit(importThread, data, tmpg[index], doit)
+                data = await doit.getPage(block, chunk)
+                task = tg.create_task(importThread(data, tmpg[index], doit))
                 index += 1
-            executor.shutdown()
+                tasks.append(task)
     else:
         data = list
         # You have to love subtle cultural spelling differences.
@@ -434,29 +474,20 @@ def main():
         else:
             data = doit.getAllData(args.table)
 
-        # entries = len(data)
-        # log.debug(f"There are {entries} entries in {args.table}")
-        # chunk = round(entries / cores)
+        entries = len(data)
+        log.debug(f"There are {entries} entries in {args.table}")
+        chunk = round(entries / cores)
 
         if entries < threshold:
             importThread(data, tmpg[0], doit)
             quit()
 
         index = 0
-        with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
-            block = 0
-            while block <= entries:
-                log.debug("Dispatching Block %d:%d" % (block, block + chunk))
-                #importThread(data, tmpg[0], doit)
-                result = executor.submit(importThread, data[block : block + chunk], tmpg[index], doit)
-                block += chunk
-                index += 1
-            executor.shutdown()
-
-    # cleanup the connections
-    for conn in tmpg:
-        conn.dbshell.close()
+        data = await doit.getPage(0, entries)
+        importThread(data, tmpg[0], doit)
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
-    main()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
