@@ -74,7 +74,7 @@ import:
 	dirs="`find -type d`"; \
 	for i in $$dirs; do \
 		if test -e $$i/$$i.yaml; then \
-			./db/py -v -i localhost/tm4 -o localhost/tm_admin -t $$i; \"; \
+			./tmdb.py -v -i localhost/tm4 -o localhost/tm_admin -t $$i; \"; \
 		fi; \
 	done
 

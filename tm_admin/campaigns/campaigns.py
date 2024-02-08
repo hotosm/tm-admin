@@ -30,12 +30,10 @@ import tm_admin.types_tm
 from tm_admin.types_tm import Userrole, Mappinglevel, Teammemberfunctions
 import concurrent.futures
 from cpuinfo import get_cpu_info
-from atpbar import atpbar
 from tm_admin.dbsupport import DBSupport
 from tm_admin.users.users_class import UsersTable
 from osm_rawdata.postgres import uriParser, PostgresClient
 from tm_admin.types_tm import Userrole
-from alive_progress import alive_bar
 from tqdm import tqdm
 from codetiming import Timer
 import threading
@@ -93,7 +91,7 @@ class CampaignsDB(DBSupport):
         # pbar = tqdm(result)
         for cid, value in data.items():
             sql = f" UPDATE campaigns SET organizations = ARRAY{str(value)} WHERE id={cid};"
-            print(sql)
+            # print(sql)
             self.pg.dbcursor.execute(sql)
 
     def mergeProjects(self):
@@ -114,8 +112,8 @@ class CampaignsDB(DBSupport):
         result = pg.dbcursor.fetchall()
         index = 0
         data = dict()
-        # pbar = tqdm(result)
-        for record in result:
+        pbar = tqdm(result)
+        for record in pbar:
             entry = record[0]   # there's only one item in the input data
             if entry['campaign_id'] not in data:
                 data[entry['campaign_id']] = list()
@@ -124,7 +122,7 @@ class CampaignsDB(DBSupport):
         # pbar = tqdm(result)
         for cid, value in data.items():
             sql = f" UPDATE campaigns SET projects = ARRAY{str(value)} WHERE id={cid};"
-            print(sql)
+            # print(sql)
             self.pg.dbcursor.execute(sql)
     
 def main():
