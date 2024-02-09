@@ -24,7 +24,6 @@ import logging
 import sys
 import os
 from sys import argv
-import psycopg2.extensions
 from datetime import datetime
 from dateutil.parser import parse
 import tm_admin.types_tm
@@ -36,8 +35,9 @@ from tm_admin.projects.projects_class import ProjectsTable
 from tm_admin.campaigns.campaigns_class import CampaignsTable
 from tm_admin.messages.messages_class import MessagesTable
 from tm_admin.organizations.organizations_class import OrganizationsTable
-from osm_rawdata.postgres import uriParser, PostgresClient
+from osm_rawdata.pgasync import PostgresClient
 from shapely.geometry import Polygon, Point, shape
+import asyncio
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -45,29 +45,36 @@ log = logging.getLogger(__name__)
 class DBSupport(object):
     def __init__(self,
                  table: str,
-                 dburi: str = "localhost/tm_admin",
                 ):
         """
         A base class since all tables have the same structure for queries.
 
         Args:
             table (str): The table to use for this connection.
-            dburi (str): The URI string for the database connection.
 
         Returns:
             (DBSupport): An instance of this class
         """
         self.pg = None
         self.table = table
-        profile = f"{table.capitalize()}Table()"
+
+    async def connect(self,
+                    dburi: str = "localhost/tm_admin",
+                    ):
+        """
+        Args:
+            dburi (str): The URI string for the database connection.
+        """
+        profile = f"{self.table.capitalize()}Table()"
         self.profile = eval(profile)
         if dburi:
-            self.pg = PostgresClient(dburi)
+            self.pg = PostgresClient()
+            await self.pg.connect(dburi)
         self.types = dir(tm_admin.types_tm)
         # self.schema = self.getColumns(table)
         #self.accessors = dict()
 
-    def createTable(self,
+    async def createTable(self,
                     obj,
                     ):
         """
@@ -116,9 +123,9 @@ class DBSupport(object):
                 sql += f"'{value}',"
 
         #print(sql[:-1])
-        result = self.pg.dbcursor.execute(f"{sql[:-1]});")
+        result = await self.pg.execute(f"{sql[:-1]});")
 
-    def updateTable(self,
+    async def updateTable(self,
                     id: int = None,
                     ):
         """
@@ -153,16 +160,16 @@ class DBSupport(object):
                 sql += f" {column}='{value}',"
         sql += f" WHERE id='{id}'"
         # print(sql)
-        result = self.pg.dbcursor.execute(f"{sql[:-1]}';")
+        result = self.pg.execute(f"{sql[:-1]}';")
 
-    def resetSequence(self):
+    async def resetSequence(self):
         """
         Reset the postgres sequence to zero.
         """
         sql = f"ALTER SEQUENCE public.{self.table}_id_seq RESTART;"
-        self.pg.dbcursor.execute(sql)
+        await self.pg.execute(sql)
 
-    def getByID(self,
+    async def getByID(self,
                 id: int,
                 ):
         """
@@ -175,13 +182,13 @@ class DBSupport(object):
             (dict): The results of the query
         """
 
-        data = self.getByWhere(f" id={id}")
+        data = await self.getByWhere(f" id={id}")
         if len(data) == 0:
             return dict()
         else:
             return data[0][0]
 
-    def getByName(self,
+    async def getByName(self,
                 name: str,
                 ):
         """
@@ -193,14 +200,14 @@ class DBSupport(object):
         Returns:
             (list): The results of the query
         """
-        data = self.getByWhere(f" name='{name}'")
+        data = await self.getByWhere(f" name='{name}'")
 
         if len(data) == 0:
             return dict()
         else:
             return data[0][0]
 
-    def getAll(self):
+    async def getAll(self):
         """
         Return all the data in the table.
 
@@ -209,12 +216,15 @@ class DBSupport(object):
         """
         sql = f"SELECT row_to_json({self.table}) as row FROM {self.table}"
         # print(sql)
-        self.pg.dbcursor.execute(sql)
-        result = self.pg.dbcursor.fetchall()
+        result = list()
+        if self.pg:
+            result = await self.pg.execute(sql)
+        else:
+            log.error(f"You need to connect to the database first!")
 
         return result
 
-    def getByWhere(self,
+    async def getByWhere(self,
                 where: str,
                 ):
         """
@@ -228,12 +238,11 @@ class DBSupport(object):
         """
         sql = f"SELECT row_to_json({self.table}) as row FROM {self.table} WHERE {where}"
         # print(sql)
-        self.pg.dbcursor.execute(sql)
-        result = self.pg.dbcursor.fetchall()
+        result = await self.pg.execute(sql)
 
         return result
 
-    def getByLocation(self,
+    async def getByLocation(self,
                 location: Point,
                 table: str = 'projects',
                 ):
@@ -249,12 +258,12 @@ class DBSupport(object):
         data = dict()
         ewkt = shape(location)
         sql = f"SELECT row_to_json({self.table}) as row FROM {table} WHERE ST_CONTAINS(ST_GeomFromEWKT('SRID=4326;{ewkt}') geom)"
-        self.pg.dbcursor.execute(sql)
+        await self.pg.execute(sql)
         result = self.pg.dbcursor.fetchall()
 
         return result
 
-    def deleteByID(self,
+    async def deleteByID(self,
                 id: int,
                 ):
         """
@@ -264,10 +273,10 @@ class DBSupport(object):
             id (int): The ID of the dataset to delete.
         """
         sql = f"DELETE FROM {self.table} WHERE id='{id}'"
-        result = self.pg.dbcursor.execute(sql)
+        result = self.pg.execute(sql)
         return True
 
-    def getColumn(self,
+    async def getColumn(self,
                  uid: int,
                  column: str,
                  ):
@@ -283,7 +292,7 @@ class DBSupport(object):
         """
         sql = f"SELECT {column} FROM {self.table} WHERE id={uid}"
         try:
-            self.pg.dbcursor.execute(sql)
+            self.pg.execute(sql)
         except:
             log.error(f"Couldn't execute query {sql}")
 
@@ -295,7 +304,7 @@ class DBSupport(object):
 
         return result
 
-    def updateColumn(self,
+    async def updateColumn(self,
                     uid: int,
                     data: dict,
                     ):
@@ -311,13 +320,13 @@ class DBSupport(object):
         sql = f"UPDATE {self.table} SET {column}='{value}' WHERE id='{uid}'"
         # print(sql)
         try:
-            self.pg.dbcursor.execute(f"{sql};")
+            self.pg.execute(f"{sql};")
         except:
             return False
 
         return True
 
-    def removeColumn(self,
+    async def removeColumn(self,
                     uid: int,
                     data: dict,
                     ):
@@ -335,12 +344,12 @@ class DBSupport(object):
         sql = f"UPDATE {self.table} SET {column}=array_remove({column}, {value}) WHERE id='{uid}'"
         # print(sql)
         try:
-            result = self.pg.dbcursor.execute(f"{sql};")
+            result = self.pg.execute(f"{sql};")
             return True
         except:
             return False
 
-    def appendColumn(self,
+    async def appendColumn(self,
                     uid: int,
                     data: dict,
                     ):
@@ -358,12 +367,12 @@ class DBSupport(object):
         sql = f"UPDATE {self.table} SET {column}={column}||{aval}' WHERE id='{uid}'"
         #print(sql)
         try:
-            result = self.pg.dbcursor.execute(f"{sql};")
+            result = self.pg.execute(f"{sql};")
             return True
         except:
             return False
 
-def main():
+async def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
@@ -388,22 +397,25 @@ def main():
         stream=sys.stdout,
     )
 
-    org = DBSupport('organizations', args.uri)
+    org = DBSupport('organizations')
+    await org.connect(args.uri)
     # organization.resetSequence()
-    all = org.getAll()
+    all = await org.getAll()
 
     # Don't pass id, let postgres auto increment
-    ut = OrganizationsTable(name='test org', slug="slug", orgtype=1)
+    ut = OrganizationsTable(name='test org', slug="slug", type=1)
 #                            orgtype=tm_admin.types_tm.Organizationtype.FREE)
-    org.createTable(ut)
+    await org.createTable(ut)
     # print(all)
 
-    all = org.getByID(1)
+    all = await org.getByID(1)
     print(all)
             
-    all = org.getByName('fixme')
+    all = await org.getByName('fixme')
     print(all)
             
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
-    main()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
