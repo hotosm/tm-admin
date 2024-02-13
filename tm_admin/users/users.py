@@ -30,7 +30,6 @@ import tm_admin.types_tm
 from tm_admin.types_tm import Userrole, Mappinglevel, Teammemberfunctions
 import concurrent.futures
 from cpuinfo import get_cpu_info
-from atpbar import atpbar
 from tm_admin.dbsupport import DBSupport
 from tm_admin.users.users_class import UsersTable
 from osm_rawdata.pgasync import PostgresClient
@@ -262,28 +261,6 @@ class UsersDB(DBSupport):
         # # result = await pg.execute(sql)
         timer.stop()
 
-    async def mergeTeams(self,
-                        inpg: PostgresClient,
-                        ):
-        table = 'team_members'
-        log.info(f"Merging team members table...")
-        timer = Timer(text="merging team members table took {seconds:.0f}s")
-        timer.start()
-        sql = f"SELECT * FROM {table} ORDER BY user_id"
-        #print(sql)
-        result = await inpg.execute(sql)
-
-        pbar = tqdm.tqdm(result)
-        for record in pbar:
-            func = record['function']
-            tmfunc = Teammemberfunctions(func)
-            sql = f"UPDATE {self.table} SET team_members.team={record['team_id']}, team_members.active={record['active']}, team_members.function='{tmfunc.name}' WHERE id={record['user_id']}"
-            print(sql)
-            result = await inpg.execute(sql)
-
-        timer.stop()
-        return True
-
     async def mergeFavorites(self,
                             inpg: PostgresClient,
                             ):
@@ -391,9 +368,6 @@ class UsersDB(DBSupport):
 
         inpg = PostgresClient()
         await inpg.connect(inuri)
-        
-        # await self.mergeTeams(inpg)
-        # log.info("UserDB.mergeTeams worked!")
 
         await self.mergeFavorites(inpg)
 

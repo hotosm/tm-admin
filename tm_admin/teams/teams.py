@@ -53,6 +53,28 @@ class TeamsDB(DBSupport):
         self.types = dir(tm_admin.types_tm)
         super().__init__('teams', dburi)
 
+    async def mergeTeams(self,
+                        inpg: PostgresClient,
+                        ):
+        table = 'team_members'
+        log.info(f"Merging team members table...")
+        timer = Timer(text="merging team members table took {seconds:.0f}s")
+        timer.start()
+        sql = f"SELECT * FROM {table} ORDER BY user_id"
+        #print(sql)
+        result = await inpg.execute(sql)
+
+        pbar = tqdm.tqdm(result)
+        for record in pbar:
+            func = record['function']
+            tmfunc = Teammemberfunctions(func)
+            sql = f"UPDATE {self.table} SET team_members.team={record['team_id']}, team_members.active={record['active']}, team_members.function='{tmfunc.name}' WHERE id={record['user_id']}"
+            print(sql)
+            result = await inpg.execute(sql)
+
+        timer.stop()
+        return True
+
 def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser()
@@ -79,6 +101,10 @@ def main():
     )
 
     team = TeamsDB(args.uri)
+
+    await self.mergeTeams(inpg)
+    log.info("UserDB.mergeTeams worked!")
+    
     # user.resetSequence()
     all = team.getAll()
     # Don't pass id, let postgres auto increment

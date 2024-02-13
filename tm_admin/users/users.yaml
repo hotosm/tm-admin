@@ -108,5 +108,3 @@
         - int32
         - array: true
         - share: true
-    - team_members:
-        - table.team_members
