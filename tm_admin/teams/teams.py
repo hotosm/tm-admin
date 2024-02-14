@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2022, 2023 Humanitarian OpenStreetMap Team
+# Copyright (c) 2022, 2023, 2024 Humanitarian OpenStreetMap Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -30,7 +30,11 @@ import tm_admin.types_tm
 
 from tm_admin.dbsupport import DBSupport
 from tm_admin.teams.teams_class import TeamsTable
-from osm_rawdata.postgres import uriParser, PostgresClient
+from tm_admin.types_tm import Teammemberfunctions
+from osm_rawdata.pgasync import PostgresClient
+import tqdm.asyncio
+import asyncio
+from codetiming import Timer
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -51,7 +55,7 @@ class TeamsDB(DBSupport):
         self.pg = None
         self.profile = TeamsTable()
         self.types = dir(tm_admin.types_tm)
-        super().__init__('teams', dburi)
+        super().__init__('teams')
 
     async def mergeTeams(self,
                         inpg: PostgresClient,
@@ -68,19 +72,22 @@ class TeamsDB(DBSupport):
         for record in pbar:
             func = record['function']
             tmfunc = Teammemberfunctions(func)
-            sql = f"UPDATE {self.table} SET team_members.team={record['team_id']}, team_members.active={record['active']}, team_members.function='{tmfunc.name}' WHERE id={record['user_id']}"
-            print(sql)
-            result = await inpg.execute(sql)
+            sql = f"UPDATE teams SET team_members=team_members||({record['team_id']}, {record['active']}, '{tmfunc.name}')::team_members WHERE id={record['team_id']}"
+            # sql = f"UPDATE teams SET team_members.team={record['team_id']}, team_members.active={record['active']}, team_members.function='{tmfunc.name}' WHERE id={record['team_id']}"
+            # print(sql)
+            result = await self.pg.execute(sql)
 
         timer.stop()
         return True
 
-def main():
+async def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
-    parser.add_argument("-u", "--uri", default='localhost/tm_admin',
-                            help="Database URI")
+    parser.add_argument("-i", "--inuri", default='localhost/tm4',
+                            help="Input database URI")
+    parser.add_argument("-o", "--outuri", default='localhost/tm_admin',
+                            help="Output database URI")
     # parser.add_argument("-r", "--reset", help="Reset Sequences")
     args = parser.parse_args()
 
@@ -100,29 +107,33 @@ def main():
         stream=sys.stdout,
     )
 
-    team = TeamsDB(args.uri)
+    inpg = PostgresClient()
+    await inpg.connect(args.inuri)
 
-    await self.mergeTeams(inpg)
-    log.info("UserDB.mergeTeams worked!")
+    team = TeamsDB()
+    await team.connect(args.outuri)
+    await team.mergeTeams(inpg)
     
-    # user.resetSequence()
-    all = team.getAll()
-    # Don't pass id, let postgres auto increment
-    ut = TeamsTable(name='test', organisation_id=1,
-                    visibility='PUBLIC')
-    team.createTable(ut)
+    # # user.resetSequence()
+    # all = team.getAll()
+    # # Don't pass id, let postgres auto increment
+    # ut = TeamsTable(name='test', organisation_id=1,
+    #                 visibility='PUBLIC')
+    # team.createTable(ut)
+    # # print(all)
+
+    # all = team.getByID(1)
+    # print(all)
+            
+    # all = team.getByName('test')
     # print(all)
 
-    all = team.getByID(1)
-    print(all)
-            
-    all = team.getByName('test')
-    print(all)
-
-    ut = TeamsTable(name='foobar', organisation_id=1, visibility='PUBLIC')
-    # This is obviously only for manual testing
-    # team.updateTable(ut, 17)
+    # ut = TeamsTable(name='foobar', organisation_id=1, visibility='PUBLIC')
+    # # This is obviously only for manual testing
+    # # team.updateTable(ut, 17)
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
-    main()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
