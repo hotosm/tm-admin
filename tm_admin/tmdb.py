@@ -401,11 +401,11 @@ async def main():
         stream=sys.stdout,
     )
 
-    doit = TMImport()
-    await doit.connect(args.inuri)
-    entries = await doit.tmdb.getRecordCount(args.table)
-    block = 0
-    chunk = round(entries / cores)
+    # doit = TMImport()
+    # await doit.connect(args.inuri)
+    # entries = await doit.tmdb.getRecordCount(args.table)
+    # block = 0
+    # chunk = round(entries / cores)
 
     # this is the size of the pages in records
     threshold = 10000
@@ -430,47 +430,32 @@ async def main():
     # dump python, or have performance issues. Past a certain threshold
     # the data needs to be queried in pages instead of the entire table.
     # There seems to be issues with data corruption
-    futures = list()
+    if args.table == 'organizations':
+        table = 'organisations'
+    else:
+        table = args.table
+        sql = f"SELECT * FROM {table} ORDER BY id"
+        # print(sql)
+
+    log.warning(f"This operation may be slow for large datasets.")
+    data = await inpg.execute(sql)
+
+    entries = len(data)
+    chunk = round(entries / cores)
+
     async with asyncio.TaskGroup() as tg:
         # index = 0
         # dsn = f"postgres://rob:fu=br@localhost/tm_admin"
         # async with create_pool(min_size=2, max_size=cores, dsn=dsn) as pool:
         #     async with pool.acquire() as con:
-        start = 0
-        if args.table == 'organizations':
-            table = 'organisations'
-        else:
-            table = args.table
-        sql = f"SELECT * FROM {table} ORDER BY id"
-        print(sql)
-        log.warning(f"This operation may be slow for large datasets.")
-        data = await inpg.execute(sql)
-        for index in range(0, cores):
+        for block in range(0, entries, chunk):
             outpg = PostgresClient()
             await outpg.connect(args.outuri)
             # data = await inpg.getPage(start, chunk, args.table)
-            log.debug(f"Dispatching thread {index} {start}:{start + chunk}")
-            # await importThread(data[start:start + chunk], outpg, args.table)
-            task = tg.create_task(importThread(data[start:start + chunk], outpg, table))
-            start += chunk
-            # tasks.append(task)
-            # time.sleep(1)
-        # else:
-        # data = list
-        # # You have to love subtle cultural spelling differences.
-        # if args.table == 'organizations':
-        #     data = await doit.getAllData('organisations')
-        # else:
-        #     data = await doit.getAllData(args.table)
-
-        # entries = len(data)
-        # log.debug(f"There are {entries} entries in {args.table}")
-        # outpg = PostgresClient()
-        # await outpg.connect(args.outuri)
-        # await importThread(data, outpg, args.table)
-        # quit()
-
-        index = 0
+            # log.debug(f"Dispatching thread {index} {start}:{start + chunk}")
+            log.debug(f"Dispatching thread {block}:{block + chunk - 1}")
+            # await importThread(data[start:start + chunk - 1], outpg, args.table)
+            task = tg.create_task(importThread(data[block:block + chunk - 1], outpg, table))
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
