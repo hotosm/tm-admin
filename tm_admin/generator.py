@@ -298,7 +298,7 @@ class {table.capitalize()}Table(object):
             [[table, values]] = entry.items()
             out += f"DROP TABLE IF EXISTS public.{table} CASCADE;\n"
             out += f"CREATE TABLE public.{table} (\n"
-            unique = ""
+            unique = list()
             typedef = ""
             for line in values:
                 # these are usually from the types.yaml file, which have no
@@ -322,7 +322,7 @@ class {table.capitalize()}Table(object):
                         if 'array' in item and item['array']:
                             array = "[]"
                         if 'unique' in item and item['unique']:
-                            unique = k
+                            unique.append(k)
                     if len(v) >= 2:
                         if 'required' in v[1] and v[1]['required']:
                             required = ' NOT NULL'
@@ -342,8 +342,7 @@ class {table.capitalize()}Table(object):
                     else:
                         out += f"\t{k} {self.yaml2sql[v[0]]}{array}{required},\n"
             if len(unique) > 0:
-                out += f"\tUNIQUE({unique})\n);\n"
-
+                out += f"\tPRIMARY KEY({str(unique)[1:-1]})\n);\n"
             if out[-2:] == ',\n':
                 out = f"{out[:-2]}\n);\n\n"
             if len(sequence) > 0:
