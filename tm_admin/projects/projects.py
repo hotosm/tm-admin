@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2022, 2023 Humanitarian OpenStreetMap Team
+# Copyright (c) 2022, 2023, 2024 Humanitarian OpenStreetMap Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -52,22 +52,17 @@ cores = info["count"] * 2
 log = logging.getLogger(__name__)
 
 async def updateThread(
-    data: list,
+    queries: list,
     db: PostgresClient,
 ):
-    """Thread to handle importing
+    """Thread to handle importing data
 
     Args:
-        data (list): The list of records to import
+        queries (list): The list of SQL queries to execute
         db (PostgresClient): A database connection
     """
-    for record in data:
-        sql = f" UPDATE projects SET licenses = ARRAY[{record[0]['license']}] WHERE id={record[0]['user']}"
-        # print(sql)
-        # try:
-        #     result = db.dbcursor.execute(f"{sql};")
-        # except:
-        #     return False
+    for sql in queries:
+        result = await db.execute(sql)
 
     return True
 
@@ -106,10 +101,10 @@ class ProjectsDB(DBSupport):
         sql = f"SELECT {columns} FROM {table} ORDER BY project_id"
         print(sql)
         result = await inpg.execute(sql)
-        timer.stop()
 
-        pbar = tqdm.tqdm(result)
-        for record in pbar:
+        # pbar = tqdm.tqdm(result)
+        queries = list()
+        for record in result:
             # in Postgres, to escape a single quote, you use two single quotes. So
             # we have to fix this before encoding it.
             if record['name']:
@@ -132,13 +127,29 @@ class ProjectsDB(DBSupport):
                 instructions = "NULL".encode('utf-8')
             # sql = f"UPDATE projects SET id={record['project_id']}, default_locale='{record['locale']}', name={name},short_description={short},description={description},instructions={instructions},per_task_instructions={task} WHERE id={record['project_id']};"
             sql = f"UPDATE projects SET name='{name.decode('utf-8')}', short_description='{short.decode('utf-8')}', description='{description.decode('utf-8')}', instructions='{instructions.decode('utf-8')}' WHERE id={record['project_id']};"
-            await self.pg.execute(sql)
+            # await self.pg.execute(sql)
+            queries.append(sql)
+
+        entries = len(queries)
+        chunk = round(entries / cores)
+
+        #pbar = tqdm.tqdm(queries)
+        # FIXME: It'd be nice if we could have a progress meter that works with range
+        log.warning(f"This makes take time, so please wait...")
+        async with asyncio.TaskGroup() as tg:
+            for block in range(0, entries, chunk):
+                outpg = PostgresClient()
+                await outpg.connect('localhost/tm_admin')
+                # log.debug(f"Dispatching thread {block}:{block + chunk}")
+                # await updateThread(queries, outpg)
+                task = tg.create_task(updateThread(queries[block:block + chunk], outpg))
+        timer.stop()
+        return True
 
     async def mergeInterests(self,
                         inpg: PostgresClient,
                         ):
         table = "project_interests"
-        log.error(f"mergeTeams() Unimplemented!")
         timer = Timer(initial_text=f"Merging {table} table...",
                       text="merging table took {seconds:.0f}s",
                       logger=log.debug,
@@ -152,14 +163,29 @@ class ProjectsDB(DBSupport):
         entries = len(result)
         log.debug(f"There are {entries} entries in {table}")
         chunk = round(entries / cores)
-        pbar = tqdm.tqdm(result)
+        # pbar = tqdm.tqdm(result)
 
-        # This table has a small amount of data, so threading would be overkill.
-        for record in pbar:
+        queries = list()
+        for record in result:
             pid = record.get('project_id')
             sql = f" UPDATE projects SET interests = {record['interest_id']} WHERE id={pid}"
             #print(sql)
-            result = await self.pg.execute(sql)
+            queries.append(sql)
+            #result = await self.pg.execute(sql)
+
+        entries = len(queries)
+        chunk = round(entries / cores)
+
+        #pbar = tqdm.tqdm(queries)
+        # FIXME: It'd be nice if we could have a progress meter that works with range
+        log.warning(f"This makes take time, so please wait...")
+        async with asyncio.TaskGroup() as tg:
+            for block in range(0, entries, chunk):
+                outpg = PostgresClient()
+                await outpg.connect('localhost/tm_admin')
+                # log.debug(f"Dispatching thread {block}:{block + chunk}")
+                # await updateThread(queries, outpg)
+                task = tg.create_task(updateThread(queries[block:block + chunk], outpg))
 
         timer.stop()
         return True
@@ -199,7 +225,6 @@ class ProjectsDB(DBSupport):
                         inpg: PostgresClient,
                         ):
         table = "project_chat"
-        log.error(f"mergeChat() Unimplemented!")
         timer = Timer(initial_text=f"Merging {table} table...",
                       text="merging table took {seconds:.0f}s",
                       logger=log.debug,
@@ -210,12 +235,31 @@ class ProjectsDB(DBSupport):
         # print(sql)
         result = await inpg.execute(sql)
         data = dict()
+        queries = list()
         for record in tqdm.tqdm(result):
             # The messages has embedded quotes.
             message = record['message'].replace("'", "&apos;")
             sql = f" INSERT INTO chat(id, project_id, user_id, time_stamp, message) VALUES({record['id']}, {record['project_id']}, {record['user_id']}, '{record['time_stamp']}', '{message}')"
             # print(sql)
-            result = await self.pg.execute(sql)
+            queries.append(sql)
+            #result = await self.pg.execute(sql)
+
+        entries = len(queries)
+        chunk = round(entries / cores)
+
+        #pbar = tqdm.tqdm(queries)
+        # FIXME: It'd be nice if we could have a progress meter that works with range
+        log.warning(f"This makes take time, so please wait...")
+        async with asyncio.TaskGroup() as tg:
+            for block in tqdm.tqdm(range(0, entries, chunk)):
+                outpg = PostgresClient()
+                await outpg.connect('localhost/tm_admin')
+                # log.debug(f"Dispatching thread {block}:{block + chunk}")
+                # await updateThread(queries, outpg)
+                task = tg.create_task(updateThread(queries[block:block + chunk], outpg))
+
+        timer.stop()
+        return True
 
     async def mergeTeams(self,
                         inpg: PostgresClient,
@@ -331,7 +375,13 @@ async def main():
     # user.resetSequence()
     #all = proj.getAll()
 
+    timer = Timer(initial_text=f"Merging all other tables...",
+                      text="Importing took {seconds:.0f}s",
+                      logger=log.debug,
+                    )
+    timer.start()
     await proj.mergeAuxTables(args.inuri, args.outuri)
+    timer.stop()
 
     # file = open(args.boundary, 'r')
     # boundary = geojson.load(file)
