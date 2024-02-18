@@ -380,6 +380,13 @@ def main():
     if args.verbose is not None:
         log_level = logging.DEBUG
 
+    logging.basicConfig(
+        level=log_level,
+        format=("%(asctime)s.%(msecs)03d [%(levelname)s] " "%(name)s | %(funcName)s:%(lineno)d | %(message)s"),
+        datefmt="%y-%m-%d %H:%M:%S",
+        stream=sys.stdout,
+    )
+
     gen = Generator()
     for config in known:
         gen.readConfig(config)
