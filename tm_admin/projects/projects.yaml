@@ -9,6 +9,7 @@
         - share: true
         - sequence: true
         - unique: true
+        - primary: true
     - odkid:
         - int64
         - share: true
@@ -149,6 +150,8 @@
         - string
     - instructions:
         - string
+    - per_task_instructions:
+        - string
     - allowed_users:
         - int64
         - array: true
@@ -157,6 +160,12 @@
         - int64
         - array: true
         - share: true
+    - interests:
+        - int32
+        - share: true
+    - teams:
+        - table.project_teams
+        - array: true
 
 # project_id_str|character varying|||
 # text_searchable|tsvector|||
