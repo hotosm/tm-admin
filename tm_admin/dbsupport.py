@@ -38,6 +38,7 @@ from tm_admin.organizations.organizations_class import OrganizationsTable
 from osm_rawdata.pgasync import PostgresClient
 from shapely.geometry import Polygon, Point, shape
 import asyncio
+from codetiming import Timer
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -57,6 +58,7 @@ class DBSupport(object):
         """
         self.pg = None
         self.table = table
+        self.columns = None
 
     async def connect(self,
                     dburi: str = "localhost/tm_admin",
@@ -160,7 +162,7 @@ class DBSupport(object):
                 sql += f" {column}='{value}',"
         sql += f" WHERE id='{id}'"
         # print(sql)
-        result = self.pg.execute(f"{sql[:-1]}';")
+        result = await self.pg.execute(f"{sql[:-1]}';")
 
     async def resetSequence(self):
         """
@@ -217,10 +219,7 @@ class DBSupport(object):
         sql = f"SELECT row_to_json({self.table}) as row FROM {self.table}"
         # print(sql)
         result = list()
-        if self.pg:
-            result = await self.pg.execute(sql)
-        else:
-            log.error(f"You need to connect to the database first!")
+        result = await self.pg.execute(sql)
 
         return result
 
@@ -258,8 +257,7 @@ class DBSupport(object):
         data = dict()
         ewkt = shape(location)
         sql = f"SELECT row_to_json({self.table}) as row FROM {table} WHERE ST_CONTAINS(ST_GeomFromEWKT('SRID=4326;{ewkt}') geom)"
-        await self.pg.execute(sql)
-        result = self.pg.dbcursor.fetchall()
+        result = await self.pg.execute(sql)
 
         return result
 
@@ -291,18 +289,12 @@ class DBSupport(object):
             (list): The column values
         """
         sql = f"SELECT {column} FROM {self.table} WHERE id={uid}"
-        try:
-            self.pg.execute(sql)
-        except:
-            log.error(f"Couldn't execute query {sql}")
+        result = await self.pg.execute(sql)
 
-        result = self.pg.dbcursor.fetchall()
-
-        if len(result) == 1 and len(result[0]) == 1:
-            if result[0][0] is None:
-                return list()
-
-        return result
+        if len(result) > 0:
+            return result[0][column]
+        else:
+            return None
 
     async def updateColumn(self,
                     uid: int,
@@ -319,10 +311,7 @@ class DBSupport(object):
         [[column, value]] = data.items()
         sql = f"UPDATE {self.table} SET {column}='{value}' WHERE id='{uid}'"
         # print(sql)
-        try:
-            self.pg.execute(f"{sql};")
-        except:
-            return False
+        await self.pg.execute(f"{sql};")
 
         return True
 
@@ -343,11 +332,7 @@ class DBSupport(object):
         aval = "'{" + f"{value}" + "}"
         sql = f"UPDATE {self.table} SET {column}=array_remove({column}, {value}) WHERE id='{uid}'"
         # print(sql)
-        try:
-            result = self.pg.execute(f"{sql};")
-            return True
-        except:
-            return False
+        result = await self.pg.execute(f"{sql};")
 
     async def appendColumn(self,
                     uid: int,
@@ -366,11 +351,86 @@ class DBSupport(object):
         aval = "'{" + f"{value}" + "}"
         sql = f"UPDATE {self.table} SET {column}={column}||{aval}' WHERE id='{uid}'"
         #print(sql)
-        try:
-            result = self.pg.execute(f"{sql};")
-            return True
-        except:
-            return False
+        result = await self.pg.execute(f"{sql};")
+
+    async def renameTable(self,
+                        table: str,
+                        ):
+        """
+        """
+        sql = f"DROP TABLE IF EXISTS {table}_bak"
+        result = await self.pg.execute(sql)
+        sql = f"ALTER TABLE {table} RENAME TO {table}_bak;"
+        result = await self.pg.execute(sql)
+        sql = f"ALTER TABLE new_{table} RENAME TO {table};"
+        result = await self.pg.execute(sql)
+        sql = f"DROP TABLE IF EXISTS {table}_bak CASCADE"
+        result = await self.pg.execute(sql)
+
+        print(f"renameTable{self.pg.dburi}")
+        # These are copied for the TM4 database, but have been merged
+        # into the local database so JOIN works faster than remote
+        # access, or looping through tons of data in Python.
+        sql = f"DROP TABLE IF EXISTS user_interests CASCADE"
+        result = await self.pg.execute(sql)
+        sql = f"DROP TABLE IF EXISTS user_licenses CASCADE"
+        result = await self.pg.execute(sql)
+        sql = f"DROP TABLE IF EXISTS team_members CASCADE"
+        result = await self.pg.execute(sql)
+
+    async def copyTable(self,
+                        table: str,
+                        remote: PostgresClient,
+                        ):
+        """
+        Use DBLINK to copy a table from the Tasking Manager
+        database to a local table so JOINing is much faster.
+
+        Args:
+            table (str): The table to copy
+        """
+        timer = Timer(initial_text=f"Copying {table}...",
+                      text="copying {table} took {seconds:.0f}s",
+                      logger=log.debug,
+                    )
+        # Get the columns from the remote database table
+        self.columns = await remote.getColumns(table)
+
+        print(f"SELF: {self.pg.dburi}")
+        print(f"REMOTE: {remote.dburi}")
+
+        # Do we already have a local copy ?
+        sql = f"SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename  = '{table}'"
+        result = await self.pg.execute(sql)
+        print(result)
+
+        # cleanup old temporary tables in the current database
+        # drop = ["DROP TABLE IF EXISTS users_bak",
+        #         "DROP TABLE IF EXISTS user_interests",
+        #         "DROP TABLE IF EXISTS foo"]
+        # result = await pg.pg.executemany(drop)
+        sql = f"DROP TABLE IF EXISTS new_{table} CASCADE"
+        result = await self.pg.execute(sql)
+        sql = f"DROP TABLE IF EXISTS {table}_bak CASCADE"
+        result = await self.pg.execute(sql)
+        timer.start()
+        dbuser = self.pg.dburi["dbuser"]
+        dbpass = self.pg.dburi["dbpass"]
+        sql = f"CREATE SERVER IF NOT EXISTS pg_rep_db FOREIGN DATA WRAPPER dblink_fdw  OPTIONS (dbname 'tm4');"
+        data = await self.pg.execute(sql)
+
+        sql = f"CREATE USER MAPPING IF NOT EXISTS FOR {dbuser} SERVER pg_rep_db OPTIONS ( user '{dbuser}', password '{dbpass}');"
+        result = await self.pg.execute(sql)
+
+        # Copy table from remote database so JOIN is faster when it's in the
+        # same database
+        #columns = await sel.getColumns(table)
+        log.warning(f"Copying a remote table is slow, but faster than remote access......")
+        sql = f"SELECT * INTO {table} FROM dblink('pg_rep_db','SELECT * FROM {table}') AS {table}({self.columns})"
+        print(sql)
+        result = await self.pg.execute(sql)
+
+        return True
 
 async def main():
     """This main function lets this class be run standalone by a bash script."""
