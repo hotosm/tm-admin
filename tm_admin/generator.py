@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2022, 2023 Humanitarian OpenStreetMap Team
+# Copyright (c) 2022, 2023, 2024 Humanitarian OpenStreetMap Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -311,18 +311,19 @@ class {table.capitalize()}Table(object):
                 required = ""
                 array = ""
                 public = False
-                primary = ""
+                primary = list()
                 for item in v:
                     if type(item) == dict:
                         if 'sequence' in item and item['sequence']:
                             sequence.append(k)
-                            primary = k
                         if 'required' in item and item['required']:
                             required = ' NOT NULL'
                         if 'array' in item and item['array']:
                             array = "[]"
                         if 'unique' in item and item['unique']:
                             unique.append(k)
+                        if 'primary' in item and item['primary']:
+                            primary.append(k)
                     if len(v) >= 2:
                         if 'required' in v[1] and v[1]['required']:
                             required = ' NOT NULL'
@@ -342,7 +343,8 @@ class {table.capitalize()}Table(object):
                     else:
                         out += f"\t{k} {self.yaml2sql[v[0]]}{array}{required},\n"
             if len(unique) > 0:
-                out += f"\tPRIMARY KEY({str(unique)[1:-1]})\n);\n"
+                keys = str(unique).replace("'", "")[1:-1];
+                out += f"\tUNIQUE({keys})\n);\n"
             if out[-2:] == ',\n':
                 out = f"{out[:-2]}\n);\n\n"
             if len(sequence) > 0:
@@ -355,8 +357,15 @@ CREATE SEQUENCE public.{table}_{key}_seq
         NO MINVALUE
         NO MAXVALUE
         CACHE 1;
+
 """
-        return out
+        if len(primary) > 0:
+            keys = str(primary).replace("'", "")[1:-1];
+            out += f"\tALTER TABLE {table} ADD CONSTRAINT {table}_pkey PRIMARY KEY({keys})\n);\n"
+
+        # FIXME: for some reasons, this has extra characters at the end that break
+        # the syntax
+        return out[:-3]
     
 def main():
     """This main function lets this class be run standalone by a bash script."""
