@@ -47,7 +47,7 @@ support: $(PBUFS)
 # --plugin=protoc-gen-grpc_python=/usr/local/bin/grpc_python_plugin
 
 docs:
-	-$(PROTOC) --doc_out=../docs --doc_opt=html,protos-api.html  --proto_path . services.proto types_tm.proto * */*.proto
+	-$(PROTOC) --doc_out=../docs --doc_opt=html,protos-api.html  --proto_path . services.proto types_tm.proto */*.proto
 #protoc --doc_out=./foo --doc_opt=html,index.html services.proto */*.proto
 #-@cd .. && make apidoc
 
