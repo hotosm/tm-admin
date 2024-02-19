@@ -1,7 +1,9 @@
 # Async Data Flow
 
 To avoid some performance issues, all communication with the database
-is async using the *asyncpg* module. This 
+is async using the *asyncpg* module. If using the async model in
+SQLAlchemy, it uses asyncpg as well. Performance wise, depending on
+the actual operation, asyncpg may be faster than *psycopg2* or not.
 
 # Initialization
 
@@ -34,3 +36,8 @@ but has switched entirely to the *asynio* module using asychronis
 tasks instead of threads since everything is designed to work
 together.
 
+All the code is heavily threaded. Data is split into chunks based on
+the number of CPU cores. Then each chunk is then handed off to an async
+Task to process the data. Since the threading is buried deep in this API,
+it shouldn't be needed in most applications using the TM-Admin API will
+need to do threading at a higher level for any of the data flow.
