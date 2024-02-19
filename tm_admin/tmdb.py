@@ -35,12 +35,11 @@ from tm_admin.yamlfile import YamlFile
 import concurrent.futures
 from cpuinfo import get_cpu_info
 import asyncio
-from asyncpg import create_pool
+# from asyncpg import create_pool
 # from tm_admin.users.users import createSQLValues
 # from tm_admin.organizations.organizations import createSQLValues
 from tqdm import tqdm
 import tqdm.asyncio
-import copy
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -58,6 +57,7 @@ async def importThread(
         data: list,
         pg: PostgresClient,
         table: str,
+        config: dict,
         ):
     """
     Thread to handle importing
@@ -66,18 +66,168 @@ async def importThread(
         data (list): The list of records to import
         outuri (str): The output database
     """
+        # await tmi.writeAllData(data, pg)
     # log.debug(f"There are {len(data)} data entries")
     if table == 'organisations':
         table = 'organizations'
-    tmi = TMImport(table)
-    await tmi.writeAllData(data, pg)
+        builtins = ['int32', 'int64', 'string', 'timestamp', 'bool']
+    else:
+        builtins = ['int32', 'int64', 'string', 'timestamp', 'bool']
+        pbar = tqdm.tqdm(data)
+        for record in pbar:
+        # for record in data:
+            # columns = str(list(record.keys()))[1:-1].replace("'", "")
+            null = None
+            true = True
+            false = False
+            columns = list()
+            values = ""
+            # values += createSQLValues(record, self.config)
+            # print(values)
+            # bar.next()
+            if type(record) == str:
+                x = eval(record)
+            elif 'row' in record:
+                x = eval(record['row'])
+            else:
+                x = record
+            for key, val in x.items():
+                columns.append(key)
+                # print(f"FIXME: {key} = {self.config[key]}")
+                # Booleans need to set 't' or 'f' for postgres.
+                if config[key]['datatype'] == 'bool':
+                    if val:
+                        values += f"'t', "
+                    else:
+                        values += f"'f', "
+                    continue
+                if config[key]['datatype'] == 'timestamp':
+                    if val is None:
+                        values += f"NULL, "
+                    else:
+                        values += f"'{val}', "
+                    continue
+                    
+                # If it's not a standard datatype, it's an enum in types_tm.py
+                if config[key]['datatype'] not in builtins:
+                    if config[key]['datatype'] == 'point':
+                        if type(val) == dict:
+                            geom = shape(val)
+                        else:
+                            geom = wkb.loads(val)
+                        # values += f"point({geom[0][0]}, {geom[0][1]}), "
+                        values += f"'{geom.wkb_hex}', "
+                        continue
+                    elif config[key]['datatype'] == 'polygon':
+                        if type(val) == dict:
+                            geom = shape(val)
+                        else:
+                            geom = wkb.loads(val)
+                        values += f"'{geom.geoms[0].wkb_hex}', "
+                        # values += f"polygon('({poly[:-2]})'), "
+                        continue
+                    elif type(val) == list:
+                        values += "'{"
+                        for entry in val:
+                            # The TM database has a bug, since it doesn't use enums,
+                            # which have to start with a value of 1.
+                            if entry == 0:
+                                entry += 1
+                            exec = f"{config[key]['datatype']}({entry})"
+                            enumval = eval(exec)
+                            values += f"{enumval.name}, "
+                        if len(val) == 0: # FIXME: is this still valid ?
+                            values = values[:-2] + "'{}', "
+                        else:
+                            values = values[:-2]
+                            values += f"}}'::{config[key]['datatype'].lower()}[], "
+                        continue
+                    elif type(val) == int:
+                        if val <= 0:
+                            val = 1
+                        exec = f"{config[key]['datatype']}({val})"
+                        enumval = eval(exec)
+                        values += f"'{enumval.name}', "
+                        continue
+                    else:
+                        # The TM database has a bug, a 0 usually means there is no value,
+                        # so we bump it up to pick the first entry in the enum.
+                        if val is None:
+                            values += f"'{{}}', "
+                            continue
+                        elif type(val) == int and val <= 0:
+                            val = 1
+                            #values += f"'{{}}', "
+                            exec = f"{config[key]['datatype']}({val})"
+                            enumval = eval(exec)
+                            values += f"'{enumval.name}', "
+                            continue
+                        elif type(str):
+                            values += f"'{val}', "
+                else:
+                    if config[key]['array']:
+                        if val is not None:
+                            if len(val) == 0:
+                                values += "NULL, "
+                                continue
+                            values += "ARRAY["
+                            for item in val:
+                                if type(item) == str:
+                                    esc = item.replace("'", "")
+                                    values += f"'{esc}', "
+                                elif type(item) == int:
+                                    values += f"{item}, "
+                            values = values[:-2]
+                            values += "], "
+                            continue
+                        else:
+                            values += f"NULL, "
+                    elif config[key]['datatype'][:3] == 'int':
+                        if val is None:
+                            if config[key]['required']:
+                                values += f"0, "
+                            else:
+                                values += f"NULL, "
+                        else:
+                            values += f"{val}, "
+                    else:
+                        if val is None:
+                            if config[key]['required']:
+                                values += f"'', "
+                            else:
+                                values += f"NULL, "
+                        else:
+                            esc = val.replace("'", "")
+                            values += f"'{esc}', "
+                continue
+
+            # This covers the columns in the config file that are considered
+            # required in the output database, but aren't in the input database.
+            for key, val in config.items():
+                if 'required' in val and key not in columns:
+                    # log.debug(f"REQUIRED: {key} = {val['required']}")
+                    if val['required']:
+                        # g.debug(f"Key '{key}' is required")
+                        columns.append(key)
+                        # FIXME: don't hardcode
+                        if config[key]['datatype'] not in builtins:
+                            # log.debug(f"Key '{key}' is an Enum")
+                            exec = f"{config[key]['datatype']}(1)"
+                            enumval = eval(exec)
+                            values += f"'{enumval.name}', "
+                        else:
+                            log.warning(f"No support yet for {key}!")
+                    
+
+            # foo = f"str(columns)[1:-1].replace("'", "")
+            sql = f"""INSERT INTO {table}({str(columns)[1:-1].replace("'", "")}) VALUES({values[:-2]})"""
+            #print(sql)
+            results = await pg.execute(sql)
 
     return True
 
 class TMImport(object):
-    def __init__(self,
-                 config: str = None,
-                 ):
+    def __init__(self):
         """
         This class contains support to accessing a Tasking Manager database, and
         importing it in the TM Admin database. This works because the TM Admin
@@ -94,18 +244,29 @@ class TMImport(object):
             (TMImport): An instance of this class
         """
         self.tmdb = None
+        self.admindb = None
         self.table = None
         self.columns = list()
         self.data = list()
         self.config = dict()
-        if config:
-            self.table = config
-            yaml = YamlFile(f"{rootdir}/{config}/{config}.yaml")
-            # yaml.dump()
-            self.config = yaml.getEntries()
+
+    async def loadConfig(self,
+                        config: str,
+                        ):
+        """
+        Load the YAML based config file for this table.
+
+        Args:
+            config: the name of the table.
+        """
+        self.table = config
+        yaml = YamlFile(f"{rootdir}/{config}/{config}.yaml")
+        # yaml.dump()
+        self.config = yaml.getEntries()
 
     async def connect(self,
                 inuri: str,
+                outuri: str,
                 ):
         """
         This class contains support to accessing a Tasking Manager database, and
@@ -116,17 +277,21 @@ class TMImport(object):
 
         The other change is in TM many columns are enums, but the database type
         is in. The integer values from TM are converted to the proper TM Admin enum value.
-        
         Args:
             inuri (str): The URI for the TM database
-            table (str): The table in the TM Admin database
+            outuri (str): The URI for the TM Admin database
         """
         # The Tasking Manager database
         self.tmdb = PostgresClient()
         await self.tmdb.connect(inuri)
+
+        self.admindb = PostgresClient()
+        await self.admindb.connect(outuri)
+        self.outuri = outuri
+
         # The TMAdmin database
-        self.columns = list()
-        self.data = list()
+        # self.columns = list()
+        # self.data = list()
 
     async def getColumns(self,
                     table: str,
@@ -169,7 +334,7 @@ class TMImport(object):
             self.columns = list(table.keys())
 
         return table
-        
+
     async def getAllData(self,
                    table: str,
                 ):
@@ -199,176 +364,45 @@ class TMImport(object):
             data.append(table)
         return data
 
-    async def writeAllData(self,
-                    data: list,
-                    pg: PostgresClient,
-                    ):
+    async def importDB(self,
+                       table: str,
+                       ):
+
         """
-        Write the data into table in TM Admin.
+        Import a table from the Tasking Manager into TM Admin
 
         Args:
-            data (list): The table data from TM
+            table (str): The table to import
         """
-        # log.debug(f"Writing block {len(data)} to the database")
-        if len(data) == 0:
-            return True
+        # Some tables in the input database are huge, and can either core
+        # dump python, or have performance issues. Past a certain threshold
+        # the data needs to be queried in pages instead of the entire table.
+        # There seems to be issues with data corruption
+        if table == 'organizations':
+            table = 'organisations'
+        sql = f"SELECT * FROM {table}"
+        print(sql)
+        print(self.tmdb.dburi)
 
-        builtins = ['int32', 'int64', 'string', 'timestamp', 'bool']
+        log.warning(f"This operation may be slow for large datasets.")
+        data = await self.tmdb.execute(sql)
 
-        pbar = tqdm.tqdm(data)
-        for record in pbar:
-        # for record in data:
-            # columns = str(list(record.keys()))[1:-1].replace("'", "")
-            null = None
-            true = True
-            false = False
-            columns = list()
-            values = ""
-            # values += createSQLValues(record, self.config)
-            # print(values)
-            # bar.next()
-            if type(record) == str:
-                x = eval(record)
-            elif 'row' in record:
-                x = eval(record['row'])
-            else:
-                x = record
-            for key, val in x.items():
-                columns.append(key)
-                # print(f"FIXME: {key} = {self.config[key]}")
-                # Booleans need to set 't' or 'f' for postgres.
-                if self.config[key]['datatype'] == 'bool':
-                    if val:
-                        values += f"'t', "
-                    else:
-                        values += f"'f', "
-                    continue
-                if self.config[key]['datatype'] == 'timestamp':
-                    if val is None:
-                        values += f"NULL, "
-                    else:
-                        values += f"'{val}', "
-                    continue
-                    
-                # If it's not a standard datatype, it's an enum in types_tm.py
-                if self.config[key]['datatype'] not in builtins:
-                    if self.config[key]['datatype'] == 'point':
-                        if type(val) == dict:
-                            geom = shape(val)
-                        else:
-                            geom = wkb.loads(val)
-                        # values += f"point({geom[0][0]}, {geom[0][1]}), "
-                        values += f"'{geom.wkb_hex}', "
-                        continue
-                    elif self.config[key]['datatype'] == 'polygon':
-                        if type(val) == dict:
-                            geom = shape(val)
-                        else:
-                            geom = wkb.loads(val)
-                        values += f"'{geom.geoms[0].wkb_hex}', "
-                        # values += f"polygon('({poly[:-2]})'), "
-                        continue
-                    elif type(val) == list:
-                        values += "'{"
-                        for entry in val:
-                            # The TM database has a bug, since it doesn't use enums,
-                            # which have to start with a value of 1.
-                            if entry == 0:
-                                entry += 1
-                            exec = f"{self.config[key]['datatype']}({entry})"
-                            enumval = eval(exec)
-                            values += f"{enumval.name}, "
-                        if len(val) == 0: # FIXME: is this still valid ?
-                            values = values[:-2] + "'{}', "
-                        else:
-                            values = values[:-2]
-                            values += f"}}'::{self.config[key]['datatype'].lower()}[], "
-                        continue
-                    elif type(val) == int:
-                        if val <= 0:
-                            val = 1
-                        exec = f"{self.config[key]['datatype']}({val})"
-                        enumval = eval(exec)
-                        values += f"'{enumval.name}', "
-                        continue
-                    else:
-                        # The TM database has a bug, a 0 usually means there is no value,
-                        # so we bump it up to pick the first entry in the enum.
-                        if val is None:
-                            values += f"'{{}}', "
-                            continue
-                        elif type(val) == int and val <= 0:
-                            val = 1
-                            #values += f"'{{}}', "
-                            exec = f"{self.config[key]['datatype']}({val})"
-                            enumval = eval(exec)
-                            values += f"'{enumval.name}', "
-                            continue
-                        elif type(str):
-                            values += f"'{val}', "
-                else:
-                    if self.config[key]['array']:
-                        if val is not None:
-                            if len(val) == 0:
-                                values += "NULL, "
-                                continue
-                            values += "ARRAY["
-                            for item in val:
-                                if type(item) == str:
-                                    esc = item.replace("'", "")
-                                    values += f"'{esc}', "
-                                elif type(item) == int:
-                                    values += f"{item}, "
-                            values = values[:-2]
-                            values += "], "
-                            continue
-                        else:
-                            values += f"NULL, "
-                    elif self.config[key]['datatype'][:3] == 'int':
-                        if val is None:
-                            if self.config[key]['required']:
-                                values += f"0, "
-                            else:
-                                values += f"NULL, "
-                        else:
-                            values += f"{val}, "
-                    else:
-                        if val is None:
-                            if self.config[key]['required']:
-                                values += f"'', "
-                            else:
-                                values += f"NULL, "
-                        else:
-                            esc = val.replace("'", "")
-                            values += f"'{esc}', "
-                continue
+        entries = len(data)
+        chunk = round(entries / cores)
 
-            # This covers the columns in the config file that are considered
-            # required in the output database, but aren't in the input database.
-            for key, val in self.config.items():
-                if 'required' in val and key not in columns:
-                    # log.debug(f"REQUIRED: {key} = {val['required']}")
-                    if val['required']:
-                        # g.debug(f"Key '{key}' is required")
-                        columns.append(key)
-                        # FIXME: don't hardcode
-                        if self.config[key]['datatype'] not in builtins:
-                            # log.debug(f"Key '{key}' is an Enum")
-                            exec = f"{self.config[key]['datatype']}(1)"
-                            enumval = eval(exec)
-                            values += f"'{enumval.name}', "
-                        else:
-                            log.warning(f"No support yet for {key}!")
-                    
+        async with asyncio.TaskGroup() as tg:
+            # dsn = f"postgres://rob:fu=br@localhost/tm_admin"
+            # async with create_pool(min_size=2, max_size=cores, dsn=dsn) as pool:
+            #     async with pool.acquire() as con:
+            for block in range(0, entries, chunk):
+                outpg = PostgresClient()
+                await outpg.connect(self.outuri)
+                # data = await inpg.getPage(start, chunk, args.table)
+                # log.debug(f"Dispatching thread {index} {start}:{start + chunk}")
+                log.debug(f"Dispatching thread {block}:{block + chunk - 1}")
+                # await importThread(data[block:block + chunk - 1], outpg, table, self.config)
+                task = tg.create_task(importThread(data[block:block + chunk - 1], outpg, table, self.config))
 
-            # foo = f"str(columns)[1:-1].replace("'", "")
-            sql = f"""INSERT INTO {self.table}({str(columns)[1:-1].replace("'", "")}) VALUES({values[:-2]})"""
-            # print(sql)
-            results = await pg.execute(sql)
-        #await tr.commit()
-
-        #bar.finish()
-            
 async def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser(
@@ -401,61 +435,12 @@ async def main():
         stream=sys.stdout,
     )
 
-    # doit = TMImport()
-    # await doit.connect(args.inuri)
-    # entries = await doit.tmdb.getRecordCount(args.table)
-    # block = 0
-    # chunk = round(entries / cores)
-
-    # this is the size of the pages in records
-    threshold = 10000
-    data = list()
-    tasks = list()
-    tmpg = list()
-
-    inpg = PostgresClient()
-    await inpg.connect(args.inuri)
-    # FIXME: this interestingly still had data corruption problmes. If we had
-    # to do this frequently, we'd want to paginate the data, but normally
-    # importing from Tasking Manager is a one time operation.
-    # async with inpg.pg.transaction():
-    #     for index in range(0, cores):
-    #         # cur = await inpg.pg.cursor(f'SELECT row_to_json({args.table}) AS row FROM {args.table}')
-    #         cur = await inpg.pg.cursor(f'SELECT * FROM {args.table} ORDER BY id')
-    #         result = await cur.fetch(chunk)
-    #         data.append(result)
-    #         await cur.forward(chunk)
-
-    # Some tables in the input database are huge, and can either core
-    # dump python, or have performance issues. Past a certain threshold
-    # the data needs to be queried in pages instead of the entire table.
-    # There seems to be issues with data corruption
-    if args.table == 'organizations':
-        table = 'organisations'
+    tmi = TMImport(args.table)
+    await tmi.connect(args.inuri, args.outuri)
+    if len(args.table) == 1:
+        await tmi.importDB([args.table])
     else:
-        table = args.table
-        sql = f"SELECT * FROM {table} ORDER BY id"
-        # print(sql)
-
-    log.warning(f"This operation may be slow for large datasets.")
-    data = await inpg.execute(sql)
-
-    entries = len(data)
-    chunk = round(entries / cores)
-
-    async with asyncio.TaskGroup() as tg:
-        # index = 0
-        # dsn = f"postgres://rob:fu=br@localhost/tm_admin"
-        # async with create_pool(min_size=2, max_size=cores, dsn=dsn) as pool:
-        #     async with pool.acquire() as con:
-        for block in range(0, entries, chunk):
-            outpg = PostgresClient()
-            await outpg.connect(args.outuri)
-            # data = await inpg.getPage(start, chunk, args.table)
-            # log.debug(f"Dispatching thread {index} {start}:{start + chunk}")
-            log.debug(f"Dispatching thread {block}:{block + chunk - 1}")
-            # await importThread(data[start:start + chunk - 1], outpg, args.table)
-            task = tg.create_task(importThread(data[block:block + chunk - 1], outpg, table))
+        await tmi.importDB([args.table])
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
