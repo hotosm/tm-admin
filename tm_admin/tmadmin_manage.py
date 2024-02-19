@@ -25,11 +25,14 @@ import sys
 import os
 from pathlib import Path
 from sys import argv
-from osm_rawdata.postgres import uriParser, PostgresClient
+from osm_rawdata.pgasync import PostgresClient
 from tm_admin.proto import ProtoBuf
 from tm_admin.yamlfile import YamlFile
 from tm_admin.generator import Generator
-
+from tm_admin.tmdb import TMImport
+from tqdm import tqdm
+import tqdm.asyncio
+import asyncio
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -45,12 +48,29 @@ class TmAdminManage(object):
         self.columns = {'drop': list(), 'add': list()}
         self.dburi = dict()
         self.pg = None
-        if dburi:
-            self.dburi = uriParser(dburi)
-            self.pg = PostgresClient(dburi)
-            # self.pg.createDB(self.dburi)
 
-    def applyDiff(self,
+    async def connect(self,
+                inuri: str,
+                ):
+        """
+        This class contains support to accessing a Tasking Manager database, and
+        importing it in the TM Admin database. This works because the TM Admin
+        database schema is based on the ones used by FMTM and TM. The schemas
+        have been merged into a single one, and all of the column names are
+        the same across the two schemas except in a few rare cases.
+
+        The other change is in TM many columns are enums, but the database type
+        is in. The integer values from TM are converted to the proper TM Admin
+        enum value.
+
+        Args:
+            inuri (str): The URI for the TM database
+        """
+        # The Tasking Manager database
+        self.pg = PostgresClient()
+        await self.pg.connect(inuri)
+
+    async def applyDiff(self,
                   difffile: str,
                   table: str,
                 ):
@@ -71,7 +91,7 @@ class TmAdminManage(object):
         add = f"ALTER TABLE {table} ADD COLUMN"
         return False
 
-    def dump(self):
+    async def dump(self):
         """Dump the internal data structures, for debugging only"""
         if len(self.columns['drop']) > 0 or len(self.columns['add']) > 0:
             print("Changes to the table schema")
@@ -85,7 +105,7 @@ class TmAdminManage(object):
             if v is not None:
                 print(f"\t{k} = {v}")
 
-    def updateDB(self,
+    async def updateDB(self,
                 progs: list = list(),
                 ):
         """
@@ -98,7 +118,23 @@ class TmAdminManage(object):
         for sql in progs:
             log.info(f"Updating table {sql} in database")
 
-    def createDB(self,
+    async def importTables(self,
+                tables: list,
+                tmi: TMImport,
+                ):
+        """
+        Import the data in a TM table into TM Admin one.
+
+        Args:
+            progs (list): The programs to run
+        """
+        # This requires all the generated files have been installed
+        for table in tables:
+            log.info(f"Importing the '{table}' table")
+            await tmi.loadConfig(table)
+            await tmi.importDB(table)
+
+    async def createDB(self,
                 files: list = list(),
                 ):
         """
@@ -126,7 +162,7 @@ class TmAdminManage(object):
                 self.pg.dbcursor.execute(file.read())
                 file.close()
 
-    def createTable(self,
+    async def createTable(self,
                     sqlfile: str,
                     ):
         """
@@ -143,17 +179,22 @@ class TmAdminManage(object):
             # cleanup the file before submitting
             for line in file.readlines():
                 if line[:2] != '--' and len(line) > 0:
-                    sql += line
+                    sql += line[:-1]
             file.close()
-            return self.pg.createTable(sql)
+        # FIXME:  asyncpg only allows one SQL statement per execute(), so we
+        # break up the compound statement into indivigual commands. psysopg2
+        # does allow this, but for ascypg, this needs to use prepared
+        # statements.
+        for cmd in sql.split(";"):
+            result = await self.pg.execute(cmd)
 
         path = Path(sqlfile)
-        version = f"INSERT INTO schemas(schema, version) VALUES('{sqlfile.stem}', 1.0)"
-        result = self.pg.dbcursor.execute(version)
+        # version = f"INSERT INTO schemas(schema, version) VALUES('{sqlfile.stem}', 1.0)"
+        # result = await self.pg.execute(version)
 
         return sql
 
-    def readDiff(self,
+    async def readDiff(self,
                  diff: str,
                  ):
         """
@@ -187,7 +228,7 @@ class TmAdminManage(object):
                         self.columns['add'].append({tmp[1]: f"{tmp[2]} {tmp[3][:-1]}"})
         return self.columns
 
-def main():
+async def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser(
         prog="config",
@@ -197,19 +238,26 @@ def main():
         This should only be run standalone for debugging purposes.
         """,
     )
-    choices = ['generate', 'create', 'update', 'migrate']
-    parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
+    choices = ['generate', 'create', 'import', 'update', 'migrate']
+    parser.add_argument("-v", "--verbose", nargs="?", const="0",
+                        help="verbose output")
     # parser.add_argument("-d", "--diff", help="SQL file diff for migrations")
     # parser.add_argument("-p", "--proto", default='types.yaml', help="Generate the .proto file from the YAML file")
-    parser.add_argument("-u", "--uri", default='localhost/tm_admin',
-                            help="Database URI")
+    parser.add_argument("-i", "--inuri", default='localhost/tm4',
+                        help="Input Database URI")
+    parser.add_argument("-o", "--outuri", default='localhost/tm_admin',
+                        help="Output Database URI")
     parser.add_argument("-c", "--cmd", choices=choices, default='generate',
                             help="Command")
+    # parser.add_argument("-t", "--table", choices=choices, help="The table to import")
     args, known = parser.parse_known_args()
 
     if len(argv) <= 1:
         parser.print_help()
         quit()
+
+    if len(known) == 0:
+        known = ["users", "projects", "campaigns", "organizations", "messages", "teams", "tasks"]
 
     # if verbose, dump to the terminal.
     log_level = os.getenv("LOG_LEVEL", default="INFO")
@@ -224,12 +272,13 @@ def main():
     )
 
     # The base class that does all the work
-    tm = TmAdminManage(args.uri)
+    tm = TmAdminManage()
+    await tm.connect(args.outuri)
     # tm.createDB()
 
     # This database tables stores the versions of the table schemas,
     # and is only used for updating the table schemas.
-    result = tm.createTable(f"{rootdir}/schemas.sql")
+    result = await tm.createTable(f"{rootdir}/schemas.sql")
 
     # This class generates all the output files.
     if args.cmd == 'generate':
@@ -243,7 +292,7 @@ def main():
                 file.write(out)
                 log.info(f"Wrote {name} to disk")
                 file.close()
-            tm.createTable(name)
+            await tm.createTable(name)
             name = yamlfile.replace('.yaml', '.proto')
             out = gen.createProtoMessage()
             with open(name, 'w') as file:
@@ -264,6 +313,10 @@ def main():
                 file.close()
     elif args.cmd == 'create':
         tm.createDB(known)
+    elif args.cmd == 'import':
+        tmi = TMImport()
+        await tmi.connect(args.inuri, args.outuri)
+        await tm.importTables(known, tmi)
     elif args.cmd == 'update':
         tm.updateDB(known)
     elif args.cmd == 'migrate':
@@ -274,4 +327,6 @@ def main():
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
-    main()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
