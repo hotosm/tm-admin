@@ -99,7 +99,7 @@ class ProjectsDB(DBSupport):
         columns = f"project_id, name, short_description, description, instructions, per_task_instructions"
 
         sql = f"SELECT {columns} FROM {table} ORDER BY project_id"
-        print(sql)
+        # print(sql)
         result = await inpg.execute(sql)
 
         # pbar = tqdm.tqdm(result)
@@ -157,7 +157,7 @@ class ProjectsDB(DBSupport):
         log.info(f"Merging {table} table...")
         timer.start()
         sql = f"SELECT * FROM {table} ORDER BY project_id"
-        print(sql)
+        # print(sql)
         result = await inpg.execute(sql)
 
         entries = len(result)
@@ -285,7 +285,7 @@ class ProjectsDB(DBSupport):
         # It's faster to do this in Python than postgres
         # sql = f"SELECT u.user_id,(SELECT ARRAY(SELECT c.project_id FROM {table} c WHERE c.user_id = u.user_id)) AS projects FROM {table} u;"
         sql = f"SELECT * FROM project_allowed_users ORDER BY project_id"
-        print(sql)
+        # print(sql)
         result = await inpg.execute(sql)
         data = dict()
         for record in result:
@@ -320,7 +320,7 @@ class ProjectsDB(DBSupport):
         # It's faster to do this in Python than postgres
         # sql = f"SELECT u.user_id,(SELECT ARRAY(SELECT c.project_id FROM {table} c WHERE c.user_id = u.user_id)) AS projects FROM {table} u;"
         sql = f"SELECT * FROM {table} ORDER BY project_id"
-        print(sql)
+        # print(sql)
         result = await inpg.execute(sql)
         data = dict()
         for record in result:
