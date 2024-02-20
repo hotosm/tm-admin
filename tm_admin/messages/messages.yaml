@@ -9,6 +9,7 @@
         - share: true
         - sequence: true
         - unique: true
+        - primary: true
     - message:
         - string
     - subject:
