@@ -127,40 +127,47 @@ class TmAdminManage(object):
 
         Args:
             progs (list): The programs to run
+            tmi (TMImport): An instantiation of the class that imports data
         """
         # This requires all the generated files have been installed
         for table in tables:
             log.info(f"Importing the '{table}' table")
+            # Each table has it's own config file
             await tmi.loadConfig(table)
             await tmi.importDB(table)
 
     async def createDB(self,
-                files: list = list(),
+                files: list,
+                tmi: TMImport,
                 ):
         """
         Create a postgres database.
 
         Args:
-
-        Returns:
-
+            files (list): the tables to create from their SQL files
+            tmi (TMImport): An instantiation of the class that imports data
         """
-        # sql = "CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS hstore"
-        # FIXME: CREATE DATABASE cannot run inside a transaction block
-        # self.pg.createDB(self.dburi)
+        sql = "CREATE EXTENSION IF NOT EXISTS postgis"
+        await self.pg.execute(sql)
+
         # The types file must be imported first
-        with open(f"{rootdir}/types_tm.sql", 'r') as file:
-            log.info(f"Importing Types into {self.pg.uri['dbname']}")
-            data = file.read()
-            self.pg.dbcursor.execute(data)
-            file.close()
+        log.info(f"Importing Types into {self.pg.dburi['dbname']}")
+        result = await self.createTable(f"{rootdir}/types_tm.sql")
+        # await self.pg.execute(query)
+
+        # These are all nested tables, so need to be defined first.
+        nested = ["projects/project_chat", "projects/projects_teams", "teams/team_members", "tasks/task_history", "tasks/task_invalidation_history", "tasks/task_annotations"]
+        for table in nested:
+            await tmi.loadConfig(table)
+            path = Path(table)
+            result = await self.createTable(f"{rootdir}/{table}.sql")
+            #await tmi.importDB(path.name)
 
         # This requires all the generated files have been installed
         for sql in files:
             log.info(f"Creating table {sql} in database")
-            with open(f"{rootdir}/{sql}", 'r') as file:
-                self.pg.dbcursor.execute(file.read())
-                file.close()
+            result = await self.createTable(f"{rootdir}/{sql}")
+            # await self.pg.execute(query)
 
     async def createTable(self,
                     sqlfile: str,
@@ -179,16 +186,17 @@ class TmAdminManage(object):
             # cleanup the file before submitting
             for line in file.readlines():
                 if line[:2] != '--' and len(line) > 0:
-                    sql += line[:-1]
+                    sql += line[:-1].replace("\t", " ")
             file.close()
         # FIXME:  asyncpg only allows one SQL statement per execute(), so we
         # break up the compound statement into indivigual commands. psysopg2
         # does allow this, but for ascypg, this needs to use prepared
         # statements.
         for cmd in sql.split(";"):
+            # print(cmd)
             result = await self.pg.execute(cmd)
 
-        path = Path(sqlfile)
+        # path = Path(sqlfile)
         # version = f"INSERT INTO schemas(schema, version) VALUES('{sqlfile.stem}', 1.0)"
         # result = await self.pg.execute(version)
 
@@ -235,7 +243,19 @@ async def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="Manage the postgres database for the tm-admin project",
         epilog="""
-        This should only be run standalone for debugging purposes.
+        An example data flow is:
+
+        # Generate all language binding files
+        tmadmin_manage.py -v -c generate */*.yaml
+
+        # Create the database tables
+        tmadmin_manage.py -v -c create */*.sql
+
+        # Import the data for the all primary tables.
+        tmadmin_manage.py -v -c import
+
+        # Import the data for just the users table
+        tmadmin_manage.py -v -c import users
         """,
     )
     choices = ['generate', 'create', 'import', 'update', 'migrate']
@@ -279,11 +299,16 @@ async def main():
     # This database tables stores the versions of the table schemas,
     # and is only used for updating the table schemas.
     result = await tm.createTable(f"{rootdir}/schemas.sql")
+    # await tm.pg.execute(result)
+
+    # result = await tm.createTable(f"{rootdir}/types_tm.sql")
+    # await tm.pg.execute(result)
 
     # This class generates all the output files.
     if args.cmd == 'generate':
         gen = Generator()
         # Generate all the output files
+        log.info(f"Generating all output files.")
         for yamlfile in known:
             gen.readConfig(yamlfile)
             out = gen.createSQLTable()
@@ -292,7 +317,7 @@ async def main():
                 file.write(out)
                 log.info(f"Wrote {name} to disk")
                 file.close()
-            await tm.createTable(name)
+            # await tm.createTable(name)
             name = yamlfile.replace('.yaml', '.proto')
             out = gen.createProtoMessage()
             with open(name, 'w') as file:
@@ -312,7 +337,12 @@ async def main():
                 log.info(f"Wrote {py} to disk")
                 file.close()
     elif args.cmd == 'create':
-        tm.createDB(known)
+        # FIXME: teams won't load unless this nested table is there first.
+        # files = ['teams/team_members.sql']
+        # files += known
+        tmi = TMImport()
+        await tmi.connect(args.inuri, args.outuri)
+        await tm.createDB(known, tmi)
     elif args.cmd == 'import':
         tmi = TMImport()
         await tmi.connect(args.inuri, args.outuri)
