@@ -30,6 +30,9 @@ from tm_admin.proto import ProtoBuf
 from tm_admin.yamlfile import YamlFile
 from tm_admin.generator import Generator
 from tm_admin.tmdb import TMImport
+from tm_admin.users.users import UsersDB
+from tm_admin.projects.projects import ProjectsDB
+from tm_admin.tasks.tasks import TasksDB
 from tqdm import tqdm
 import tqdm.asyncio
 import asyncio
@@ -118,15 +121,37 @@ class TmAdminManage(object):
         for sql in progs:
             log.info(f"Updating table {sql} in database")
 
+    async def mergeAuxTables(self,
+                tables: list,
+                inuri: str,
+                outuri: str,
+                ):
+        """
+        Merge the data from a TM table into TM Admin one. These are tables
+        that get merged into arrays or nested tables.
+
+        Args:
+            tables (list): The tables to import data from and to
+            inuri (str): The input database
+            outuri (str): The output database
+        """
+        # This requires all the generated files have been installed
+        for table in tables:
+            log.info(f"Importing the '{table}' table")
+            # Instantiate the class
+            obj = eval(f"{table.capitalize()}DB")
+            func = obj()
+            await func.mergeAuxTables(inuri, outuri)
+
     async def importTables(self,
                 tables: list,
                 tmi: TMImport,
                 ):
         """
-        Import the data in a TM table into TM Admin one.
+        Import the data from a TM table into TM Admin one.
 
         Args:
-            progs (list): The programs to run
+            tables (list): The tables to import data from and to
             tmi (TMImport): An instantiation of the class that imports data
         """
         # This requires all the generated files have been installed
@@ -258,7 +283,7 @@ async def main():
         tmadmin_manage.py -v -c import users
         """,
     )
-    choices = ['generate', 'create', 'import', 'update', 'migrate']
+    choices = ['generate', 'create', 'import', 'merge', 'update', 'migrate']
     parser.add_argument("-v", "--verbose", nargs="?", const="0",
                         help="verbose output")
     # parser.add_argument("-d", "--diff", help="SQL file diff for migrations")
@@ -347,6 +372,9 @@ async def main():
         tmi = TMImport()
         await tmi.connect(args.inuri, args.outuri)
         await tm.importTables(known, tmi)
+    elif args.cmd == 'merge':
+        aux = ["projects", "users", "tasks"]
+        await tm.mergeAuxTables(aux, args.inuri, args.outuri)
     elif args.cmd == 'update':
         tm.updateDB(known)
     elif args.cmd == 'migrate':
