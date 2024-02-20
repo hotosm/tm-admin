@@ -365,7 +365,7 @@ CREATE SEQUENCE public.{table}_{key}_seq
 
         # FIXME: for some reasons, this has extra characters at the end that break
         # the syntax
-        return out[:-3]
+        return out[:-3] + "\n"
     
 def main():
     """This main function lets this class be run standalone by a bash script."""
