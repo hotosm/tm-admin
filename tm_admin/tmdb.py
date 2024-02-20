@@ -87,8 +87,6 @@ async def importThread(
             # bar.next()
             if type(record) == str:
                 x = eval(record)
-            elif 'row' in record:
-                x = eval(record['row'])
             else:
                 x = record
             for key, val in x.items():
@@ -260,7 +258,10 @@ class TMImport(object):
             config: the name of the table.
         """
         self.table = config
-        yaml = YamlFile(f"{rootdir}/{config}/{config}.yaml")
+        if config.find("/") <= 0:
+            yaml = YamlFile(f"{rootdir}/{config}/{config}.yaml")
+        else:
+            yaml = YamlFile(f"{rootdir}/{config}.yaml")
         # yaml.dump()
         self.config = yaml.getEntries()
 
@@ -380,8 +381,9 @@ class TMImport(object):
         # There seems to be issues with data corruption
         if table == 'organizations':
             table = 'organisations'
+
         sql = f"SELECT * FROM {table}"
-        print(sql)
+        # print(sql)
         print(self.tmdb.dburi)
 
         log.warning(f"This operation may be slow for large datasets.")
@@ -400,6 +402,7 @@ class TMImport(object):
                 # data = await inpg.getPage(start, chunk, args.table)
                 # log.debug(f"Dispatching thread {index} {start}:{start + chunk}")
                 log.debug(f"Dispatching thread {block}:{block + chunk - 1}")
+                # This changes from multi-threaded to single threaded for debugging
                 # await importThread(data[block:block + chunk - 1], outpg, table, self.config)
                 task = tg.create_task(importThread(data[block:block + chunk - 1], outpg, table, self.config))
 
@@ -435,12 +438,13 @@ async def main():
         stream=sys.stdout,
     )
 
-    tmi = TMImport(args.table)
+    tmi = TMImport()
+    await tmi.loadConfig(args.table)
     await tmi.connect(args.inuri, args.outuri)
     if len(args.table) == 1:
-        await tmi.importDB([args.table])
+        await tmi.importDB(args.table)
     else:
-        await tmi.importDB([args.table])
+        await tmi.importDB(args.table)
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
