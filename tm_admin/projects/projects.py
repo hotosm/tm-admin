@@ -31,7 +31,7 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty
+from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamroles
 from tm_admin.projects.projects_class import ProjectsTable
 from shapely import wkb, get_coordinates
 from tm_admin.dbsupport import DBSupport
@@ -206,17 +206,17 @@ class ProjectsDB(DBSupport):
         inpg = PostgresClient()
         await inpg.connect(inuri)
 
-        await self.mergeInfo(inpg)
+        # await self.mergeInfo(inpg)
 
-        await self.mergeChat(inpg)
+        # await self.mergeChat(inpg)
 
         await self.mergeTeams(inpg)
 
-        await self.mergeInterests(inpg)
+        # await self.mergeInterests(inpg)
 
-        await self.mergePriorities(inpg)
+        # await self.mergePriorities(inpg)
 
-        await self.mergeAllowed(inpg)
+        # await self.mergeAllowed(inpg)
 
         # The project favorites table is imported into the users table instead.
         # await self.mergeFavorites(inpg)
@@ -271,6 +271,43 @@ class ProjectsDB(DBSupport):
                       logger=log.debug,
                     )
         log.info(f"Merging {table} table...")
+        timer.start()
+        sql = f"SELECT * FROM {table} ORDER BY project_id"
+        # print(sql)
+        result = await inpg.execute(sql)
+
+        entries = len(result)
+        log.debug(f"There are {entries} entries in {table}")
+        chunk = round(entries / cores)
+        # pbar = tqdm.tqdm(result)
+
+        queries = list()
+        for record in result:
+            pid = record.get('project_id')
+            try:
+                role = Teamroles(record['role'])
+            except:
+                role = Teamroles(1)
+            sql = f" UPDATE projects SET teams= teams||({record['team_id']}, '{role.name}')::project_teams WHERE id={pid}"
+            # print(sql)
+            queries.append(sql)
+            #result = await self.pg.execute(sql)
+
+        entries = len(queries)
+        chunk = round(entries / cores)
+        #pbar = tqdm.tqdm(queries)
+        # FIXME: It'd be nice if we could have a progress meter that works with range
+        log.warning(f"This makes take time, so please wait...")
+        async with asyncio.TaskGroup() as tg:
+            for block in range(0, entries, chunk):
+                outpg = PostgresClient()
+                await outpg.connect('localhost/tm_admin')
+                # log.debug(f"Dispatching thread {block}:{block + chunk}")
+                # await updateThread(queries, outpg)
+                task = tg.create_task(updateThread(queries[block:block + chunk], outpg))
+
+        timer.stop()
+        return True
 
     async def mergeAllowed(self,
                         inpg: PostgresClient,
