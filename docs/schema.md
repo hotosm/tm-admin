@@ -105,29 +105,74 @@ it's integer value.
 
 ## Importing the Data
 
-There are two steps to import data from an existing Tasking Manager
-database into the schema used by TM Admin. The TM Admin schema is a
-superset, all columns in primary tables are the same in TM and TM
-Admin. Initially use the *tmdb.py* program to import the existing
-primary table into TM Admin.
+Data can be imported from a current Tasking Manager into the new
+database schema. This can be done on a table by table process, or a
+unified way. There are a few steps to import data from an existing
+Tasking Manager database into the schema used by TM Admin. The TM
+Admin schema is a superset, all columns in primary tables are the same
+in TM and TM Admin. The main differences some of the tables from the
+Tasking Manager have been incorporated into the primary tables to
+reduce the amount of database queries required for some of the
+endpoints.
+
+Tasking Manager uses integers for Enum values when accessing the
+database. TM Admin uses the proper Enum as it makes the code easier to
+read and also forces all values to be in range. Once the primary table
+is imported, then each table has to be updated with the small utility
+tables. Those have all been replaced by using array columns, as most
+where just two columns anyway. The list of utility tables is covered
+later in this document.
+
+It is assumed the data will only be imported once when upgrading
+Tasking Manager to a new major version. This is so no data is lost.
+
+### Importing a Table
+
+To import only one table, initially use the *tmdb.py* program to
+import the existing primary table into TM Admin. This only imports a
+single table without any dependencies.
 
 	tmdb.py -t users -v
 
-Since TM uses integers for Enum values, TM Admin uses the proper Enum
-as it makes the code easier to read and also forces all values to be
-in range. Once the primary table is imported, then each table has to
-be updated with the small utility tables. Those have all been replaced
-by using array columns, as most where just two columns anyway. The
-list of utility tables is covered later in this document. To import
-the remaining tables into the array columns, each base class has
-support for their format. For example, to import all the utility
-tables for the primary *users* table, do this:
+Some of the primary tables from Tasking Manager have small auxilary
+tables that then need to be imported. Since importing these updates an
+existing record instead of inserting it, the primary table's data
+obviously must be imported first.
+
+To import the remaining tables into the array columns or nested
+tables, each base class has support for their format. For example, to
+import all the utility tables for the primary *users* table, do this:
 
 	users/users.py -v
 
 Note that the base classes have methods for importing everything, so
 they can be utilized by other programs. The simple terminal based way
 is of primary interest only to developers.
+
+### Importing everything
+
+While importing single tables is useful for development, most just
+want to import everything. There is a utility program that does
+this. Currently this goes through several steps required to setup a
+database from scratch. This required you have created the database
+already, but it has no tables defined.
+
+        # Generate all language binding files
+        tmadmin_manage.py -v -c generate */*.yaml
+
+        # Create the tables in the database
+        tmadmin_manage.py -v -c create */*.sql
+
+        # Import the data for the all primary tables.
+        tmadmin_manage.py -v -c import
+
+        # Import the data for just the users table
+        tmadmin_manage.py -v -c import users
+
+The default databases used by this program are *tm4* for the existing
+data, and *tm_admin* for the new database. This can also be changed
+using the *-i* and *-o* options to this program. There is more detail
+on the tmadmin-manage.py program [on this page](tmadmin-manage.md).
 
 ### Default Tables
 
@@ -164,18 +209,6 @@ is currently not supported by TM.
 * active
 * function
 
-#### Import support
-
-TM Admin uses a unified database schema, whereas TM often has multiple
-small tables with only two columns. When importing data from TM into
-TM Admin, the contents of those tables gets merged into the existing
-*users* table. I'm assuming the original developers didn't like using
-arrays.
-
-* mergeLicenses() - Merge the TM *user_licenses* table into TM Admin
-* mergeInterests() - Merge the TM *user_interests* table into TM Admin
-* mergeFavorites() - Merge the TM *project_favorites* table into TM Admin
-
 #### Projects Table
 
 There's a lot of project related tables.
@@ -189,13 +222,16 @@ From project_info:
 
 From **project_allowed_users** table
 
-* add array of users
+* add to array of users
 
 From **project_favorites** table
 
-* add array of favorites
+* add to array of favorites
 
 From **project_interests** table
+
+Right now a project has a single interest, but it'd be easy to exapand
+to an array if multiple interest support was wanted.
 
 * add integer column
 
@@ -210,18 +246,18 @@ From **project_priority_areas** tables
 
 From **project_teams** table
 
-* FIXME: not sure
-* team_id, project_id, team_role
+* Add *team_id*, *team_role* to nested *teams* table
 
 #### Organizations Table
 
-From **organisation_managers**
+From **organisation_managers** tables into an array in the
+organizations table.
 
 * Add array of manager's user IDs
 
 #### Teams Table
 
-Added columns from team_members to TM Admin *users* table
+Added columns from the **team_members** to TM Admin *teams* nested table.
 
 * Team ID
 * function (mapper or manager)
@@ -255,11 +291,7 @@ TODO: not implemented yet
 
 ##### Messages
 
-TODO: not implemented yet
-
-#### Project Chat
-
-TODO: not implemented yet
+The messages table is imported with no changes.
 
 #### Campaigns
 
