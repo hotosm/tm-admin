@@ -74,7 +74,7 @@ class Generator(object):
                     'timestamp': 'timestamp without time zone',
                     'polygon': 'geometry(Polygon,4326)',
                     'point': 'geometry(Point,4326)',
-                    'json': 'json',
+                    'jsonb': 'jsonb',
                     }
         
 
