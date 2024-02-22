@@ -61,7 +61,9 @@ async def updateThread(
         queries (list): The list of SQL queries to execute
         db (PostgresClient): A database connection
     """
-    for sql in queries:
+    pbar = tqdm.tqdm(queries)
+    # for sql in queries:
+    for sql in pbar:
         result = await db.execute(sql)
 
     return True
@@ -281,14 +283,28 @@ class ProjectsDB(DBSupport):
         chunk = round(entries / cores)
         # pbar = tqdm.tqdm(result)
 
-        queries = list()
+        # postgres could return this as an array, but we'd still have to process it
+        # to create the SQL query, instead we build an array of teams for each
+        # project, which becomes a nice clean way to add a array.
+        teams = dict()
         for record in result:
-            pid = record.get('project_id')
+            if record['project_id'] not in teams:
+                teams[record['project_id']] = [{"role": record['role'],
+                                            "team_id": record['team_id']}]
+            else:
+                teams[record['project_id']].append({"role": record['role'],
+                                        "team_id": record['team_id']})
+        queries = list()
+        for project, teams in teams.items():
+            # Sometimes the role wasn't set
             try:
                 role = Teamroles(record['role'])
             except:
                 role = Teamroles(1)
-            sql = f" UPDATE projects SET teams= teams||({record['team_id']}, '{role.name}')::project_teams WHERE id={pid}"
+
+            # sql = "UPDATE projects SET teams=teams||'{\"team_id\": %s, \"role\": %s}' WHERE id=%d" % (record['team_id'], role, pid)
+            # Note that this will replace any existing values for this column
+            sql = f"UPDATE projects SET teams = '{str(teams).replace("'", '"')}' WHERE id={project}"
             # print(sql)
             queries.append(sql)
             #result = await self.pg.execute(sql)

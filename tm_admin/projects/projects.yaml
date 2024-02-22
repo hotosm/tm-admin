@@ -164,8 +164,7 @@
         - int32
         - share: true
     - teams:
-        - table.project_teams
-        - array: true
+        - jsonb
 
 # project_id_str|character varying|||
 # text_searchable|tsvector|||
