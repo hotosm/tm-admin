@@ -33,5 +33,4 @@
     - join_method:
         - int32
     - team_members:
-        - table.team_members
-        - array: true
+        - jsonb

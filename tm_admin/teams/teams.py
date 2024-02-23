@@ -60,6 +60,9 @@ class TeamsDB(DBSupport):
     async def mergeTeams(self,
                         inpg: PostgresClient,
                         ):
+        """
+        Merge the team_members table.
+        """
         table = 'team_members'
         log.info(f"Merging team members table...")
         timer = Timer(text="merging team members table took {seconds:.0f}s")
@@ -68,13 +71,35 @@ class TeamsDB(DBSupport):
         #print(sql)
         result = await inpg.execute(sql)
 
-        pbar = tqdm.tqdm(result)
-        for record in pbar:
-            func = record['function']
-            tmfunc = Teammemberfunctions(func)
-            sql = f"UPDATE teams SET team_members=team_members||({record['team_id']}, {record['active']}, '{tmfunc.name}')::team_members WHERE id={record['team_id']}"
+        # postgres could return this as an array, but we'd still have to process it
+        # to create the SQL query, instead we build an array of teams for each
+        # project, which becomes a nice clean way to add a array.
+        members = dict() # x{table: list()}
+        for record in result:
+            if record['team_id'] not in members:
+                members[record['team_id']] = list()
+                entry = {"user_id": record['user_id'],
+                        "function": Teammemberfunctions(record['function']).name}
+                if record['active']:
+                    entry["active"] = "true"
+                else:
+                    entry["active"] = "false"
+            members[record['team_id']].append(entry)
+
+        for id, array in tqdm.tqdm(members.items()):
+            # for record in pbar:
+            # func = record['function']
+            # tmfunc = Teammemberfunctions(func)
+            # entry = {"user_id": record['user_id'], "function": tmfunc.name, "active": record['active'] }
+            # members[table].append(entry)
+            # FIXME: do we need join_request_notifications ?
+
+            asc = str(array).replace("'", '"').replace("\\'", "'")
+            # sql = f"UPDATE teams SET team_members = ({record['team_id']}, {record['active']}, '{tmfunc.name}')::team_members WHERE id={record['team_id']}"
             # sql = f"UPDATE teams SET team_members.team={record['team_id']}, team_members.active={record['active']}, team_members.function='{tmfunc.name}' WHERE id={record['team_id']}"
-            # print(sql)
+            # UPDATE teams SET team_members = '{"13": [{"user_id": 629, "function": 1, "active": true}, {"user_id": 111, "function": 2, "active": true}]}';
+            sql = "UPDATE teams SET team_members = '{\"members\": %s}' WHERE id=%d;" % (asc, id)
+            #print(sql)
             result = await self.pg.execute(sql)
 
         timer.stop()
