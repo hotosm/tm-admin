@@ -34,6 +34,7 @@ from shapely import centroid
 from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamroles, Teammemberfunctions
 from osm_rawdata.pgasync import PostgresClient
 from tm_admin.teams.team_members_class import Team_membersTable
+from tm_admin.messages.messages import MessagesDB
 import re
 from codetiming import Timer
 import asyncio
@@ -45,18 +46,6 @@ cores = info["count"] * 2
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-class TeamMember(object):
-    def __init__(self,
-                 team_id: int,
-                 user_id: int,
-                 function: Teammemberfunctions,
-                 active: bool = False,
-                 ):
-        self.team_id = team_id
-        self.user_id = user_id
-        self.function = function
-        self.active = active
-    
 class TeamsAPI(PostgresClient):
     def __init__(self):
         self.allowed_roles = [
@@ -69,7 +58,7 @@ class TeamsAPI(PostgresClient):
                      team_id: int,
                     ):
         """
-        Get all the information for a team
+        Get all the information for a team using it's ID
 
         Args:
             team_id (int): The team to get the data for
@@ -86,7 +75,7 @@ class TeamsAPI(PostgresClient):
                         name: str,
                         ):
         """
-        Get all the information for a team
+        Get all the information for a team using the name
 
         Args:
             name (str): The team to get the data for
@@ -99,20 +88,26 @@ class TeamsAPI(PostgresClient):
         results = await self.execute(sql)
         return results
 
-    async def create(self):
+    async def create(self,
+                     team: Team_membersTable,
+                     ):
         log.warning(f"create(): unimplemented!")
         
-    async def update(self):
+    async def update(self,
+                     team: Team_membersTable,
+                     ):
         log.warning(f"update(): unimplemented!")
         
-    async def delete(self):
+    async def delete(self,
+                     team_id: int,
+                     ):
         log.warning(f"delete(): unimplemented!")
         
     async def getAllTeams(self):
         log.warning(f"getAllTeams(): unimplemented!")
     
     async def addMember(self,
-                        member: TeamMember,
+                        member: Team_membersTable,
                         ):
         log.warning(f"addMember(): unimplemented!")
 
@@ -132,14 +127,117 @@ class TeamsAPI(PostgresClient):
     async def activateMember(self):
         log.warning(f"activateMember(): unimplemented!")
 
-    async def isActive(self):
-        log.warning(f"isActive(): unimplemented!")
+    async def isActive(self,
+                       team_id: int,
+                       user_id: int,
+                       ):
+        log.warning(f"--- isActive(: ---")
+        """
+        Check if a team member is an active or inactive members of a team.
 
-    async def isManager(self):
+        Args:
+            team_id (int): The team to check
+            user_id (int): The user to check
+
+        Returns:
+            (bool): Whether the user is active on this team or not
+        """
+        sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.active==\"true\" && @.user_id==%d)') AS members FROM teams WHERE id=%d;" % (user_id, team_id)
+        print(sql)
+        results = await self.execute(sql)
+
+        if len(results) > 0:
+            value = eval(results[0]['members'])
+            if value['active'] == "true":
+                return True
+
+        return False
+
+    async def checkFunction(self,
+                       team_id: int,
+                       user_id: int,
+                       function: Teammemberfunctions,
+                       ):
+        """
+        Check if a team member has a specific team function.
+
+        Args:
+            team_id (int): The team to check
+            user_id (int): The user to check
+            function (Teammemberfunctions): Member or Manager
+
+        Returns:
+            (bool): Whether the user is a manager of this team
+        """
+        sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.function==\"%s\" && @.user_id==%d)') AS members FROM teams WHERE id=%d;" % (function.name, user_id, team_id)
+        results = await self.execute(sql)
+        return results
         log.warning(f"isManager(): unimplemented!")
 
-    async def isMember(self):
-        log.warning(f"isMember(): unimplemented!")
+    async def joinRequest(self,
+                          team_id: int,
+                          user_id: int,
+                          ):
+        """
+        If user has team manager permission add directly to the team
+        without request.E.G. Admins, Org managers.
+        """
+        log.warning(f"joinRequest(): unimplemented!")
+
+    async def processJoinRequest(self):
+        # team_id, from_user_id, username, function, action
+        log.warning(f"processRequest(): unimplemented!")
+
+    async def processInvite(self,
+                            team_id: int,
+                            user_id: int,
+                            name: str,
+                            action: str,
+                            ):
+        """
+        Create the Accept or Reject invitation request message.
+
+        Args:
+            team_id (int): The team the members are on
+            user_id (int): The user sending the invite
+            name (str): The user the invite was sent to
+            action (str): The action
+        """
+        # team_id, from_user_id, username, function, action
+        log.warning(f"processRequest(): unimplemented!")
+
+        # Construct the message
+        mdb = MessagesDB()
+
+    async def sendInvite(self,
+                          team_id: int,
+                          user_id: int,
+                          ):
+        """
+        Send an invite to a user to join a team.
+
+        Args:
+            team_id (int): The team to join
+            user_id (int): The user to join
+        """
+        log.warning(f"sendInvite(): unimplemented!")
+        # Construct the message
+        mdb = MessagesDB()
+
+    async def DeleteInvite(self,
+                          team_id: int,
+                          user_id: int,
+                          ):
+        """
+        Delete a invite message to join a team
+
+        Args:
+            team_id (int): The team to delete
+            user_id (int): The user to delete
+        """
+        log.warning(f"deleteInvite(): unimplemented!")
+        # Construct the message
+        mdb = MessagesDB()
 
     async def checkMembership(self,
                             project_id: int,
@@ -158,7 +256,6 @@ class TeamsAPI(PostgresClient):
         """
         log.warning(f"isMember(): unimplemented!")
         # self.allowed_roles
-
         
     async def getActiveMembers(self,
                                 team_id: int,
