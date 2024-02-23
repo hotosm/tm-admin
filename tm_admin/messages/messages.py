@@ -30,12 +30,11 @@ import tm_admin.types_tm
 from tm_admin.types_tm import Userrole, Mappinglevel, Teammemberfunctions
 import concurrent.futures
 from cpuinfo import get_cpu_info
-from atpbar import atpbar
 from tm_admin.dbsupport import DBSupport
 from tm_admin.users.users_class import UsersTable
+from tm_admin.messages.messages_class import MessagesTable
 from osm_rawdata.postgres import uriParser, PostgresClient
 from tm_admin.types_tm import Userrole
-from alive_progress import alive_bar
 from tqdm import tqdm
 from codetiming import Timer
 import threading
@@ -47,19 +46,19 @@ log = logging.getLogger(__name__)
 info = get_cpu_info()
 cores = info["count"] * 2
 
-MsgFilter = {
-    'user_id': int = 0,
-    'locale': str = "en",
-    'page': int = 0,
-    'page_size': int = 10,
-    'sort_by': str = None,
-    'sort_direction': bool = True,
-    'message_type': Message_type = None,
-    'from_username': str = None,
-    'project_id': int = None,
-    'task_id': = None,
-    'status' = None,
-):
+# MsgFilter = {
+#     'user_id': int = 0,
+#     'locale': str = "en",
+#     'page': int = 0,
+#     'page_size': int = 10,
+#     'sort_by': str = None,
+#     'sort_direction': bool = True,
+#     'message_type': Message_type = None,
+#     'from_username': str = None,
+#     'project_id': int = None,
+#     'task_id': = None,
+#     'status' = None,
+# ):
 
 class MessagesDB(DBSupport):
     def __init__(self,
@@ -77,7 +76,7 @@ class MessagesDB(DBSupport):
         self.pg = None
         self.profile = MessagesTable()
         self.types = dir(tm_admin.types_tm)
-        super().__init__('messages', dburi)
+        super().__init__('messages')
 
     def getByFilter(self,
                     user_id: int,
@@ -101,11 +100,17 @@ class MessagesDB(DBSupport):
             (list): the messages that match the filter
         """
         if sort_column is None:
+            pass
         if project is not None:
+            pass
         if task_id is not None:
+            pass
         if status in ["read", "unread"]:
+            pass
         if message_type:
+            pass
         if from_username is not None:
+            pass
 
     
 def main():
