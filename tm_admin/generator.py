@@ -249,8 +249,8 @@ class {table.capitalize()}Table(object):
                                 log.warning(f"GEOMETRY: {datatype}")
                             elif k1[:7] == 'public.':
                                 # FIXME: It's in the SQL types
-                                # log.warning(f"SQL ENUM {k1}!")
                                 datatype = f"tm_admin.types_tm.{k1[7:].capitalize()}"
+                                # log.warning(f"SQL ENUM {k1}! {datatype}")
                             elif k1 in self.yaml2py:
                                 datatype = self.yaml2py[k1]
                             else:
@@ -261,9 +261,10 @@ class {table.capitalize()}Table(object):
                         elif k1 == 'timestamp':
                             out += f"{k}: datetime = '{datetime.now()}', "
                         elif k1[:7] == 'public.':
-                            # defined = f"tm_admin.types_tm.{k1[7:].capitalize()}()"
-                            # out += f"{k}: {defined} =  1, "
-                            out += f"{k}: int =  1, "
+                            defined = f"tm_admin.types_tm.{k1[7:].capitalize()}"
+                            # log.warning(f"SQL ENUM {k1}!")
+                            out += f"{k}: {defined} =  1, "
+                            # out += f"{k}: int =  1, "
                         else:
                             out += f"{k}: {datatype} = None, "
                         # print(k)
