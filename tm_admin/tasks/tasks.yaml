@@ -47,9 +47,6 @@
     - zoom:
         - int32
     - history:
-        - table.task_history
-        - array: true
+        - jsonb
     - invalidation_history:
-        - table.task_invalidation_history
-        - array: true
-
+        - json
