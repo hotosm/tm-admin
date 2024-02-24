@@ -35,6 +35,9 @@ from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Edi
 from osm_rawdata.pgasync import PostgresClient
 from tm_admin.teams.team_members_class import Team_membersTable
 from tm_admin.messages.messages import MessagesDB
+from tm_admin.projects.projects import ProjectsDB
+from tm_admin.users.users import UsersDB
+from tm_admin.teams.teams import TeamsDB
 import re
 from codetiming import Timer
 import asyncio
@@ -46,13 +49,25 @@ cores = info["count"] * 2
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-class TeamsAPI(PostgresClient):
+class TeamsAPI(object):
     def __init__(self):
         self.allowed_roles = [
             Teamroles.TEAM_MAPPER,
             Teamroles.TEAM_VALIDATOR,
             Teamroles.TEAM_MANAGER,
         ]
+        self.messagesdb = MessagesDB()
+        self.projectsdb = ProjectsDB()
+        self.usersdb = UsersDB()
+        self.teamsdb = TeamsDB()
+
+    async def connect(self,
+                      uri: str,
+                      ):
+        await self.messagesdb.connect(uri)
+        await self.projectsdb.connect(uri)
+        await self.usersdb.connect(uri)
+        await self.teamsdb.connect(uri)
 
     async def getByID(self,
                      team_id: int,
@@ -68,7 +83,7 @@ class TeamsAPI(PostgresClient):
         """
         log.debug(f"--- getByID() ---")
         sql = f"SELECT * FROM teams WHERE id={team_id}"
-        results = await self.execute(sql)
+        results = await self.teamsdb.pg.execute(sql)
         return results
 
     async def getByName(self,
@@ -85,7 +100,7 @@ class TeamsAPI(PostgresClient):
         """
         log.debug(f"--- getByName() ---")
         sql = f"SELECT * FROM teams WHERE name='{name}'"
-        results = await self.execute(sql)
+        results = await self.teamsdb.pg.execute(sql)
         return results
 
     async def create(self,
@@ -144,7 +159,7 @@ class TeamsAPI(PostgresClient):
         """
         sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.active==\"true\" && @.user_id==%d)') AS members FROM teams WHERE id=%d;" % (user_id, team_id)
         print(sql)
-        results = await self.execute(sql)
+        results = await self.teamsdb.pg.execute(sql)
 
         if len(results) > 0:
             value = eval(results[0]['members'])
@@ -170,7 +185,7 @@ class TeamsAPI(PostgresClient):
             (bool): Whether the user is a manager of this team
         """
         sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.function==\"%s\" && @.user_id==%d)') AS members FROM teams WHERE id=%d;" % (function.name, user_id, team_id)
-        results = await self.execute(sql)
+        results = await self.teamsdb.pg.execute(sql)
         return results
         log.warning(f"isManager(): unimplemented!")
 
@@ -254,8 +269,12 @@ class TeamsAPI(PostgresClient):
         Returns:
             (bool): If the user has the required permissions
         """
-        log.warning(f"isMember(): unimplemented!")
+        log.warning(f"isMember(): in progress!")
+        projectsdb.getTeamRole(project_id, team_id)
         # self.allowed_roles
+        sql = f" "
+        results = await self.teamsdb.pg.execute(sql)
+        return results
         
     async def getActiveMembers(self,
                                 team_id: int,
@@ -276,7 +295,7 @@ class TeamsAPI(PostgresClient):
         else:
             sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.active==\"true\")') AS members FROM teams WHERE id=%d;" % team_id
 
-        results = await self.execute(sql)
+        results = await self.teamsdb.pg.execute(sql)
         return results
 
     async def getMembers(self,
@@ -301,7 +320,7 @@ class TeamsAPI(PostgresClient):
             # Get just members or managers
             sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.function[*] == \"%s\")')->'user_id' AS members FROM teams WHERE id=%d;" % (function.name, team_id)
 
-        results = await self.execute(sql)
+        results = await self.teamsdb.pg.execute(sql)
         return results
 
 async def main():
