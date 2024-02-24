@@ -64,6 +64,7 @@ async def updateThread(
     pbar = tqdm.tqdm(queries)
     # for sql in queries:
     for sql in pbar:
+        # print(sql)
         result = await db.execute(sql)
 
     return True
@@ -208,15 +209,15 @@ class ProjectsDB(DBSupport):
         inpg = PostgresClient()
         await inpg.connect(inuri)
 
-        # await self.mergeInfo(inpg)
+        await self.mergeInfo(inpg)
 
-        # await self.mergeChat(inpg)
+        await self.mergeChat(inpg)
 
         await self.mergeTeams(inpg)
 
-        # await self.mergeInterests(inpg)
+        await self.mergeInterests(inpg)
 
-        # await self.mergePriorities(inpg)
+        await self.mergePriorities(inpg)
 
         # await self.mergeAllowed(inpg)
 
@@ -285,7 +286,7 @@ class ProjectsDB(DBSupport):
 
         # postgres could return this as an array, but we'd still have to process it
         # to create the SQL query, instead we build an array of teams for each
-        # project, which becomes a nice clean way to add a array.
+        # project, which becomes a nice clean way to add an array.
         teams = dict()
         for record in result:
             if record['project_id'] not in teams:
@@ -295,7 +296,7 @@ class ProjectsDB(DBSupport):
                 teams[record['project_id']].append({"role": record['role'],
                                         "team_id": record['team_id']})
         queries = list()
-        for project, teams in teams.items():
+        for project, members in teams.items():
             # Sometimes the role wasn't set
             try:
                 role = Teamroles(record['role'])
@@ -304,7 +305,8 @@ class ProjectsDB(DBSupport):
 
             # sql = "UPDATE projects SET teams=teams||'{\"team_id\": %s, \"role\": %s}' WHERE id=%d" % (record['team_id'], role, pid)
             # Note that this will replace any existing values for this column
-            sql = f"UPDATE projects SET teams = '{str(teams).replace("'", '"')}' WHERE id={project}"
+            asc = str(members).replace("'", '"').replace("\\'", "'")
+            sql = "UPDATE projects SET teams = '{\"teams\": %s}' WHERE id=%d;" % (asc, project)
             # print(sql)
             queries.append(sql)
             #result = await self.pg.execute(sql)
