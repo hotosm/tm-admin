@@ -1,0 +1,13 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- task_issues:
+    - category:
+# FIXME: should be an Enum, it appears to only be a 1 or a 2 in the
+# database
+        - int32
+    - issue:
+        - int32          
+    - count:
+        - int32
