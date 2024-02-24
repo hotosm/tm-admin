@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2022, 2023 Humanitarian OpenStreetMap Team
+# Copyright (c) 2023, 2024 Humanitarian OpenStreetMap Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -32,7 +32,7 @@ from tm_admin.dbsupport import DBSupport
 from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.tasks.task_history_class import Task_historyTable
 from tm_admin.tasks.task_invalidation_history_class import Task_invalidation_historyTable
-from osm_rawdata.postgres import uriParser, PostgresClient
+from osm_rawdata.pgasync import PostgresClient
 from tqdm import tqdm
 from codetiming import Timer
 import threading
@@ -40,24 +40,37 @@ from cpuinfo import get_cpu_info
 import psycopg2.extensions
 from dateutil.parser import parse
 import time
-from itertools import batched
+from tqdm import tqdm
+import tqdm.asyncio
+import asyncio
+from codetiming import Timer
 
 # Instantiate logger
 log = logging.getLogger(__name__)
 
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
-cores = info["count"]
+cores = info["count"] * 2
 
-def foo(
-    data: list,
+async def updateThread(
+    queries: list,
     db: PostgresClient,
-    table: str = "tasks",
 ):
-    print(f"Foo Thread {table}")
-    time.sleep(1)
+    """Thread to handle importing data
 
-def historyThread(
+    Args:
+        queries (list): The list of SQL queries to execute
+        db (PostgresClient): A database connection
+    """
+    # pbar = tqdm.tqdm(queries)
+    # for sql in queries:
+    # for sql in pbar:
+    print(sql)
+    result = await db.execute(sql)
+
+    return True
+
+async def historyThread(
     data: list,
     db: PostgresClient,
     table: str = "tasks",
@@ -70,10 +83,12 @@ def historyThread(
         table (str): The table to update
     """
     # pbar = tqdm(data)
-    for record in data:
+    for entry in data:
         # there is only one entry if using row_to_json()
-        entry = record[0]
-        uid = entry['id']
+        id = entry['id']
+        uid = entry['user_id']
+        pid = entry['project_id']
+        tid = entry['task_id']
         action = entry['action']
         date = entry['action_date']
         # Remove embedded single quotes
@@ -88,22 +103,21 @@ def historyThread(
         # entry['action_date'] = timestamp
         # FIXME: currently the schema has this as an int, it's actully an enum
         func = eval(f"Taskaction.{action}")
-        entry['action'] = func.vanlue
         # columns = f"id, project_id, history.action, history.action_text, history.action_date, history.user_id"
         # nested = f"{record['id']}, {record['project_id']}, {func.value}, '{text}', '{timestamp}', {record['user_id']}"
-        sql = f"UPDATE {table} "
-        sql += f" SET history=history||({func.value}, '{text}', '{timestamp}', {uid})::task_history"
+        sql = f"UPDATE tasks "
+        sql += f" SET history=history||({pid}, {tid}, {func.value}, '{text}', '{timestamp}', {uid})::task_history"
         # sql += f" SET history = (SELECT ARRAY_APPEND(history,({func.value}, '{text}', '{timestamp}', {entry['user_id']})::task_history)) "
         sql += f" WHERE id={entry['task_id']} AND project_id={entry['project_id']}"
         print(f"{sql};")
         #try:
-        result = db.dbcursor.execute(sql)
+        result = db.execute(sql)
         #except:
         #    log.error(f"Couldn't execute query! '{sql}'")
 
     return True
 
-def invalidationThread(
+async def invalidationThread(
     data: list,
     db: PostgresClient,
 ):
@@ -113,7 +127,7 @@ def invalidationThread(
         data (list): The list of records to import
         db (PostgresClient): A database connection
     """
-    pbar = tqdm(data)
+    pbar = tqdm.tqdm(data)
     for record in pbar:
         map_timestamp = "NULL"
         inval_timestamp = "NULL"
@@ -136,20 +150,14 @@ def invalidationThread(
         if record['validator_id'] is not None:
             vid = record['validator_id']
 
-        columns = f"is_closed, mapper_id, mapped_date, invalidator_id, invalidated_date, invalidation_history_id, validator_id, validated_date, updated_date"
+        # columns = f"is_closed, mapper_id, mapped_date, invalidator_id, invalidated_date, invalidation_history_id, validator_id, validated_date, updated_date"
 
-        # columns = f"id, project_id, invalidation_history.is_closed, invalidation_history.mapper_id, invalidation_history.mapped_date, invalidation_history.invalidator_id, invalidation_history.invalidated_date, invalidation_history.invalidation_history_id, invalidation_history.validator_id, invalidation_history.validated_date, invalidation_history.updated_date"
-        # nested = f"{record['id']}, {record['project_id']}, {record['is_closed']}, {record['mapper_id']}, {map_timestamp}, {record['invalidator_id']}, {inval_timestamp}, {record['invalidation_history_id']}, {vid}, {val_timestamp}, {up_timestamp}"
         sql = f"UPDATE tasks"
-        #sql += f" SET invalidation_history.is_closed={record['is_closed']}, invalidation_history.mapper_id={record['mapper_id']}, invalidation_history.mapped_date={map_timestamp}, invalidation_history.invalidator_id={record['invalidator_id']}, invalidation_history.invalidated_date={inval_timestamp}, invalidation_history.invalidation_history_id={record['invalidation_history_id']}, invalidation_history.validator_id={vid}, invalidation_history.validated_date={val_timestamp}, invalidation_history.updated_date={up_timestamp}"
-        sql += f"  SET invalidation_history = (SELECT ARRAY_APPEND(invalidation_history,({record['is_closed']}, {record['mapper_id']}, {map_timestamp}, {record['invalidator_id']}, {inval_timestamp}, {record['invalidation_history_id']}, {vid}, {val_timestamp}, {up_timestamp})::task_invalidation_history)) "
+        # sql += f"  SET invalidation_history = (SELECT ARRAY_APPEND(invalidation_history,({record['is_closed']}, {record['mapper_id']}, {map_timestamp}, {record['invalidator_id']}, {inval_timestamp}, {record['invalidation_history_id']}, {vid}, {val_timestamp}, {up_timestamp})::task_invalidation_history)) "
+        sql += f"  SET invalidation_history = invalidation_history||({record['is_closed']}, {record['mapper_id']}, '{record['mapped_date']}', {record['invalidator_id']}, '{record['invalidated_date']}', {record['invalidation_history_id']}, {record['validator_id']}, '{record['validated_date']}', '{record['updated_date']}')::task_invalidation_history"
         sql += f"WHERE id={record['task_id']} AND project_id={record['project_id']}"
-        # print(f"{sql};")
-        try:
-            result = db.dbcursor.execute(sql)
-        except:
-            log.error(f"Couldn't execute query! '{sql}'")
-            #return False
+        # print(sql)
+        result = await db.execute(sql)
 
     return True
 
@@ -167,224 +175,175 @@ class TasksDB(DBSupport):
             (TasksDB): An instance of this class.
         """
         self.profile = TasksTable()
-        super().__init__('tasks', dburi)
+        super().__init__('tasks')
 
-    def getPage(self,
-                start: int,
-                end: int,
-                pg: PostgresClient,
-                table: str,
-                view: str,
-                ):
+    async def mergeIssues(self,
+                        inpg: PostgresClient,
+                        ):
+        table = "task_mapping_issues"
+        log.error(f"mergeIssues() Unimplemented!")
+        timer = Timer(initial_text=f"Merging {table} table...",
+                      text="merging table took {seconds:.0f}s",
+                      logger=log.debug,
+                    )
+        log.info(f"Merging {table} table...")
+
+    async def mergeAnnotations(self,
+                        inpg: PostgresClient,
+                        ):
+        table = "task_annotationstask_annotations"
+        log.error(f"mergeAnnotations() nimplemented!")
+        timer = Timer(initial_text="Merging {table} table...",
+                      text="merging {table table took {seconds:.0f}s",
+                      logger=log.debug,
+                    )
+        log.info(f"Merging {table} table...")
+
+    async def mergeAuxTables(self,
+                             inuri: str,
+                             outuri: str,
+                             ):
         """
-        Return a page of data from the table.
+        Merge more tables from TM into the unified tasks table.
 
         Args:
-            offset (int): The starting record
-            count (int): The number of records
-            pg (PostgresClient): Database connection for the input data
-            table (str): The table to query for data
-            view (str): The table view to create
-
-        Returns:
-            (list): The results of the query
+            inuri (str): The input database
+            outuri (str): The output database
         """
-        sql = f"DROP VIEW IF EXISTS {view}; CREATE VIEW {view} AS SELECT * FROM {table} WHERE project_id>={start} AND project_id<={end}"
-        print(sql)
-        result = list()
-        try:
-            pg.dbcursor.execute(sql)
-        except:
-            log.error(f"Couldn't execute: {sql}")
+        await self.connect(outuri)
 
-        # FIXME: now that we're using views, row_to_json() has acceptable performance.
-        # It turns out to be much faster to use the columns specified in the
-        # SELECT statement, and construct our own dictionary than using row_to_json().
-        tmp = f"{table.capitalize()}Table()"
-        tt = eval(tmp)
-        columns = str(tt.data.keys())[11:-2].replace("'", "")
+        inpg = PostgresClient()
+        await inpg.connect(inuri)
 
-        # sql = f"SELECT row_to_json({view}) as row FROM {view} ORDER BY project_id"
-        sql = f"SELECT {columns} FROM {view} ORDER BY project_id"
-        # print(sql)
-        result = list()
-        try:
-            pg.dbcursor.execute(sql)
-        except:
-            log.error(f"Couldn't execute: {sql}")
+        # FIXME: in TM, this table is empty
+        # await self.mergeAnnotations(inpg)
 
-        data = list()
-        # result = pg.dbcursor.fetchmany(end-start)
-        try:
-            result = pg.dbcursor.fetchall()
-        except:
-            log.debug(f"No results for {sql}.")
+        # await self.mergeHistory(inpg)
 
-        # for entry in pg.dbcursor.fetchone():
-        #     # print(entry)
-        #     try:
-        #         parse(entry['action_date'])
-        #     except:
-        #         log.error(f"{entry['action_date']} is not a valid datetime!")
-        #         continue
-        #     data.append(entry)
+        await self.mergeInvalidations(inpg)
 
-        # FIXME: if not using row_to_json(), build a data structure
-        for record in result:
-            table = dict(zip(tt.data.keys(), record))
-            data.append(table)
+        # await self.mergeIssues(inpg)
 
-        return data
-
-    def mergeHistory(self):
+    async def mergeHistory(self,
+                        inpg: PostgresClient,
+                        ):
         """
         A method to merge the contents of the TM campaign_projects into
         the campaigns table as an array.
         """
         table = 'task_history'
-        adminpg = list()
-        tmpg = list()
-        for i in range(0, cores + 1):
-            # FIXME: this shouldn't be hardcoded
-            adminpg.append(PostgresClient('localhost/tm_admin'))
-            # tmpg.append(PostgresClient('localhost/tm4'))
+        timer = Timer(initial_text=f"Merging {table} table...",
+                        # text=f"merging {table} table took {seconds:.0f}s",
+                      logger=log.debug,
+                    )
+        log.info(f"Merging {table} table...")
+        # pg = PostgresClient()
+        # await pg.connect('localhost/tm4')
+        # sql = f"SELECT MIN(project_id),MAX(project_id) FROM task_history"
+        # Get the number of records
+        # sql = f"SELECT reltuples::bigint AS estimate FROM  pg_class WHERE oid = 'public.task_history'::regclass;"
+        # entries = await pg.getRecordCount(table)
 
-        pg = PostgresClient('localhost/tm4')
-        sql = f"SELECT MIN(project_id),MAX(project_id) FROM task_history"
-        try:
-            pg.dbcursor.execute(sql)
-        except:
-            log.error(f"Couldn't execute query! {sql}")
-            return False
-        result = pg.dbcursor.fetchone()
-        minid = result[0]
-        maxid = result[1]
-        log.debug(f"There are {maxid} records in {table}")
+        sql = f"SELECT * FROM {table}"
+        # print(sql)
+        timer.start()
+        data = await inpg.execute(sql)
+        entries = len(data)
+        log.debug(f"There are {len(data)} records in {table}")
+        timer.stop()
 
-        records = round(maxid/cores)
+        chunk = round(entries/cores)
         blocks = list()
-        previous = 0
-        for id in range(0, maxid, 500):
-            if id == 0:
-                continue
-            blocks.append([previous + 1, id])
-            previous = id
-
-        # This input data is huge! Make smaller chunks
-        # chunk = round((entries / cores))
-
         # Some tables in the input database are huge, and can either core
         # dump python, or have performance issues. Past a certain threshold
         # the data needs to be queried in pages instead of the entire table
         # This is a huge table, we can't read in the entire thing
 
-        futures = list()
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            # adminpg = PostgresClient('localhost/tm_admin'))
-            # tmpg = PostgresClient('localhost/tm4'))
-            index = 0
-            while index < len(blocks):
-                for core in range(0, cores):
-                    start = blocks[index][0]
-                    end   = blocks[index][1]
-                    data = list()
-                    data = self.getPage(start, end, pg, table,
-                                        f"{table}{core}_view")
-                    # adminpg = PostgresClient('localhost/tm_admin')
-                    log.debug(f"Dispatching thread {core} {start}:{end}... {len(data)} records")
-                    result = executor.submit(foo, data, PostgresClient('localhost/tm_admin'), f"{table}{core}_view")
-                    futures.append(result)
-                    index += 1
-                    # if core == cores:
-                    #for future in concurrent.futures.as_completed(futures):
-                for future in concurrent.futures.wait(futures, return_when='ALL_COMPLETED'):
-                    #log.debug("Waiting for thread to complete..")
-                    pass
-                log.debug(f"thread {index} done..")
-             #     # for block in range(0, entries, chunk):
-            # adminpg = PostgresClient('localhost/tm_admin')
-            # try:
-            #     #data = self.getPage(entry[0], entry[1], pg, table)
-            #     data = self.getPage(1, 200, pg, table)
-            #     if len(data) == 0:
-            #         log.error(f"getPage() returned no data for ({entry[0]}, {entry[1]})")
-            #         # data = self.getPage(block, chunk, pg, table)
-            #         # if len(data) == 0:
-            #         #     log.error(f"getPage() returned no data for {block}:{chunk}, second attempt")
-            #         # continue
-            #         pass
-            # except:
-            #     #tmpg[index].dbshell.close()
-            #     #tmpg[index] = PostgresClient('localhost/tm4')
-            #     log.error(f"Couldn't get a page of data!")
-            #     #continue
-            #     # try:
-            #     # sql = f"DROP VIEW IF EXISTS tasks{index}_view; CREATE VIEW tasks{index}_view AS SELECT * FROM tasks WHERE project_id>={entry[0]} AND project_id<={entry[1]}"
-            #     # adminpg.dbcursor.execute(sql)
-            #     # time.sleep(0.5)
-            # log.error(f"Dispatching thread... {index} {len(data)} records.")
-            #     # result = historyThread(data, adminpg, f"tasks{index}_view")
-            #     # result = executor.submit(historyThread, data, adminpg, f"tasks{index}_view")
-            #     # If we spawn threads too fast, python chokes.
-            #     # time.sleep(1)
-            #index += 1
-                #except:
-                #    log.error(f"Couldn't dispatch thread for block {entry[0]}-{entry[1]}")
-            executor.shutdown()
+        async with asyncio.TaskGroup() as tg:
+            for block in range(0, entries, chunk):
+                # for index in range(0, cores):
+                outpg = PostgresClient()
+                await outpg.connect('localhost/tm_admin')
+                log.debug(f"Dispatching thread {block}:{block + chunk}")
+                # await licensesThread(data, outpg)
+                await historyThread(data[block:block + chunk], outpg)
+                # task = tg.create_task(historyThread(data[block:block + chunk], outpg))
 
-        # # cleanup the connections
-        # for conn in adminpg:
-        #     conn.dbshell.close()
-        # for conn in tmpg:
-        #     conn.dbshell.close()
+        # result = historyThread(data, adminpg[index], f"{table}{index}_view")
 
-    def mergeInvalidations(self):
+    async def mergeInvalidations(self,
+                        inpg: PostgresClient,
+                        ):
         """
         A method to merge the contents of the TM campaign_projects into
         the campaigns table as an array.
         """
         table = 'task_invalidation_history'
-        adminpg = list()
-        for i in range(0, cores + 1):
-            # FIXME: this shouldn't be hardcoded
-            adminpg.append(PostgresClient('localhost/tm_admin'))
+        timer = Timer(initial_text=f"Merging {table} table...",
+                        text="merging table took {seconds:.0f}s",
+                        logger=log.debug,
+                    )
+        log.info(f"Merging {table} table...")
 
-        tmpg = PostgresClient('localhost/tm4')
-        sql = f"SELECT COUNT(id) FROM {table}"
+        sql = f"SELECT * FROM {table} ORDER BY project_id"
         # print(sql)
-        try:
-            result = tmpg.dbcursor.execute(sql)
-        except:
-            log.error(f"Couldn't execute query! {sql}")
-            return False
-        entries = tmpg.dbcursor.fetchone()[0]
+        timer.start()
+        data = await inpg.execute(sql)
+        entries = len(data)
         log.debug(f"There are {entries} records in {table}")
 
+        # FIXME: create an array of SQL queries, so later we can use
+        # prepared_queries in asyncpg for better performance.
+        queries = list()
+        for record in data:
+            tid = record['task_id']
+            entry = {"mapper_id": record['mapper_id']}
+            if record['invalidator_id']:
+                entry['invalidator_id'] = record['invalidator_id']
+            else:
+                entry['invalidator_id'] = 0
+            if record['validator_id']:
+                entry['validator_id'] = record['validator_id']
+            else:
+                entry['validator_id'] = 0
+            if record['mapped_date']:
+                entry['mapped_date'] = '{:%Y-%m-%dT%H:%M:%S}'.format(record['mapped_date'])
+            if record['invalidated_date']:
+                entry['mapped_date'] = '{:%Y-%m-%dT%H:%M:%S}'.format(record['invalidated_date'])
+            if record['validated_date']:
+                entry['mapped_date'] = '{:%Y-%m-%dT%H:%M:%S}'.format(record['validated_date'])
+            if record['updated_date']:
+                entry['mapped_date'] = '{:%Y-%m-%dT%H:%M:%S}'.format(record['updated_date'])
+            if record['is_closed']:
+                entry["is_closed_id"] = "true"
+            else:
+                entry["is_closed_id"] = "false"
+            # entries[record['task_id']].append(entry)
+            asc = str(entry).replace("'", '"').replace("\\'", "'")
+            # UPDATE tasks SET invalidation_history = '{"history": [{"user_id": 35, "mapper_id": 11593853, "invalidator_id": 11596055}]}' WHERE id=35 AND project_id=105;
+            sql = "UPDATE tasks SET invalidation_history = '{\"history\": [%s]}' WHERE id=%d AND project_id=%d" % (asc, record['task_id'], record['project_id'])
+            print(sql)
+            queries.append(sql)
+
+        entries = len(queries)
         chunk = round(entries / cores)
-
-        # Some tables in the input database are huge, and can either core
-        # dump python, or have performance issues. Past a certain threshold
-        # the data needs to be queried in pages instead of the entire table
-        # This is a huge table, we can't read in the entire thing
-        with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
-            index = 0
+        async with asyncio.TaskGroup() as tg:
             for block in range(0, entries, chunk):
-                data = self.getPage(block, chunk, tmpg, table)
-                # result = invalidationThread(data, adminpg[index])
-                result = executor.submit(invalidationThread, data, adminpg[index])
-                index += 1
-            executor.shutdown()
+                # for index in range(0, cores):
+                outpg = PostgresClient()
+                # FIXME: this should not be hard coded
+                await outpg.connect('localhost/tm_admin')
+                log.debug(f"Dispatching thread {block}:{block + chunk}")
+                #await updateThread(queries[block:block + chunk], outpg)
+                task = tg.create_task(updateThread(data[block:block + chunk], outpg))
 
-        # cleanup the connections
-        tmpg.dbshell.close()
-        for conn in adminpg:
-            conn.dbshell.close()
-
-def main():
+async def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
-    parser.add_argument("-u", "--uri", default='localhost/tm_admin',
+    parser.add_argument("-i", "--inuri", default='localhost/tm4',
+                            help="Database URI")
+    parser.add_argument("-o", "--outuri", default='localhost/tm_admin',
                             help="Database URI")
     # parser.add_argument("-r", "--reset", help="Reset Sequences")
     args = parser.parse_args()
@@ -405,10 +364,8 @@ def main():
         stream=sys.stdout,
     )
 
-    tasks = TasksDB(args.uri)
-    # tasks.mergeAxuTables()
-    tasks.mergeHistory()
-    # tasks.mergeInvalidations()
+    tasks = TasksDB(args.inuri)
+    await tasks.mergeAuxTables(args.inuri, args.outuri)
 
     # # user.resetSequence()
     # all = task.getAll()
@@ -429,4 +386,6 @@ def main():
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
-    main()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
