@@ -109,6 +109,68 @@ class UsersAPI(PostgresClient):
         results = await self.execute(sql)
         return results
 
+    async def updateRole(self,
+                   id: int,
+                   role: Userrole,
+                   ):
+        """
+        Update the role for a user.
+
+        Args:
+            id (int): The users ID
+            role (Userrole): The new role.
+        """
+        role = Userrole(role)
+        return self.updateColumn(id, {'role': role.name})
+
+    async def updateMappingLevel(self,
+                   id: int,
+                   level: Mappinglevel,
+                   ):
+        """
+        Update the mapping level for a user.
+
+        Args:
+            id (int): The users ID.
+            level (Mappinglevel): The new level.
+        """
+        mlevel = Mappinglevel(level)
+        result = await self.updateColumn(id, {'mapping_level': mlevel.name})
+        return result
+
+    async def updateExpert(self,
+                   id: int,
+                   mode: bool,
+                   ):
+        """
+        Toggle the expert mode for a user.
+
+        Args:
+            id (int): The users ID.
+            mode (bool): The new mode..
+        """
+        result = await self.updateColumn(id, {'expert_mode': mode})
+        return result
+
+    async def getRegistered(self,
+                      start: datetime,
+                      end: datetime,
+                      ):
+        """
+        Get all users registered in this timeframe.
+
+        Args:
+            start (datetime): The starting timestamp
+            end (datetime): The starting timestamp
+
+        Returns:
+            (list): The users registered in this timeframe.
+        """
+
+        where = f" date_registered > '{start}' and date_registered < '{end}'"
+        result = self.getByWhere(where)
+        return result
+
 async def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser()
