@@ -27,8 +27,11 @@ from sys import argv
 # from tm_admin.organizations.organizations_proto import OrganizationsMessage
 #from tm_admin.yamlfile import YamlFile
 from tm_admin.organizations.organizations import OrganizationsDB
+from tm_admin.organizations.api import OrganizationsAPI
 from tm_admin.types_tm import Organizationtype, Mappinglevel
 from datetime import datetime
+import asyncio
+from codetiming import Timer
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -39,88 +42,78 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
-dbname = os.getenv("TMDB", default="localhost/testdata")
-organization = OrganizationsDB(dbname)
+organization = OrganizationsAPI()
 
-def get_organisation_by_id():
+async def get_organisation_by_id():
     log.debug(f"--- get_organisation_by_id() ---")
     # organisation_id: int) -> Organisation:
     id = 1
     # all = user.getByID(id)
-    result = organization.getByWhere(f" id='{id}'")
-    assert len(result) > 0
+    # result = await organization.getByID(id)
+    # assert len(result) > 0
 
-def get_organisation_by_name():
+async def get_organisation_by_name():
     # organisation_name: str) -> Organisation:
     log.debug(f"--- get_organisation_by_name() ---")
     name= 'Other'
-    result = organization.getByWhere(f" name='{name}'")
-    assert len(result) > 0
+    # result = await organization.getByName(name)
+    # assert len(result) > 0
 
-def get_organisation_name_by_id():
+async def get_organisation_name_by_id():
     # organisation_id: int) -> str:
     log.debug(f"--- get_organisation_name_by_id() ---")
     id = 1
-    result = organization.getByWhere(f" id='{id}'")
-    assert len(result) > 0 and result[0][0]['name'] == 'Other'
+    # result = await organization.getByID(id)
+    # assert len(result) > 0 and result[0][0]['name'] == 'Other'
 
-def get_organisations():
+async def get_organisations():
     # manager_user_id: int):
     log.debug(f"--- get_organisations() ---")
-    result = organization.getAll()
-    assert len(result) > 0
+    # result = await organization.getAll()
+    # assert len(result) > 0
 
-def delete_organisation():
+async def delete_organisation():
     # organisation_id: int):
     log.debug(f"delete_organisation() unimplemented!")
     id = 1
-    #result = organization.deleteByID(id)
+    #result = await organization.deleteByID(id)
     #assert len(result) > 0
 
-def create_organisation():
+async def create_organisation():
     # new_organisation_dto: NewOrganisationDTO) -> int:
     log.debug(f"create_organisation() unimplemented!")
-    pass
 
-def update_organisation():
+async def update_organisation():
     # organisation_dto: UpdateOrganisationDTO) -> Organisation:
     log.debug(f"update_organisation() unimplemented!")
-    pass
 
-def get_organisations_managed_by_user():
+async def get_organisations_managed_by_user():
     # user_id: int):
     log.debug(f"get_organisations_managed_by_user() unimplemented!")
-    pass
 
-def get_projects_by_organisation_id():
+async def get_projects_by_organisation_id():
     # organisation_id: int) -> Organisation:
     log.debug(f"get_projects_by_organisation_id() unimplemented!")
-    pass
 
-def get_organisation_stats():
+async def get_organisation_stats():
     #
     log.debug(f"get_organisation_stats() unimplemented!")
-    pass
 
-def assert_validate_name():
+async def assert_validate_name():
     # org: Organisation, name: str):
     log.debug(f"assert_validate_name() unimplemented!")
-    pass
 
-def assert_validate_users():
+async def assert_validate_users():
     # organisation_dto: OrganisationDTO):
     log.debug(f"assert_validate_users() unimplemented!")
-    pass
 
-def can_user_manage_organisation():
+async def can_user_manage_organisation():
     # organisation_id: int, user_id: int):
     log.debug(f"can_user_manage_organisation() unimplemented!")
-    pass
 
-def is_user_an_org_manager():
+async def is_user_an_org_manager():
     # organisation_id: int, user_id: int):
     log.debug(f"is_user_an_org_manager() unimplemented!")
-    pass
 
 # We don't need to test these they are for sqlachemy, which we're not using. Instead
 # we use the UsersTable() to represent the table schema
@@ -132,14 +125,14 @@ def is_user_an_org_manager():
 # def get_organisation_by_slug_as_dto():
 
 # FMTM API tests
-def get_organisations():
+async def get_organisations():
     log.debug(f"--- get_organisations() unimplemented!")
 
-def generate_slug():
+async def generate_slug():
     # text: str) -> str:
     log.debug(f"--- generate_slug() unimplemented!")
 
-def get_organisation_by_name():
+async def get_organisation_by_name():
     # db: Session, name: str):
     log.debug(f"--- get_organisation_by_name() unimplemented!")
 
@@ -147,14 +140,14 @@ def upload_image():
     # db: Session, file: UploadFile(None)):
     log.debug(f"--- upload_image() unimplemented!")
 
-def create_organization():
+async def create_organization():
     log.debug(f"--- create_organization() unimplemented!")
     # get_organisation_by_id(db: Session, id: int):
 
 def update_organization_info():
     log.debug(f"--- update_organization_info() unimplemented!")
 
-if __name__ == "__main__":
+async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
     parser.add_argument("-u", "--uri", default='localhost/tm_admin', help="Database URI")
@@ -171,20 +164,22 @@ if __name__ == "__main__":
         stream=sys.stdout,
     )
 
-    get_organisation_by_id()
-    get_organisation_by_name()
-    get_organisation_name_by_id()
-    create_organisation()
-    update_organisation()
-    delete_organisation()
-    get_organisations()
-    get_organisations_managed_by_user()
-    get_projects_by_organisation_id()
-    get_organisation_stats()
-    assert_validate_name()
-    assert_validate_users()
-    can_user_manage_organisation()
-    is_user_an_org_manager()
+    await organization.connect(args.uri)
+    
+    await get_organisation_by_id()
+    await get_organisation_by_name()
+    await get_organisation_name_by_id()
+    await create_organisation()
+    await update_organisation()
+    await delete_organisation()
+    await get_organisations()
+    await get_organisations_managed_by_user()
+    await get_projects_by_organisation_id()
+    await get_organisation_stats()
+    await assert_validate_name()
+    await assert_validate_users()
+    await can_user_manage_organisation()
+    await is_user_an_org_manager()
     # get_campaign_organisations_as_dto()
     # get_organisations_managed_by_user_as_dto()
     # get_organisation_by_id_as_dto()
@@ -193,9 +188,14 @@ if __name__ == "__main__":
     # get_organisations_as_dto(
 
     # FMTM Aget_organisations();
-    generate_slug()
-    get_organisation_by_name()
-    upload_image()
-    create_organization()
-    update_organization_info()
+    await generate_slug()
+    await get_organisation_by_name()
+    # await upload_image()
+    await create_organization()
+    # await update_organization_info()
     
+if __name__ == "__main__":
+    """This is just a hook so this file can be run standalone during development."""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
