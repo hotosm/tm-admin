@@ -49,4 +49,4 @@
     - history:
         - jsonb
     - invalidation_history:
-        - json
+        - jsonb
