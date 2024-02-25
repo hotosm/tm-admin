@@ -27,12 +27,16 @@ from sys import argv
 # from tm_admin.users.users_proto import UsersMessage
 #from tm_admin.yamlfile import YamlFile
 from tm_admin.users.users import UsersDB
+from tm_admin.projects.api import ProjectsAPI
+from tm_admin.teams.api import TeamsAPI
 from tm_admin.projects.projects import ProjectsDB
 from tm_admin.campaigns.campaigns import CampaignsDB
+# from tm_admin.campaigns.api import CampaignsAPI
 from tm_admin.types_tm import Userrole, Mappinglevel
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
 from tm_admin.campaigns.campaigns_class import CampaignsTable
+import asyncio
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -40,37 +44,32 @@ log = logging.getLogger(__name__)
 import tm_admin as tma
 rootdir = tma.__path__[0]
 
-# FIXME: For now these tests assume you have a local postgres installed. One has the TM
-# database, the other for tm_admin.
+# FIXME: For now these tests assume you have a local postgres installed.
+# One has the TM database, the other for tm_admin.
 
-dbname = os.getenv("TMDB", default="localhost/testdata")
-# user = UsersDB(dbname)
-# project = ProjectsDB(dbname)
-user = None
-project = None
-campaign = None
+campaign = CampaignsDB()
 
-def get_all_campaigns():
+async def get_all_campaigns():
     """Returns a list of all campaigns"""
     # ) -> CampaignListDTO:
     log.debug(f"--- get_all_campaigns() ---")
-    result = user.getAll()
+    result = await campaign.getAll()
     assert len(result) > 0
 
-def get_campaign():
+async def get_campaign():
     """Gets the specified campaign"""
     log.debug(f"--- get_campaign() ---")
     id = 4
-    result = campaign.getByID(id)
+    result = await campaign.getByID(id)
     assert len(result) > 0
 
-def get_campaign_by_name():
+async def get_campaign_by_name():
     name = 'Mbomou'
     log.debug(f"--- get_campaign_by_name() ---")
-    result = campaign.getByName(name)
+    result = await campaign.getByName(name)
     assert len(result) > 0
 
-def delete_campaign():
+async def delete_campaign():
     """Delete campaign for a project"""
     # campaign_id: int):
     log.debug(f"--- delete_campaign() ---")
@@ -78,38 +77,38 @@ def delete_campaign():
     # result = campaign.deleteByID(id)
     # assert len(result) > 0
 
-def delete_project_campaign():
+async def delete_project_campaign():
     """Delete campaign for a project"""
     # project_id: int, campaign_id: int):
     log.debug(f"--- delete_project_campaign() unimplemented!")
     id = 5
     # result = campaign.deleteByID(id)
 
-def create_campaign():
+async def create_campaign():
     """Creates a new campaign"""
     # campaign_dto: NewCampaignDTO):
     log.debug(f"--- create_campaign() unimplemented!")
 
-def create_campaign_project():
+async def create_campaign_project():
     """Assign a campaign with a project"""
     # dto: CampaignProjectDTO):
     log.debug(f"--- create_campaign_project() unimplemented!")
 
-def create_campaign_organisation():
+async def create_campaign_organisation():
     """Creates new campaign from DTO"""
     # organisation_id: int, campaign_id: int):
     log.debug(f"--- create_campaign_organisation() unimplemented!")
 
-def campaign_organisation_exists():
+async def campaign_organisation_exists():
     # campaign_id: int, org_id: int):
     log.debug(f"--- campaign_organisation_exists() unimplemented!")
 
-def delete_organisation_campaign():
+async def delete_organisation_campaign():
     """Delete campaign for a organisation"""
     # organisation_id: int, campaign_id: int):
     log.debug(f"--- delete_organisation_campaign() unimplemented!")
 
-def update_campaign():
+async def update_campaign():
     # campaign_dto: CampaignDTO, campaign_id: int):
     log.debug(f"--- update_campaign() unimplemented!")
 
@@ -129,10 +128,10 @@ def update_campaign():
 #     # organisation_id: int) -> CampaignListDTO:
 #     log.debug(f"--- get_organisation_campaigns_as_dto() unimplemented!")
 
-if __name__ == "__main__":
+async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
-    parser.add_argument("-u", "--uri", default='localhost/testdata', help="Database URI")
+    parser.add_argument("-u", "--uri", default='localhost/tm_admin', help="Database URI")
     args = parser.parse_args()
     # if verbose, dump to the terminal.
     log_level = os.getenv("LOG_LEVEL", default="INFO")
@@ -147,20 +146,26 @@ if __name__ == "__main__":
         stream=sys.stdout,
     )
 
-    user = UsersDB(args.uri)
-    campaign = CampaignsDB(args.uri)
+    # await user.connect(args.uri)
+    await campaign.connect(args.uri)
 
-    get_campaign()
-    get_campaign_by_name()
-    delete_campaign()
-    delete_project_campaign()
-    get_all_campaigns()
-    create_campaign()
-    create_campaign_project()
-    create_campaign_organisation()
-    campaign_organisation_exists()
-    delete_organisation_campaign()
-    update_campaign()
+    await get_campaign()
+    await get_campaign_by_name()
+    await delete_campaign()
+    await delete_project_campaign()
+    await get_all_campaigns()
+    await create_campaign()
+    await create_campaign_project()
+    await create_campaign_organisation()
+    await campaign_organisation_exists()
+    await delete_organisation_campaign()
+    await update_campaign()
     # get_campaign_as_dto()
     # get_project_campaigns_as_dto()
     # get_organisation_campaigns_as_dto()
+
+if __name__ == "__main__":
+    """This is just a hook so this file can be run standalone during development."""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
