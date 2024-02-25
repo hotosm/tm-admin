@@ -29,6 +29,12 @@ it out. Nice and simple. For example:
 
 	data = await self.tmdb.execute(sql)
 
+If you get an error message about coroutines, that means you forgot
+the *await* keyword.
+
+	sys:1: RuntimeWarning: coroutine 'TmAdminManage.createTable' was never awaited
+
+
 # Threading
 
 Originally this propject was using *concurrent.futures* for threading,
