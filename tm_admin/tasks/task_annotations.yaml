@@ -23,5 +23,5 @@
         - timestamp
         - required: true
     - properties:
-        - json
+        - jsonb
         - required: true
