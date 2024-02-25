@@ -5,5 +5,11 @@
 - team_members:
     - team_id:
         - int32
-    - role:
-        - public.teamroles
+    - user_id:
+        - int64
+    - function:
+        - public.Teammemberfunctions
+    - active:
+        - bool
+#    - role:
+#        - public.teamroles
