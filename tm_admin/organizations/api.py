@@ -61,16 +61,47 @@ class OrganizationsAPI(PostgresClient):
     async def create(self,
                      org: OrganizationsTable,
                      ):
+        """
+        Create a project and add it to the database.
+
+        Args:
+            org (OrganizationsTable): The organization data
+
+        Returns:
+            (bool): Whether the organization got created
+        """
         log.warning(f"create(): unimplemented!")
+
+        return False
 
     async def update(self,
                      org: OrganizationsTable,
                      ):
+        """
+        Update a organization that is already in the database.
+
+        Args:
+            organization (OrganizationsTable): The organization data
+
+        Returns:
+            (bool): Whether the organization got updated
+        """
         log.warning(f"update(): unimplemented!")
         
+        return False
+
     async def delete(self,
                     org_id: int,
                      ):
+        """
+        Delete an organization from the database.
+
+        Args:
+            org_id (id): The organization ID
+
+        Returns:
+            (bool): Whether the organization  got deleted
+        """
         log.warning(f"delete(): unimplemented!")
 
     async def getByID(self,
@@ -110,26 +141,66 @@ class OrganizationsAPI(PostgresClient):
     async def getTeams(self,
                        org_id: int,
                        ):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"getTeams(): unimplemented!")
 
     async def getStats(self,
                        org_id: int,
                        ):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"getStats(): unimplemented!")
 
     async def isManager(self,
                         user_id: int,
                         ):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"isManager(): unimplemented!")
 
     async def validateName(self,
                            name: str,
                            ):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"validateName(): unimplemented!")
 
     async def validateUser(self,
                            name: str,
                            ):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"validateName(): unimplemented!")
 
 

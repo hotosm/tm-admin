@@ -89,19 +89,52 @@ class ProjectsAPI(PostgresClient):
         await self.teamsdb.connect(uri)
 
     async def create(self,
-                     task: TasksTable,
+                     project: ProjectsTable,
                      ):
+        """
+        Create a project and add it to the database.
+
+        Args:
+            project (ProjectsTable): The team data
+
+        Returns:
+            (bool): Whether the project got created
+        """
         log.warning(f"create(): unimplemented!")
 
+        return False
+
     async def update(self,
-                     task: TasksTable,
+                     project: ProjectsTable,
                      ):
+        """
+        Update a project that is already in the database.
+
+        Args:
+            project (ProjectsTable): The project data
+
+        Returns:
+            (bool): Whether the project got updated
+        """
         log.warning(f"update(): unimplemented!")
 
+        return False
+
     async def delete(self,
-                    task_id: int,
-                     ):
+                    project_id: int,
+                    ):
+        """
+        Delete a project from the database.
+
+        Args:
+            project_id (id): The project data
+
+        Returns:
+            (bool): Whether the project got deleted
+        """
         log.warning(f"delete(): unimplemented!")
+
+        return False
 
     async def evaluateMappingPermissions(self,
                                    uid: int,
@@ -125,6 +158,8 @@ class ProjectsAPI(PostgresClient):
         if level != Permissions() or Permissions():
             pass
 
+        return False
+
     async def getByID(self,
                      project_id: int,
                     ):
@@ -146,9 +181,19 @@ class ProjectsAPI(PostgresClient):
                         project_id: int,
                         team_id: int,
                         ):
+        """
+        Args:
+            project_id (id): The project ID
+            team_id (id): The team ID
+
+        Returns:
+            (Teamrole): The role of this team ion this project
+        """
         log.warning(f"getProjectByTeam(): unimplemented!")
         sql = f"SELECT FROM projects WHERE project_id={project_id}"
         
+        return False
+
     async def getByName(self,
                         name: str,
                         ):
@@ -183,6 +228,8 @@ class ProjectsAPI(PostgresClient):
         """
         log.warning(f"delete(): unimplemented!")
 
+        return False
+
     async def toggleFavorites(self,
                               flag: bool = None,
                               ):
@@ -194,59 +241,201 @@ class ProjectsAPI(PostgresClient):
         """
         log.warning(f"toggleFavorites(): Unimplemented!")
 
+        return False
+
     async def toggleFeatures(self,
                               flag: bool = None,
                              ):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"toggleFeatures(): Unimplemented!")
+
+        return False
 
     async def unlockTasks(self,
                               project_id: int,
                              ):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"toggleFeatures(): Unimplemented!")
+
+        return False
 
     async def getUserStats(self,
                             user_id: int,
                             project_id: int,
                              ):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"getUserStats(): Unimplemented!")
+
+        return False
 
     async def getProjectStats(self,
                              project_id: int,
                              ):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"getProjectStats(): Unimplemented!")
+
+        return False
 
     async def deleteTasks(self,
                               project_id: int,
                              ):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"deleteTasks(): Unimplemented!")
+
+        return False
 
     # These next methods are mostly just for convient access to a single column
     async def getFeatures(self):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"getFeatures(): unimplemented!")
 
+        return False
+
     async def getTeams(self):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"getTeams(): unimplemented!")
 
+        return False
+
     async def getOrganization(self):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"getOrganization(): unimplemented!")
 
+        return False
+
     async def getTasks(self):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"(): Unimplemented!")
+
+        return False
 
     async def getOrganization(self):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"(): Unimplemented!")
+
+        return False
 
     async def getPriorityAreas(self):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"(): Unimplemented!")
+
+        return False
 
     async def getAOI(self):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"(): Unimplemented!")
 
+        return False
+
     async def getDailyContributions(self):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"getDailyContributions(): Unimplemented!")
 
+        return False
+
     async def getProjectSummary(self):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"getProjectSummary(): Unimplemented!")
+
+        return False
 
 async def main():
     """This main function lets this class be run standalone by a bash script."""

@@ -33,6 +33,7 @@ from shapely.geometry import shape
 from shapely import centroid
 from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamroles, Teammemberfunctions
 from osm_rawdata.pgasync import PostgresClient
+from tm_admin.teams.teams_class import TeamsTable
 from tm_admin.teams.team_members_class import Team_membersTable
 from tm_admin.messages.messages import MessagesDB
 from tm_admin.projects.projects import ProjectsDB
@@ -51,6 +52,13 @@ log = logging.getLogger(__name__)
 
 class TeamsAPI(object):
     def __init__(self):
+        """
+        Create a class to handle the backend API calls, so the code can be shared
+        between test cases and the actual code.
+
+        Returns:
+            (TasksAPI): An instance of this class
+        """
         self.allowed_roles = [
             Teamroles.TEAM_MAPPER,
             Teamroles.TEAM_VALIDATOR,
@@ -64,6 +72,12 @@ class TeamsAPI(object):
     async def connect(self,
                       uri: str,
                       ):
+        """
+        Connect to all tables for API endpoints that require accessing multiple tables.
+
+        Args:
+            inuri (str): The URI for the TM Admin output database
+        """
         await self.messagesdb.connect(uri)
         await self.projectsdb.connect(uri)
         await self.usersdb.connect(uri)
@@ -104,43 +118,142 @@ class TeamsAPI(object):
         return results
 
     async def create(self,
-                     team: Team_membersTable,
-                     ):
+            team: TeamsTable,
+        ):
+        """
+        Create a team and add it to the database.
+
+        Args:
+            team (TeamsTable): The team data
+
+        Returns:
+            (bool): Whether the team got created
+        """
         log.warning(f"create(): unimplemented!")
         
     async def update(self,
                      team: Team_membersTable,
                      ):
+        """
+        Update a team that is already in the database.
+
+        Args:
+            team (TeamsTable): The team data
+
+        Returns:
+            (bool): Whether the team got updated
+        """
         log.warning(f"update(): unimplemented!")
+
+        return False
         
     async def delete(self,
                      team_id: int,
                      ):
+        """
+        Delete a team from the database.
+
+        Args:
+            team_id (int): The team ID
+
+        Returns:
+            (bool): Whether the team got deleted
+        """
         log.warning(f"delete(): unimplemented!")
+
+        return False
         
-    async def getAllTeams(self):
+    async def getAllTeams(self,
+                          project_id: int,
+                          ):
+        """
+        Get all the teams for a project.
+
+        Args:
+            project_id (int): The project ID
+
+        Returns:
+            dict): The data for the teams
+        """
         log.warning(f"getAllTeams(): unimplemented!")
     
+        return False
+
     async def addMember(self,
                         member: Team_membersTable,
                         ):
+        """
+
+        Args:
+            
+        Returns:
+            
+        """
         log.warning(f"addMember(): unimplemented!")
 
+        return False
+
     async def removeMember(self):
+        """
+
+        Args:
+            
+        Returns:
+            
+        """
         log.warning(f"removeMember(): unimplemented!")
 
+        return False
+
     async def addProject(self):
+        """
+
+        Args:
+            
+        Returns:
+            
+        """
         log.warning(f"addProject(): unimplemented!")
 
+        return False
+
     async def removeProject(self):
+        """
+
+        Args:
+            
+        Returns:
+            
+        """
         log.warning(f"removeProject(): unimplemented!")
 
+        return False
+
     async def validateMembers(self):
-        """Validates that the users exist"""
+        """
+        Validates that the users exist
+
+        Args:
+            
+        Returns:
+            
+        """
         log.warning(f"validateMembers(): unimplemented!")
 
+
+        return False
+
     async def activateMember(self):
+        """
+
+        Args:
+            
+        Returns:
+            
+        """
         log.warning(f"activateMember(): unimplemented!")
+
+        return False
 
     async def isActive(self,
                        team_id: int,
@@ -184,10 +297,10 @@ class TeamsAPI(object):
         Returns:
             (bool): Whether the user is a manager of this team
         """
+        log.warning(f"isManager(): unimplemented!")
         sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.function==\"%s\" && @.user_id==%d)') AS members FROM teams WHERE id=%d;" % (function.name, user_id, team_id)
         results = await self.teamsdb.pg.execute(sql)
         return results
-        log.warning(f"isManager(): unimplemented!")
 
     async def joinRequest(self,
                           team_id: int,
@@ -196,12 +309,20 @@ class TeamsAPI(object):
         """
         If user has team manager permission add directly to the team
         without request.E.G. Admins, Org managers.
+
+        Args:
+            team_id (int): The team ID
+            user_id (int): The user ID
         """
         log.warning(f"joinRequest(): unimplemented!")
+
+        return False
 
     async def processJoinRequest(self):
         # team_id, from_user_id, username, function, action
         log.warning(f"processRequest(): unimplemented!")
+
+        return False
 
     async def processInvite(self,
                             team_id: int,
@@ -224,6 +345,8 @@ class TeamsAPI(object):
         # Construct the message
         mdb = MessagesDB()
 
+        return False
+
     async def sendInvite(self,
                           team_id: int,
                           user_id: int,
@@ -238,6 +361,8 @@ class TeamsAPI(object):
         log.warning(f"sendInvite(): unimplemented!")
         # Construct the message
         mdb = MessagesDB()
+
+        return False
 
     async def DeleteInvite(self,
                           team_id: int,
@@ -254,6 +379,8 @@ class TeamsAPI(object):
         # Construct the message
         mdb = MessagesDB()
 
+        return False
+
     async def checkMembership(self,
                             project_id: int,
                             user_id: int,
@@ -263,8 +390,8 @@ class TeamsAPI(object):
         in the team list.
 
         Args:
-            project_id (int): The ID of the project
-            user_id (int): The IS of the user
+            project_id (int): The project to check
+            user_id (int): The ID of the user to check
 
         Returns:
             (bool): If the user has the required permissions

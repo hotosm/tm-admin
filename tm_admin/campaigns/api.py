@@ -31,8 +31,8 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Mappingtypes
-from tm_admin.messages.messages_class import MessagesTable
+from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamroles
+from tm_admin.projects.projects_class import ProjectsTable
 from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.messages.messages import MessagesDB
 from tm_admin.projects.projects import ProjectsDB
@@ -56,14 +56,14 @@ cores = info["count"] * 2
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-class MessagesAPI(PostgresClient):
+class CampaignsAPI(PostgresClient):
     def __init__(self):
         """
         Create a class to handle the backend API calls, so the code can be shared
         between test cases and the actual code.
 
         Returns:
-            (MessagesAPI): An instance of this class
+            (CampaignsAPI): An instance of this class
         """
         self.allowed_roles = [
             Teamroles.TEAM_MAPPER,
@@ -89,48 +89,48 @@ class MessagesAPI(PostgresClient):
         await self.teamsdb.connect(uri)
 
     async def create(self,
-                     message: MessagesTable,
+                     campaign: CampaignsTable,
                      ):
         """
-        Create a message and add it to the database.
+        Create a campaign and add it to the database.
 
         Args:
-            message (MessagesTable): The team data
+            campaign (CampaignsTable): The team data
 
         Returns:
-            (bool): Whether the message got created
+            (bool): Whether the campaign got created
         """
         log.warning(f"create(): unimplemented!")
 
         return False
 
     async def update(self,
-                     message: MessagesTable,
+                     campaign: CampaignsTable,
                      ):
         """
-        Update a message that is already in the database.
+        Update a campaign that is already in the database.
 
         Args:
-            message (MessagesTable): The message data
+            campaign (CampaignsTable): The campaign data
 
         Returns:
-            (bool): Whether the message got updated
+            (bool): Whether the campaign got updated
         """
         log.warning(f"update(): unimplemented!")
 
         return False
 
     async def delete(self,
-                    message_id: int,
+                    campaign_id: int,
                     ):
         """
-        Delete a message from the database.
+        Delete a campaign from the database.
 
         Args:
-            message_id (id): The message data
+            campaign_id (id): The campaign data
 
         Returns:
-            (bool): Whether the message got deleted
+            (bool): Whether the campaign got deleted
         """
         log.warning(f"delete(): unimplemented!")
 

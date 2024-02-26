@@ -68,24 +68,59 @@ class UsersAPI(PostgresClient):
         # super().__init__()
 
     async def create(self,
-                     org: UsersTable,
+                     user: UsersTable,
                      ):
+        """
+        Create a user and add them to the database.
+
+        Args:
+            user (UsersTable): The user's data
+
+        Returns:
+            (bool): Whether the user got created
+        """
         log.warning(f"create(): unimplemented!")
 
     async def update(self,
                      org: UsersTable,
                      ):
+        """
+        Update a user that is already in the database.
+
+        Args:
+            user (UsersTable): The user's data
+
+        Returns:
+            (bool): Whether the user got updated
+        """
         log.warning(f"update(): unimplemented!")
 
     async def delete(self,
-                    org_id: int,
+                    user_id: int,
                      ):
+        """
+        Delete a user from the database.
+
+        Args:
+            user_id (int): The user's ID
+
+        Returns:
+            (bool): Whether the user got deleted
+        """
         log.warning(f"delete(): unimplemented!")
 
     async def updateColumn(self,
                            user_id: int,
                            data: dict,
                            ):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"updateColumn(): unimplemented!")
         [[column, value]] = data.items()
         sql = f"UPDATE users SET {column}='{value}' WHERE id='{user_id}'"
@@ -98,6 +133,14 @@ class UsersAPI(PostgresClient):
                            user_id: int,
                            data: dict,
                            ):
+        """
+
+        Args:
+            
+
+        Returns:
+            
+        """
         log.warning(f"appendColumn(): unimplemented!")
         [[column, value]] = data.items()
         sql = f"UPDATE users SET {column}='{value}' WHERE id='{user_id}'"

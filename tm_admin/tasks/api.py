@@ -149,17 +149,50 @@ class TasksAPI(PostgresClient):
     async def create(self,
                      task: TasksTable,
                      ):
+        """
+        Create a task and add it to the database.
+
+        Args:
+            task (TeamsTable): The taskl data
+
+        Returns:
+            (bool): Whether the task got created
+        """
         log.warning(f"create(): unimplemented!")
+
+        return False
 
     async def update(self,
                      task: TasksTable,
                      ):
+        """
+        Update a task that is already in the database.
+
+        Args:
+            task (TasksTable): The task data
+
+        Returns:
+            (bool): Whether the task got updated
+        """
         log.warning(f"update(): unimplemented!")
+
+        return False
 
     async def delete(self,
                     task_id: int,
                      ):
+        """
+        Delete a task from the database.
+
+        Args:
+            task_id (int): The team to delete
+
+        Returns:
+            (bool): Whether the task got deleted
+        """
         log.warning(f"delete(): unimplemented!")
+
+        return False
 
     async def changeStatus(self,
                         user_id: int,
@@ -183,13 +216,40 @@ class TasksAPI(PostgresClient):
         log.warning(f"delete(): unimplemented!")
 
     async def markAllMapped(self):
+        """
+
+        Args:
+            
+        Returns:
+            
+        """
         log.warning(f"markAllMapped(): unimplemented!")
 
+        return False
+
     async def resetBadImagery(self):
+        """
+
+        Args:
+            
+        Returns:
+            
+        """
         log.warning(f"resetBadImagery(): unimplemented!")
 
+        return False
+
     async def undoMapping(self):
+        """
+
+        Args:
+            
+        Returns:
+            
+        """
         log.warning(f"undoMapping(): unimplemented!")
+
+        return False
 
 async def main():
     """This main function lets this class be run standalone by a bash script."""
