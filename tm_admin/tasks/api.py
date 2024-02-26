@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2022, 2023, 2024 Humanitarian OpenStreetMap Team
+# Copyright (c) 2023, 2024 Humanitarian OpenStreetMap Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -31,8 +31,9 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamroles
+from tm_admin.types_tm import Taskcreationmode, Taskstatus, Teamroles
 from tm_admin.projects.projects_class import ProjectsTable
+from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.messages.messages import MessagesDB
 from tm_admin.projects.projects import ProjectsDB
 from tm_admin.users.users import UsersDB
@@ -57,6 +58,13 @@ log = logging.getLogger(__name__)
 
 class TasksAPI(PostgresClient):
     def __init__(self):
+        """
+        Create a class to handle the backend API calls, so the code can be shared
+        between test cases and the actual code.
+
+        Returns:
+            (TasksAPI): An instance of this class
+        """
         self.allowed_roles = [
             Teamroles.TEAM_MAPPER,
             Teamroles.TEAM_VALIDATOR,
@@ -65,49 +73,123 @@ class TasksAPI(PostgresClient):
         self.messagesdb = MessagesDB()
         self.projectsdb = ProjectsDB()
         self.usersdb = UsersDB()
-        self.teamsdb = TeamsDB()
 
-    async def connect(self,
-                      uri: str,
+    async def connectDBs(self,
+                      inuri: str,
                       ):
-        await self.messagesdb.connect(uri)
-        await self.projectsdb.connect(uri)
-        await self.usersdb.connect(uri)
-        await self.teamsdb.connect(uri)
-        
-    async def getByID(self,
-                     project_id: int,
-                    ):
         """
-        Get all the information for a project using it's ID
+        Connect to all tables for API endpoints that require accessing multiple tables.
 
         Args:
+            inuri (str): The URI for the TM Admin output database
+        """
+        await self.messagesdb.connect(inuri)
+        await self.projectsdb.connect(inuri)
+        await self.usersdb.connect(inuri)
+        await self.connect(inuri)
+        
+    async def getStatus(self,
+                      task_id: int,
+                      project_id: int,
+                    ):
+        """
+        Get the current status for a task using it's project and task IDs.
+
+        Args:
+            task_id (int): The task to lock
             project_id (int): The team to get the data for
 
         Returns:
             (dict): the project information
         """
         log.debug(f"--- getByID() ---")
-        sql = f"SELECT * FROM project WHERE id={project_id}"
+        sql = f"SELECT task_status FROM tasks WHERE project_id={project_id} AND id={task_id}"
         results = await self.execute(sql)
         return results
 
-    async def getByName(self,
-                        name: str,
-                        ):
+    async def getByID(self,
+                      task_id: int,
+                      project_id: int,
+                    ):
         """
-        Get all the information for a project using the name
+        Get all the information for a task using it's project and task IDs.
 
         Args:
-            name (str): The project to get the data for
+            task_id (int): The task to lock
+            project_id (int): The team to get the data for
 
         Returns:
             (dict): the project information
         """
-        log.debug(f"--- getByName() ---")
-        sql = f"SELECT * FROM projects WHERE name='{name}'"
+        log.debug(f"--- getByID() ---")
+        sql = f"SELECT * FROM tasks WHERE project_id={project_id} AND id={task_id}"
         results = await self.execute(sql)
         return results
+
+    async def getByUser(self,
+                        user_id: int,
+                        task_id: int,
+                        project_id: int,
+                        ):
+        """
+        Get all the information for a project using it's ID
+
+        Args:
+            task_id (int): The task to lock
+            project_id (int): The team to get the data for
+
+        Returns:
+            (dict): the task information
+        """
+        log.debug(f"--- getByID() ---")
+        sql = f"SELECT * FROM tasks WHERE project_id={project_id} AND id={task_id} AND user_id={user_id}"
+        results = await self.execute(sql)
+        return results
+
+    async def create(self,
+                     task: TasksTable,
+                     ):
+        log.warning(f"create(): unimplemented!")
+
+    async def update(self,
+                     task: TasksTable,
+                     ):
+        log.warning(f"update(): unimplemented!")
+
+    async def delete(self,
+                    task_id: int,
+                     ):
+        log.warning(f"delete(): unimplemented!")
+
+    async def changeStatus(self,
+                        user_id: int,
+                        task_id: int,
+                        project_id: int,
+                        status: Taskstatus,
+                        ):
+        """
+        Manage the status of a task. This would be locking or unlocking,
+        validation status, etc...
+
+        Args:
+            user_id (int): The mapper locking the task
+            task_id (int): The task to lock
+            project_id (int): The project containing the task
+            status (TaskStatus): The status to change to
+
+        Returns:
+            (bool): Whether locking/unlocking the task was sucessful
+        """
+        log.warning(f"delete(): unimplemented!")
+
+    async def markAllMapped(self):
+        log.warning(f"markAllMapped(): unimplemented!")
+
+    async def resetBadImagery(self):
+        log.warning(f"resetBadImagery(): unimplemented!")
+
+    async def undoMapping(self):
+        log.warning(f"undoMapping(): unimplemented!")
 
 async def main():
     """This main function lets this class be run standalone by a bash script."""

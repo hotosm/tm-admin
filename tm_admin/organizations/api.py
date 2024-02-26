@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2022, 2023, 2024 Humanitarian OpenStreetMap Team
+# Copyright (c) 2023, 2024 Humanitarian OpenStreetMap Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -31,18 +31,10 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamroles
-from tm_admin.projects.projects_class import ProjectsTable
-from tm_admin.messages.messages import MessagesDB
-from tm_admin.projects.projects import ProjectsDB
-from tm_admin.users.users import UsersDB
-from tm_admin.teams.teams import TeamsDB
-from shapely import wkb, get_coordinates
+from tm_admin.organizations.organizations import OrganizationsDB
+from tm_admin.organizations.organizations_class import OrganizationsTable
 from tm_admin.dbsupport import DBSupport
-from tm_admin.generator import Generator
 from osm_rawdata.pgasync import PostgresClient
-import re
-# from progress import Bar, PixelBar
 from tqdm import tqdm
 import tqdm.asyncio
 from codetiming import Timer
@@ -55,40 +47,46 @@ cores = info["count"] * 2
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-class OrganizationAPI(PostgresClient):
+class OrganizationsAPI(PostgresClient):
     def __init__(self):
-        self.allowed_roles = [
-            Teamroles.TEAM_MAPPER,
-            Teamroles.TEAM_VALIDATOR,
-            Teamroles.TEAM_MANAGER,
-        ]
-        self.messagesdb = MessagesDB()
-        self.projectsdb = ProjectsDB()
-        self.usersdb = UsersDB()
-        self.teamsdb = TeamsDB()
+        """
+        Create a class to handle the backend API calls, so the code can be shared
+        between test cases and the actual code.
 
-    async def connect(self,
-                      uri: str,
-                      ):
-        await self.messagesdb.connect(uri)
-        await self.projectsdb.connect(uri)
-        await self.usersdb.connect(uri)
-        await self.teamsdb.connect(uri)
+        Returns:
+            (OrganizationsAPI): An instance of this class
+        """
+        self.orgdb = OrganizationsDB()
+
+    async def create(self,
+                     org: OrganizationsTable,
+                     ):
+        log.warning(f"create(): unimplemented!")
+
+    async def update(self,
+                     org: OrganizationsTable,
+                     ):
+        log.warning(f"update(): unimplemented!")
         
+    async def delete(self,
+                    org_id: int,
+                     ):
+        log.warning(f"delete(): unimplemented!")
+
     async def getByID(self,
-                     project_id: int,
+                     org_id: int,
                     ):
         """
-        Get all the information for a project using it's ID
+        Get all the information for a organization using it's ID
 
         Args:
-            project_id (int): The team to get the data for
+            org_id (int): The organization to get the data for
 
         Returns:
             (dict): the project information
         """
-        log.debug(f"--- getByID() ---")
-        sql = f"SELECT * FROM project WHERE id={project_id}"
+        log.debug(f"--- getByID({org_id}) ---")
+        sql = f"SELECT * FROM organizations WHERE id={org_id}"
         results = await self.execute(sql)
         return results
 
@@ -99,15 +97,41 @@ class OrganizationAPI(PostgresClient):
         Get all the information for a project using the name
 
         Args:
-            name (str): The project to get the data for
+            name (str): The organizations to get the data for
 
         Returns:
             (dict): the project information
         """
         log.debug(f"--- getByName() ---")
-        sql = f"SELECT * FROM projects WHERE name='{name}'"
+        sql = f"SELECT * FROM organizations WHERE name='{name}'"
         results = await self.execute(sql)
         return results
+
+    async def getTeams(self,
+                       org_id: int,
+                       ):
+        log.warning(f"getTeams(): unimplemented!")
+
+    async def getStats(self,
+                       org_id: int,
+                       ):
+        log.warning(f"getStats(): unimplemented!")
+
+    async def isManager(self,
+                        user_id: int,
+                        ):
+        log.warning(f"isManager(): unimplemented!")
+
+    async def validateName(self,
+                           name: str,
+                           ):
+        log.warning(f"validateName(): unimplemented!")
+
+    async def validateUser(self,
+                           name: str,
+                           ):
+        log.warning(f"validateName(): unimplemented!")
+
 
 async def main():
     """This main function lets this class be run standalone by a bash script."""

@@ -31,8 +31,9 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamroles
+from tm_admin.types_tm import Editors, Permissions, Userrole, Mappinglevel, Teamroles
 from tm_admin.projects.projects_class import ProjectsTable
+from tm_admin.users.users_class import UsersTable
 from tm_admin.messages.messages import MessagesDB
 from tm_admin.projects.projects import ProjectsDB
 from tm_admin.users.users import UsersDB
@@ -64,19 +65,49 @@ class UsersAPI(PostgresClient):
         ]
         self.messagesdb = MessagesDB()
         self.projectsdb = ProjectsDB()
-        self.usersdb = UsersDB()
-        self.teamsdb = TeamsDB()
+        # super().__init__()
 
-    async def connect(self,
-                      uri: str,
-                      ):
-        await self.messagesdb.connect(uri)
-        await self.projectsdb.connect(uri)
-        await self.usersdb.connect(uri)
-        await self.teamsdb.connect(uri)
+    async def create(self,
+                     org: UsersTable,
+                     ):
+        log.warning(f"create(): unimplemented!")
+
+    async def update(self,
+                     org: UsersTable,
+                     ):
+        log.warning(f"update(): unimplemented!")
+
+    async def delete(self,
+                    org_id: int,
+                     ):
+        log.warning(f"delete(): unimplemented!")
+
+    async def updateColumn(self,
+                           user_id: int,
+                           data: dict,
+                           ):
+        log.warning(f"updateColumn(): unimplemented!")
+        [[column, value]] = data.items()
+        sql = f"UPDATE users SET {column}='{value}' WHERE id='{user_id}'"
+        print(sql)
+        await self.execute(sql)
+
+        return True
+
+    async def appendColumn(self,
+                           user_id: int,
+                           data: dict,
+                           ):
+        log.warning(f"appendColumn(): unimplemented!")
+        [[column, value]] = data.items()
+        sql = f"UPDATE users SET {column}='{value}' WHERE id='{user_id}'"
+        print(sql)
+        await self.execute(sql)
+
+        return True
         
     async def getByID(self,
-                     project_id: int,
+                     user_id: int,
                     ):
         """
         Get all the information for a project using it's ID
@@ -88,7 +119,7 @@ class UsersAPI(PostgresClient):
             (dict): the project information
         """
         log.debug(f"--- getByID() ---")
-        sql = f"SELECT * FROM project WHERE id={project_id}"
+        sql = f"SELECT * FROM users WHERE id={user_id}"
         results = await self.execute(sql)
         return results
 
@@ -105,13 +136,13 @@ class UsersAPI(PostgresClient):
             (dict): the project information
         """
         log.debug(f"--- getByName() ---")
-        sql = f"SELECT * FROM projects WHERE name='{name}'"
+        sql = f"SELECT * FROM users WHERE name='{name}'"
         results = await self.execute(sql)
         return results
 
     async def updateRole(self,
                    id: int,
-                   role: Userrole,
+#                   role: Userrole,
                    ):
         """
         Update the role for a user.
@@ -120,8 +151,8 @@ class UsersAPI(PostgresClient):
             id (int): The users ID
             role (Userrole): The new role.
         """
-        role = Userrole(role)
-        return self.updateColumn(id, {'role': role.name})
+ #       role = Userrole(role)
+ #       return self.updateColumn(id, {'role': role.name})
 
     async def updateMappingLevel(self,
                    id: int,
@@ -168,8 +199,8 @@ class UsersAPI(PostgresClient):
         """
 
         where = f" date_registered > '{start}' and date_registered < '{end}'"
-        result = self.getByWhere(where)
-        return result
+        # result = self.getByWhere(where)
+        # return result
 
 async def main():
     """This main function lets this class be run standalone by a bash script."""

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2022, 2023, 2024 Humanitarian OpenStreetMap Team
+# Copyright (c) 2023, 2024 Humanitarian OpenStreetMap Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -33,6 +33,7 @@ from shapely.geometry import shape
 from shapely import centroid
 from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamroles
 from tm_admin.projects.projects_class import ProjectsTable
+from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.messages.messages import MessagesDB
 from tm_admin.projects.projects import ProjectsDB
 from tm_admin.users.users import UsersDB
@@ -57,23 +58,50 @@ log = logging.getLogger(__name__)
 
 class ProjectsAPI(PostgresClient):
     def __init__(self):
+        """
+        Create a class to handle the backend API calls, so the code can be shared
+        between test cases and the actual code.
+
+        Returns:
+            (ProjectsAPI): An instance of this class
+        """
         self.allowed_roles = [
             Teamroles.TEAM_MAPPER,
             Teamroles.TEAM_VALIDATOR,
             Teamroles.TEAM_MANAGER,
         ]
         self.messagesdb = MessagesDB()
-        self.projectsdb = ProjectsDB()
         self.usersdb = UsersDB()
         self.teamsdb = TeamsDB()
 
-    async def connect(self,
+    async def connectDBs(self,
                       uri: str,
                       ):
+        """
+        Connect to all tables for API endpoints that require accessing multiple tables.
+
+        Args:
+            inuri (str): The URI for the TM Admin output database
+        """
+        await self.connect(uri)
         await self.messagesdb.connect(uri)
-        await self.projectsdb.connect(uri)
         await self.usersdb.connect(uri)
         await self.teamsdb.connect(uri)
+
+    async def create(self,
+                     task: TasksTable,
+                     ):
+        log.warning(f"create(): unimplemented!")
+
+    async def update(self,
+                     task: TasksTable,
+                     ):
+        log.warning(f"update(): unimplemented!")
+
+    async def delete(self,
+                    task_id: int,
+                     ):
+        log.warning(f"delete(): unimplemented!")
 
     async def evaluateMappingPermissions(self,
                                    uid: int,
@@ -97,9 +125,6 @@ class ProjectsAPI(PostgresClient):
         if level != Permissions() or Permissions():
             pass
 
-    async def getProjectByTeam(self):
-        log.warning(f"getProjectByTeam(): unimplemented!")
-        
     async def getByID(self,
                      project_id: int,
                     ):
@@ -113,7 +138,7 @@ class ProjectsAPI(PostgresClient):
             (dict): the project information
         """
         log.debug(f"--- getByID() ---")
-        sql = f"SELECT * FROM project WHERE id={project_id}"
+        sql = f"SELECT * FROM projects WHERE id={project_id}"
         results = await self.execute(sql)
         return results
 
@@ -140,6 +165,88 @@ class ProjectsAPI(PostgresClient):
         sql = f"SELECT * FROM projects WHERE name='{name}'"
         results = await self.execute(sql)
         return results
+
+    async def changeStatus(self,
+                        project_id: int,
+                        status: Projectstatus,
+                        ):
+        """
+        Manage the status of a task. This would be locking or unlocking,
+        validation status, etc...
+
+        Args:
+            project_id (int): The project ID to change
+            status (ProjectStatus): The status to change to
+
+        Returns:
+            (bool): Whether locking/unlocking the task was sucessful
+        """
+        log.warning(f"delete(): unimplemented!")
+
+    async def toggleFavorites(self,
+                              flag: bool = None,
+                              ):
+        """
+        Add or remove this project favorites for a user.
+
+        Args:
+            flag (bool): The value to set to, otherwise defaults to flipping it.
+        """
+        log.warning(f"toggleFavorites(): Unimplemented!")
+
+    async def toggleFeatures(self,
+                              flag: bool = None,
+                             ):
+        log.warning(f"toggleFeatures(): Unimplemented!")
+
+    async def unlockTasks(self,
+                              project_id: int,
+                             ):
+        log.warning(f"toggleFeatures(): Unimplemented!")
+
+    async def getUserStats(self,
+                            user_id: int,
+                            project_id: int,
+                             ):
+        log.warning(f"getUserStats(): Unimplemented!")
+
+    async def getProjectStats(self,
+                             project_id: int,
+                             ):
+        log.warning(f"getProjectStats(): Unimplemented!")
+
+    async def deleteTasks(self,
+                              project_id: int,
+                             ):
+        log.warning(f"deleteTasks(): Unimplemented!")
+
+    # These next methods are mostly just for convient access to a single column
+    async def getFeatures(self):
+        log.warning(f"getFeatures(): unimplemented!")
+
+    async def getTeams(self):
+        log.warning(f"getTeams(): unimplemented!")
+
+    async def getOrganization(self):
+        log.warning(f"getOrganization(): unimplemented!")
+
+    async def getTasks(self):
+        log.warning(f"(): Unimplemented!")
+
+    async def getOrganization(self):
+        log.warning(f"(): Unimplemented!")
+
+    async def getPriorityAreas(self):
+        log.warning(f"(): Unimplemented!")
+
+    async def getAOI(self):
+        log.warning(f"(): Unimplemented!")
+
+    async def getDailyContributions(self):
+        log.warning(f"getDailyContributions(): Unimplemented!")
+
+    async def getProjectSummary(self):
+        log.warning(f"getProjectSummary(): Unimplemented!")
 
 async def main():
     """This main function lets this class be run standalone by a bash script."""
