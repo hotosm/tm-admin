@@ -22,6 +22,7 @@ NAME := tm-admin
 VERSION := 0.1.0
 
 SQL := $(wildcard *.sql)
+TESTS := $(wildcard test_*.py)
 
 # Developer only! This requires a Tasking Manager database running on your local machine.
 # This is used to update the test data if any changes to the TM database schema are made.
@@ -56,4 +57,8 @@ import:
 		psql -d testdata -f $${i}; \
 	done
 
+check:
+	for test in $(TESTS); do \
+	    ./$${test}; \
+	done
 force:

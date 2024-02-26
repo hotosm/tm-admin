@@ -208,8 +208,8 @@ async def main():
         stream=sys.stdout,
     )
 
-    user.connect(args.uri)
-    msg.connect(args.uri)
+    await user.connect(args.uri)
+    await msg.connect(args.uri)
 
     await send_welcome_message()
     await send_message_after_validation()

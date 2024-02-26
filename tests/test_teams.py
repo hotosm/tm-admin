@@ -46,7 +46,6 @@ rootdir = tma.__path__[0]
 
 dbname = os.getenv("TMDB", default="localhost/testdata")
 teams = TeamsAPI()
-teams.connect("localhost/tm_admin")
 
 async def get_team_by_id():
     log.debug(f"get_team_by_id() unimplemented!")

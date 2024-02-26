@@ -24,15 +24,12 @@ import logging
 import sys
 import os
 from sys import argv
-# from tm_admin.users.users_proto import UsersMessage
+# from tm_admin.organizations.organizations_proto import OrganizationsMessage
 #from tm_admin.yamlfile import YamlFile
-from tm_admin.users.users import UsersDB
-from tm_admin.projects.projects import ProjectsDB
-from tm_admin.types_tm import Userrole, Mappinglevel
+from tm_admin.organizations.organizations import OrganizationsDB
+from tm_admin.types_tm import Organizationtype, Mappinglevel
 from datetime import datetime
-from tm_admin.users.users_class import UsersTable
-import asyncio
-from codetiming import Timer
+from tm_admin.teams.teams import TeamsDB
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -40,22 +37,27 @@ log = logging.getLogger(__name__)
 import tm_admin as tma
 rootdir = tma.__path__[0]
 
-# FIXME: For now these tests assume you have a local postgres installed. One has the TM
-# database, the other for tm_admin.
+# average mapping time per task
+# average validation ti8me per task
+# Estimated time to finish mapping
+# Estimated time to finish validation
+# mappers per project
+# validators per project
+# total contributors
+# users by level
 
-# user = UsersDB()
-# project = ProjectsDB()
-# task = TasksDB()
+## task Status
+# tasks locked for validation
+# finished tasks
+# ready for validation
+# available for mapping
+# locked for mapping
+# more mapping needed
 
-async def update():
-    # user_id: int):
-    log.debug(f"--- update() unimplemented!")
 
-async def get_unread_message_count():
-    # user_id: int):
-    log.debug(f"--- get_unread_message_count() unimplemented!")
+# FIXME: For now these tests assume you have a local postgres installed
 
-async def main():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
     parser.add_argument("-u", "--uri", default='localhost/tm_admin', help="Database URI")
@@ -67,23 +69,8 @@ async def main():
 
     logging.basicConfig(
         level=log_level,
-        # format=("%(asctime)s.%(msecs)03d [%(levelname)s] " "%(name)s | %(funcName)s:%(lineno)d | %(message)s"),
-        format=("[%(levelname)s] " "%(name)s | %(funcName)s:%(lineno)d | %(message)s"),
+        format=("%(asctime)s.%(msecs)03d [%(levelname)s] " "%(name)s | %(funcName)s:%(lineno)d | %(message)s"),
         datefmt="%y-%m-%d %H:%M:%S",
         stream=sys.stdout,
     )
 
-    # user = UsersDB()
-    # project = ProjectsDB()
-    # task = TasksDB()
-    
-    await update()
-    await get_unread_message_count()
-
-
-if __name__ == "__main__":
-    """This is just a hook so this file can be run standalone during development."""
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(main())
-    

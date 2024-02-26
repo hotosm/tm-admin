@@ -31,6 +31,7 @@ from tm_admin.projects.projects import ProjectsDB
 from tm_admin.types_tm import Userrole, Mappinglevel
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
+from tm_admin.tasks.api import TasksAPI
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -38,10 +39,7 @@ log = logging.getLogger(__name__)
 import tm_admin as tma
 rootdir = tma.__path__[0]
 
-dbname = os.getenv("TMDB", default="localhost/testdata")
-user = UsersDB(dbname)
-project = ProjectsDB(dbname)
-task = TasksDB(dbname)
+task = TasksAPI()
 
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
@@ -185,6 +183,11 @@ if __name__ == "__main__":
         stream=sys.stdout,
     )
 
+    # user = UsersDB(args.uri)
+    # task = TasksDB(args.uri)
+    await task.connect(args.uri)
+    # project = ProjectsDB(args.uri)
+    
     get_task()
     get_task_as_dto()
     _is_task_undoable()
