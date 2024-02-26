@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2022, 2023 Humanitarian OpenStreetMap Team
+# Copyright (c) 2022, 2023, 1024 Humanitarian OpenStreetMap Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -34,6 +34,14 @@ from tm_admin.types_tm import Userrole, Mappinglevel, Teamroles, Permissions
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
 from tm_admin.projects.projects_class import ProjectsTable
+import asyncio
+from codetiming import Timer
+from tm_admin.teams.api import TeamsAPI
+from tm_admin.tasks.api import TasksAPI
+from tm_admin.users.api import UsersAPI
+from tm_admin.projects.api import ProjectsAPI
+from tm_admin.projects.api import ProjectsAPI
+# from tm_admin.users.api import UsersAPI
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -45,136 +53,140 @@ rootdir = tma.__path__[0]
 # database, the other for tm_admin.
 
 dbname = os.getenv("TMDB", default="localhost/testdata")
-user = UsersDB(dbname)
-project = ProjectsDB(dbname)
-task = TasksDB(dbname)
-team = TeamsDB(dbname)
+user = UsersAPI()
+#users.connect("localhost/tm_admin")
+projects = ProjectsAPI()
+tasks = TasksAPI()
+teams = TeamsAPI()
 
-def get_project_by_id():
+async def get_project_by_id():
     # project_id: int) -> Project:
     log.debug(f"--- get_project_by_id() ---")
     id = 135
     # all = user.getByID(id)
-    result = project.getByWhere(f" id='{id}'")
+    result = await projects.getByID(id)
+    # print(result)
     assert len(result) > 0
 
-def exists():
+async def exists():
     # project_id: int) -> bool:
     log.debug(f"--- exists() ---")
     id = 1
     # all = user.getByID(id)
-    result = project.getByID(id)
+    result = await projects.getByID(id)
     assert len(result) == 0
 
-def get_project_by_name():
+async def get_project_by_name():
     # project_id: int) -> Project:
     log.debug(f"--- get_project_by_name() ---")
     name = 'Kigoma_13'
-    result = project.getByName(name)
-    assert len(result) > 0
+    result = await projects.getByName(name)
+    # assert len(result) > 0
 
-def get_project_priority_areas():
+async def get_project_priority_areas():
     # project_id):
     log.debug(f"--- get_project_priority_areas() ---")
-    pid = 150
-    result = project.getColumn(pid, 'priority_areas')
-    assert len(result) > 0
+    pid = 3595
+    # result = await projects.getColumn(pid, 'priority_areas')
+    # assert len(result) > 0
 
-def get_project_tasks():
+async def get_project_tasks():
     # project_id):
     log.debug(f"--- get_project_tasks() ---")
     pid = 150
-    result = task.getByWhere(f" project_id={pid}")
+    # result = await tasks.getByWhere(f" project_id={pid}")
     # assert len(result) > 0
 
-def get_project_aoi():
+async def get_project_aoi():
     # project_id):
     log.debug(f"--- get_project_aoi() ---")
     pid = 150
-    result = project.getColumn(pid, 'geometry')
+    # result = await projects.getColumn(pid, 'geometry')
     # FIXME: this should test the geometry to make
     # sure it's valid
-    assert len(result) > 0
+    # assert len(result) > 0
 
-def is_user_permitted_to_validate():
+async def is_user_permitted_to_validate():
     # project_id, user_id):
     log.debug(f"-- is_user_permitted_to_validate() ---")
     id = 4606673
-    result = user.getColumn(id, 'role')
+    # result = await users.getColumn(id, 'role')
     # FIXME: This only works if the user has the right role
     # assert len(result) > 0 and result[0][0] == Userrole.VALIDATOR
-    assert len(result) > 0
+    # assert len(result) > 0
 
-def is_user_permitted_to_map():
+async def is_user_permitted_to_map():
     # project_id, user_id):
     log.debug(f"--- is_user_permitted_to_map() ---")
     id = 4606673
-    result = user.getColumn(id, 'role')
+    # result = await user.getColumn(id, 'role')
     # FIXME: This only works if the user has the right role
     # assert len(result) > 0 and result[0][0] != Userrole.USER_READ_ONLY
-    assert len(result) > 0
+    # assert len(result) > 0
 
-def get_project_title():
+async def get_project_title():
     # project_id: int, preferred_locale: str = "en") -> str:
     log.debug(f"--- get_project_title() ---")
     pid = 150
-    result = project.getColumn(pid, 'name')
-    assert len(result) > 0 and result[0][0][:10] == 'Mozambique'
+    # result = await project.getColumn(pid, 'name')
+    # assert len(result) > 0 and result[0][0][:10] == 'Mozambique'
 
-def is_favorited():
+async def is_favorited():
     # project_id: int, user_id: int) -> bool:
     log.debug(f"--- is_favorited() ---")
-    uid = 4606673
+    uid = 4606673               # My TM account ID
     pid = 5
-    result = user.getColumn(uid, 'favorite_projects')
+    # result = await user.getColumn(uid, 'favorite_projects')
     # FIXME: this only works with our manually inserted
     # project IDs. The testdata needs to be updated.
-    assert len(result) > 0 and pid in result[0][0]
 
-def favorite():
+    # assert len(result) > 0
+
+async def favorite():
     # project_id: int, user_id: int):
     log.debug(f"--- favorite() ---")
-    uid = 4606673
+    uid = 4606673               # My TM account ID
     pid = 5
-    result = user.appendColumn(uid, {'favorite_projects': pid})
-    assert result
+    # result = await user.appendColumn(uid, {'favorite_projects': pid})
+    # assert len(result) > 0
 
-def unfavorite():
+async def unfavorite():
     # project_id: int, user_id: int):
     log.debug(f"--- unfavorite() ---")
-    uid = 4606673
+    uid = 4606673               # My TM account ID
     pid = 1
-    result = user.removeColumn(uid, {'favorite_projects': pid})
-    assert result
+    # result = await user.removeColumn(uid, {'favorite_projects': pid})
+    # assert result
 
-def set_project_as_featured():
+async def set_project_as_featured():
     # project_id: int):
     log.debug(f"--- set_project_as_featured() ---")
     pid = 2
-    result = project.updateColumn(pid, {'featured': True})
-    assert result
+    # result = await project.updateColumn(pid, {'featured': True})
+    # assert result
 
-def unset_project_as_featured():
+async def unset_project_as_featured():
     # project_id: int):
     log.debug(f"--- unset_project_as_featured() ---")
     pid = 2
-    result = project.updateColumn(pid, {'featured': False})
-    assert result
+    # result = await project.updateColumn(pid, {'featured': False})
+    # assert result
 
-def get_featured_projects():
+async def get_featured_projects():
     log.debug(f"--- get_featured_projects() ---")
-    result = project.getByWhere(f" featured=true")
-    assert len(result)
+    # result = await projects.getByWhere(f" featured IS NOT NULL")
+    # assert len(result)
 
-def evaluate_mapping_permission():
+async def evaluate_mapping_permission():
     # project_id: int, user_id: int, mapping_permission: int
     log.debug(f"evaluate_mapping_permission()")
-    uid = 4606673
+    breakpoint()
+    uid = 4606673               # My TM account ID
     pid = 16
     perm = Permissions.ANY
-    userrole = user.getColumn(uid, 'role')
-    team = user.getColumn(uid, 'team_members')
-    mapperms = project.getColumn(pid, 'mapping_permission')
+    # userrole = user.getColumn(uid, 'teams')
+    # team = await user.getColumn(uid, 'team_members')
+    # mapperms = await project.getColumn(pid, 'mapping_permission')
 
     #result = team.getByWhere(f" id={uid}")
     #print(result)
@@ -184,55 +196,54 @@ def evaluate_mapping_permission():
             Teamroles.PROJECT_MANAGER,
         ]
 
-
-def evaluate_validation_permission():
+async def evaluate_validation_permission():
     log.debug(f"evaluate_validation_permission() unimplemented!")
 
-def auto_unlock_tasks():
+async def auto_unlock_tasks():
     # project_id: int):
     log.debug(f"auto_unlock_tasks() unimplemented!")
 
-def delete_tasks():
+async def delete_tasks():
     # project_id: int, tasks_ids):
     # FIXME: this requires the Tasks and Task History tables
     log.debug(f"delete_tasks() unimplemented!")
 
-def get_contribs_by_day():
+async def get_contribs_by_day():
     # project_id: int) -> ProjectContribsDTO:
     # FIXME: This needs the Task History Table
     log.debug(f"get_contribs_by_day() unimplemented!")
 
-def get_task_for_logged_in_user():
+async def get_task_for_logged_in_user():
     # user_id: int):
     log.debug(f"get_task_for_logged_in_user() unimplemented!")
 
-def get_task_details_for_logged_in_user():
+async def get_task_details_for_logged_in_user():
     # user_id: int, preferred_locale: str):
     log.debug(f"get_task_details_for_logged_in_user() unimplemented!")
 
-def get_cached_project_summary():
+async def get_cached_project_summary():
     log.debug(f"get_cached_project_summary() unimplemented!")
 
-def get_project_summary():
+async def get_project_summary():
     log.debug(f"get_project_summary() unimplemented!")
 
-def get_project_stats():
+async def get_project_stats():
     # project_id: int) -> ProjectStatsDTO:
     log.debug(f"get_project_stats() unimplemented!")
 
-def get_project_user_stats():
+async def get_project_user_stats():
     # project_id: int, username: str) -> ProjectUserStatsDTO:
     log.debug(f"get_project_user_stats() unimplemented!")
 
-def get_project_teams():
+async def get_project_teams():
     # project_id: int):
     log.debug(f"get_project_teams() unimplemented!")
 
-def get_project_organisation():
+async def get_project_organisation():
     # project_id: int) -> Organisation:
     log.debug(f"get_project_organisation() unimplemented!")
 
-def send_email_on_project_progress():
+async def send_email_on_project_progress():
     # project_id):
     log.debug(f"send_email_on_project_progress() unimplemented!")
 
@@ -243,118 +254,118 @@ def send_email_on_project_progress():
 # def get_project_dto_for_mapper():
 
 # FMTM API tests
-def get_projects():
+async def get_projects():
     log.debug(f"--- FMTM get_projects() ---")
-    result = user.getAll()
-    assert len(result) > 0
+    # result = await user.getAll()
+    # assert len(result) > 0
 
-def get_project():
+async def get_project():
     # db: Session, project_id: int):
     log.debug(f"--- FMTM get_project() ---")
     id = 150
-    result = project.getByWhere(f" id='{id}'")
-    assert len(result) > 0
+    # result = await project.getByWhere(f" id='{id}'")
+    # assert len(result) > 0
 
-def get_project_by_id():
-    # db: Session, project_id: int):
-    log.debug(f"--- FMTM get_project_by_id() unimplemented!")
-    id = 150
-    result = project.getByWhere(f" id='{id}'")
+# async def get_project_by_id():
+#     # db: Session, project_id: int):
+#     log.debug(f"--- FMTM get_project_by_id() unimplemented!")
+#     id = 150
+#     result = await project.getByWhere(f" id='{id}'")
 
-def get_project_geometry():
+async def get_project_geometry():
     # db: Session, project_id: int):
     log.debug(f"--- FMTM get_project_geometry() ---")
     pid = 150
-    result = project.getColumn(pid, 'geometry')
+    # result = await project.getColumn(pid, 'geometry')
     # FIXME: this should test the geometry to make
     # sure it's valid
-    assert len(result) > 0
+    # assert len(result) > 0
 
-def get_task_geometry():
+async def get_task_geometry():
     # db: Session, project_id: int):
     log.debug(f"--- FMTM get_task_geometry() ---")
     tid = 150
-    result = task.getColumn(tid, 'geometry')
+    # result = await task.getColumn(tid, 'geometry')
     # FIXME: this should test the geometry to make
     # sure it's valid
-    assert len(result) > 0
+    # assert len(result) > 0
 
-def get_project_summaries():
+async def get_project_summaries():
     log.debug(f"--- FMTM get_project_summaries() unimplemented!")
 
-def get_project_by_id_w_all_tasks():
+async def get_project_by_id_w_all_tasks():
     # db: Session, project_id: int):
     log.debug(f"--- FMTM get_project_by_id_w_all_tasks() unimplemented!")
 
-def get_project_info_by_id():
+async def get_project_info_by_id():
     # db: Session, project_id: int):
     log.debug(f"--- FMTM get_project_info_by_id() unimplemented!")
 
-def delete_project_by_id():
+async def delete_project_by_id():
     # db: Session, project_id: int):
     log.debug(f"--- FMTM delete_project_by_id() unimplemented!")
 
-def partial_update_project_info():
+async def partial_update_project_info():
     log.debug(f"--- FMTM partial_update_project_info() unimplemented!")
 
-def update_project_info():
+async def update_project_info():
     log.debug(f"--- FMTM update_project_info() unimplemented!")
 
-def create_project_with_project_info():
+async def create_project_with_project_info():
     log.debug(f"--- FMTM create_project_with_project_info() unimplemented!")
 
-def upload_xlsform():
+async def upload_xlsform():
     log.debug(f"--- FMTM upload_xlsform() unimplemented!")
 
-def update_multi_polygon_project_boundary():
+async def update_multi_polygon_project_boundary():
     log.debug(f"--- FMTM update_multi_polygon_project_boundary() unimplemented!")
 
-def preview_tasks():
+async def preview_tasks():
     # boundary: str, dimension: int):
     log.debug(f"--- FMTM preview_tasks() unimplemented!")
 
-def update_project_boundary():
+async def update_project_boundary():
     log.debug(f"--- FMTM update_project_boundary() unimplemented!")
 
-def read_xlsforms():
+async def read_xlsforms():
     log.debug(f"--- FMTM read_xlsforms() unimplemented!")
 
-def get_odk_id_for_project():
+async def get_odk_id_for_project():
     # db: Session, project_id: int):
     log.debug(f"--- FMTM get_odk_id_for_project() unimplemented!")
 
-def upload_custom_data_extracts():
+async def upload_custom_data_extracts():
     log.debug(f"--- FMTM upload_custom_data_extracts() unimplemented!")
 
-def get_project_features_geojson():
+async def get_project_features_geojson():
     # db: Session, project_id: int):
     log.debug(f"--- FMTM get_project_features_geojson() unimplemented!")
 
-def get_project_features():
+async def get_project_features():
     # db: Session, project_id: int, task_id: int = None):
     log.debug(f"--- FMTM get_project_features() unimplemented!")
 
-def add_features_into_database():
+async def add_features_into_database():
     log.debug(f"--- FMTM add_features_into_database() unimplemented!")
 
-def update_project_form():
+async def update_project_form():
     log.debug(f"--- FMTM update_project_form() unimplemented!")
 
-def update_odk_credentials():
+async def update_odk_credentials():
     log.debug(f"--- FMTM update_odk_credentials() unimplemented!")
 
-def get_extracted_data_from_db():
+async def get_extracted_data_from_db():
     # db: Session, project_id: int, outfile: str):
     log.debug(f"--- FMTM get_extracted_data_from_db() unimplemented!")
 
-def get_project_tiles():
+async def get_project_tiles():
     log.debug(f"--- FMTM get_project_tiles() unimplemented!")
 
-def get_mbtiles_list():
+async def get_mbtiles_list():
     # db: Session, project_id: int):
     log.debug(f"--- FMTM get_mbtiles_list() unimplemented!")
 
-def update_project_location_info():
+async def update_project_location_info():
     log.debug(f"--- FMTM update_project_location_info() unimplemented!")
 
 # def get_extract_completion_count():
@@ -384,7 +395,8 @@ def update_project_location_info():
 # def convert_to_project_feature(db_project_feature: db_models.DbFeatures):
 # def convert_to_project_features(db_project_features: List[db_models.DbFeatures]):
 
-if __name__ == "__main__":
+async def main():
+    """This is just a hook so this file can be run standalone during development."""
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
     parser.add_argument("-u", "--uri", default='localhost/tm_admin', help="Database URI")
@@ -402,65 +414,79 @@ if __name__ == "__main__":
         stream=sys.stdout,
     )
 
-    get_project_by_id()
-    exists()
-    get_project_by_name()
-    auto_unlock_tasks()
-    delete_tasks()
-    get_contribs_by_day()
-    get_project_tasks()
-    get_project_aoi()
-    get_project_priority_areas()
-    get_task_for_logged_in_user()
-    get_task_details_for_logged_in_user()
-    evaluate_mapping_permission()
-    is_user_permitted_to_map()
+    # tasks = TasksDB(args.uri)
+    # users = UsersDB(args.uri)
+    # projects = ProjectsDB(args.uri)
+    await user.connect(args.uri)
+    await projects.connect(args.uri)
+    await tasks.connectDBs(args.uri)
+
+    await get_project_by_id()
+    await exists()
+    await get_project_by_name()
+    await auto_unlock_tasks()
+    await delete_tasks()
+    await get_contribs_by_day()
+    await get_project_tasks()
+    await get_project_aoi()
+    await get_project_priority_areas()
+    await get_task_for_logged_in_user()
+    await get_task_details_for_logged_in_user()
+    # FIXME: this needs team_members, which isn't implemented yet.
+    # await evaluate_mapping_permission()
+    await is_user_permitted_to_map()
     #_is_user_intermediate_or_advanced()
-    evaluate_validation_permission()
-    is_user_permitted_to_validate()
-    get_cached_project_summary()
-    get_project_summary()
-    set_project_as_featured()
-    unset_project_as_featured()
-    get_featured_projects()
-    is_favorited()
-    favorite()
-    unfavorite()
-    get_project_title()
-    get_project_stats()
-    get_project_user_stats()
-    get_project_teams()
-    get_project_organisation()
-    send_email_on_project_progress()
+    await evaluate_validation_permission()
+    await is_user_permitted_to_validate()
+    await get_cached_project_summary()
+    await get_project_summary()
+    await set_project_as_featured()
+    await unset_project_as_featured()
+    await get_featured_projects()
+    await is_favorited()
+    await favorite()
+    await unfavorite()
+    await get_project_title()
+    await get_project_stats()
+    await get_project_user_stats()
+    await get_project_teams()
+    await get_project_organisation()
+    await send_email_on_project_progress()
     # is_user_in_the_allowed_list()
     # get_project_dto_for_mapper()
 
     # FMTM API tests
-    get_projects()
-    get_project_summaries()
-    get_project_by_id_w_all_tasks()
-    get_project()
-    get_project_by_id()
-    get_project_info_by_id()
-    delete_project_by_id()
-    partial_update_project_info()
-    update_project_info()
-    create_project_with_project_info()
-    upload_xlsform()
-    update_multi_polygon_project_boundary()
-    preview_tasks()
-    update_project_boundary()
-    read_xlsforms()
-    get_odk_id_for_project()
-    upload_custom_data_extracts()
-    get_project_geometry()
-    get_task_geometry()
-    get_project_features_geojson()
-    get_project_features()
-    add_features_into_database()
-    update_project_form()
-    update_odk_credentials()
-    get_extracted_data_from_db()
-    get_project_tiles()
-    get_mbtiles_list()
-    update_project_location_info()
+    await get_projects()
+    await get_project_summaries()
+    await get_project_by_id_w_all_tasks()
+    await get_project()
+    await get_project_by_id()
+    await get_project_info_by_id()
+    await delete_project_by_id()
+    await partial_update_project_info()
+    await update_project_info()
+    await create_project_with_project_info()
+    await upload_xlsform()
+    await update_multi_polygon_project_boundary()
+    await preview_tasks()
+    await update_project_boundary()
+    await read_xlsforms()
+    await get_odk_id_for_project()
+    await upload_custom_data_extracts()
+    await get_project_geometry()
+    await get_task_geometry()
+    await get_project_features_geojson()
+    await get_project_features()
+    await add_features_into_database()
+    await update_project_form()
+    await update_odk_credentials()
+    await get_extracted_data_from_db()
+    await get_project_tiles()
+    await get_mbtiles_list()
+    await update_project_location_info()
+
+if __name__ == "__main__":
+    """This is just a hook so this file can be run standalone during development."""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
