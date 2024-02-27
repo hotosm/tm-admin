@@ -25,6 +25,7 @@ import sys
 import os
 from sys import argv
 from pathlib import Path
+import tm_admin.types_tm
 from tm_admin.yamlfile import YamlFile
 from tm_admin.proto import ProtoBuf
 from datetime import datetime
@@ -63,7 +64,7 @@ class Generator(object):
                     'timestamp': 'timestamp without time zone',
                     'polygon': 'Polygon',
                     'point': 'Point',
-                    'json': 'dict',
+                    'jsonb': 'dict',
                     }
 
         self.yaml2sql = {'int32': 'int',
@@ -191,12 +192,15 @@ class {table.capitalize()}Message(object):
             for item in settings:
                 if type(item) == dict:
                     [[k, v]] = item.items()
+                    # print(v)
+                    if v == "jsonb":
+                        datatype = "dict"
+                        breakpoint()
                     for k1 in v:
                         if type(k1) == dict:
                             [[k2, v2]] = k1.items()
                             if k2 == 'share' and v2:
                                 share = True
-                                # out += f"\nshare {k1}"
                         elif type(k1) == str:
                             if k1 in self.yaml2py:
                                 datatype = self.yaml2py[k1]
@@ -262,8 +266,9 @@ class {table.capitalize()}Table(object):
                             out += f"{k}: datetime = '{datetime.now()}', "
                         elif k1[:7] == 'public.':
                             defined = f"tm_admin.types_tm.{k1[7:].capitalize()}"
-                            # log.warning(f"SQL ENUM {k1}!")
-                            out += f"{k}: {defined} =  1, "
+                            # log.warning(f"SQL ENUM {k1}!!")
+                            default = eval(f"{defined}(1)")
+                            out += f"{k}: {defined} =  {defined}.{default.name}, "
                             # out += f"{k}: int =  1, "
                         else:
                             out += f"{k}: {datatype} = None, "
@@ -364,8 +369,6 @@ CREATE SEQUENCE public.{table}_{key}_seq
             keys = str(primary).replace("'", "")[1:-1];
             out += f"\tALTER TABLE {table} ADD CONSTRAINT {table}_pkey PRIMARY KEY({keys})\n);\n"
 
-        # FIXME: for some reasons, this has extra characters at the end that break
-        # the syntax
         return out + "\n"
     
 def main():
