@@ -102,6 +102,32 @@ class PGSupport(PostgresClient):
                                     datatype += "[]"
                 self.types[k] = datatype 
 
+    async def deleteRecord(self,
+                           record_ids: list,
+                           ):
+        """
+        Insert a record in a database table. All the primary tables auto-increment
+        the id column. If id is set in the record, then it uses that value, otherwise
+        it increments.
+
+        Args:
+            record_id (list): The record IDs to delete
+
+        Returns:
+            (bool): Whether the record got deleted from the database
+        """
+        # log.warning(f"--- deleteRecord(): ---")
+        if not self.table:
+            log.error(f"Not connected to the database!")
+            return False
+
+        for id in record_ids:
+            sql = f"DELETE FROM {self.table} WHERE id={id}"
+
+        result = await self.execute(sql)
+
+        return True
+
     async def insertRecords(self,
                            records: list,
                            ):
@@ -160,9 +186,14 @@ class PGSupport(PostgresClient):
         result = await self.execute(sql)
 
         if len(result) == 0:
-            return True
+            # Return the ID of the record we just inserted for convience
+            sql = f"SELECT nextval('{self.table}_id_seq'::regclass);"
+            result = await self.execute(sql)
+            # Only one record is returned
+            if 'nextval' in result[0]:
+                return result[0]['nextval']
 
-        return False
+        return 0
 
     async def updateColumns(self,
                            where: str,
@@ -293,8 +324,12 @@ async def main():
                         created='2022-10-15 09:58:02.672236',
                         task_creation_mode='GRID', status='DRAFT',
                         mapping_level='INTERMEDIATE', teams=teams)
-    await pgs.insertRecords([pt2])
+    id = await pgs.insertRecords([pt2])
+    # print(f"ID: {id}")
     # await pgs.updateProject(pt2)
+
+    await pgs.deleteRecord([id])
+    log.info(f"Deleted {id} from the database")
 
     # user = UsersTable(username='foobar', name='barfoo', picture_url='URI', email_address="bar@foo.com", mapping_level='INTERMEDIATE', role='VALIDATOR')
     # await pgs.insertRecords([user])
