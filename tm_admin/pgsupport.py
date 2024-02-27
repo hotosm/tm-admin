@@ -95,7 +95,6 @@ class PGSupport(PostgresClient):
                     else:
                         # it's an SQL Enum from types_tm.py
                         datatype = v[0]
-                    print(v)
                     if type(v) == list:
                         for element in v:
                             if 'array' in element:
@@ -107,7 +106,9 @@ class PGSupport(PostgresClient):
                            records: list,
                            ):
         """
-        Insert a record in a database table.
+        Insert a record in a database table. All the primary tables auto-increment
+        the id column. If id is set in the record, then it uses that value, otherwise
+        it increments.
 
         Args:
             records (dict): The record data
@@ -115,7 +116,7 @@ class PGSupport(PostgresClient):
         Returns:
             (bool): Whether the record got inserted into the database
         """
-        log.warning(f"insertRecord(): unimplemented!")
+        # log.warning(f"--- insertRecord(): ---")
         if not self.table:
             log.error(f"Not connected to the database!")
             return False
@@ -125,11 +126,18 @@ class PGSupport(PostgresClient):
             for key, value in entry.data.items():
                 if not value:
                     continue
+                if type(value) == dict:
+                    # It's for a jsonb column
+                    # a dict uses single quotes, postgres wants double quotes.
+                    newval = str(value).replace("'", '"')
+                    data[key] = f"{newval}"
+                    continue
                 val = self.types[key]
                 if val[:7] == "public.":
                     # FIXME: unfortunately, the supposed enums are a mix of
                     # the string value or the integer value. Ideally this should
                     # all get cleaned up, but till then handle both.
+                    # print(f"FIXME: {key}: {type(value)}")
                     tmtype = val[7:].capitalize()
                     if type(value) == str:
                         data[key] = value
@@ -144,14 +152,15 @@ class PGSupport(PostgresClient):
                             data[key] = obj.name
                 else:
                     data[key] = value
-            # values = entry.data.values()
 
         keys = str(list(data.keys())).replace("'", "")[1:-1]
         values = str(list(data.values()))[1:-1]
-        # sql = f"INSERT INTO {self.table}({record.keys()}) VALUES({record.values()})"
         sql = f"INSERT INTO {self.table}({keys}) VALUES({values})"
         print(sql)
-        # result = await self.execute(sql)
+        result = await self.execute(sql)
+
+        if len(result) == 0:
+            return True
 
         return False
 
@@ -173,11 +182,20 @@ class PGSupport(PostgresClient):
         """
         log.warning(f"updateColumn(): unimplemented!")
         # Get the config file for this table
-        qc = self.yaml
+        if not self.table:
+            log.error(f"Not connected to the database!")
+            return False
 
         # FIXME: use the config to 
         
         return False
+
+    async def resetSequence(self):
+        """
+        Reset the ID column sequence to zero.
+        """
+        sql = f"ALTER SEQUENCE public.{self.table}_id_seq RESTART;"
+        await self.execute(sql)
 
     async def appendColumns(self,
                            where: str,
@@ -195,7 +213,6 @@ class PGSupport(PostgresClient):
         """
         log.warning(f"updateColumn(): unimplemented!")
         # Get the config file for this table
-        qc = self.qc
 
         # FIXME: use the config to 
         
@@ -264,11 +281,20 @@ async def main():
     geom = Polygon()
     center = Point()
     results = await pgs.getColumns(["id", "name"])
-    pt = ProjectsTable(id=0, author_id=1, geometry=geom, centroid=center,
+    pt = ProjectsTable(author_id=1, geometry=geom, centroid=center,
                         created='2021-12-15 09:58:02.672236',
                         task_creation_mode='GRID', status='DRAFT',
                         mapping_level='BEGINNER')
     await pgs.insertRecords([pt])
+
+    # insert with a dict into a jsonb column
+    teams = {"team_id": 2, "role": "TEAM_MAPPER"}
+    pt2 = ProjectsTable(author_id=1, geometry=geom, centroid=center,
+                        created='2022-10-15 09:58:02.672236',
+                        task_creation_mode='GRID', status='DRAFT',
+                        mapping_level='INTERMEDIATE', teams=teams)
+    await pgs.insertRecords([pt2])
+    # await pgs.updateProject(pt2)
 
     # user = UsersTable(username='foobar', name='barfoo', picture_url='URI', email_address="bar@foo.com", mapping_level='INTERMEDIATE', role='VALIDATOR')
     # await pgs.insertRecords([user])
