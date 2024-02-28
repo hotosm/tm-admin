@@ -35,7 +35,8 @@ from osm_rawdata.pgasync import PostgresClient
 from tm_admin.yamlfile import YamlFile
 from tm_admin.projects.projects_class import ProjectsTable
 from shapely.geometry import Polygon, Point, shape
-
+from tm_admin.projects.projects_teams_class import Projects_teamsTable
+# from tm_admin.teams.teams_members_class import Teams_membersTable
 
 # Find the other files for this project
 import tm_admin as tma
@@ -106,9 +107,7 @@ class PGSupport(PostgresClient):
                            record_ids: list,
                            ):
         """
-        Insert a record in a database table. All the primary tables auto-increment
-        the id column. If id is set in the record, then it uses that value, otherwise
-        it increments.
+        Delete a record from a database table.
 
         Args:
             record_id (list): The record IDs to delete
@@ -182,7 +181,7 @@ class PGSupport(PostgresClient):
         keys = str(list(data.keys())).replace("'", "")[1:-1]
         values = str(list(data.values()))[1:-1]
         sql = f"INSERT INTO {self.table}({keys}) VALUES({values})"
-        print(sql)
+        # print(sql)
         result = await self.execute(sql)
 
         if len(result) == 0:
@@ -251,26 +250,94 @@ class PGSupport(PostgresClient):
 
     async def getColumns(self,
                          columns: list,
-                         where: str = None,
+                         where: list = list(),
                          ):
         """
         Get columns from a database table.
 
         Args:
-            where (str): The condition to limit the records, might return
+            column (list): The column names to include in the output
+            where (list): The conditions to limit the records, might return
                          more than one
-            column (str): The column name
+            jsonb (bool): Whether to loop through and convert the jsonb to a dict
 
         Returns:
-            (list): The data of this column
+            (list): The data for this column
         """
         get = str(columns)[1:-1].replace("'", "")
 
+        check = str()
+        for test in where:
+            for k, v in test.items():
+                if type(v) == dict:
+                    for k1, v1 in v.items():
+                        # teams->'teams' @? '$[*] ? (@.role == 1)
+                        # FIXME: is it an internal Enum ?
+                        check = f"{k}->'{k}' @? '$[*] ? (@.{k1} == {v1})'"
+                        continue
+                # if k in self.types:
+                #     if self.types[k] == 'jsonb':
+                #         breakpoint()
+                if v == 'null':
+                    check = f"{k} IS NOT NULL"
+                elif len(check) == 0:
+                    check = f"{k}={v}"
+
         if where:
-            sql = f"SELECT {get} FROM {self.table} {where}"
+            sql = f"SELECT {get} FROM {self.table} WHERE {check}"
         else:
             sql = f"SELECT {get} FROM {self.table}"
+        # print(sql)
         results = await self.execute(sql)
+
+        types = dict()
+        # We only need to get the data types once
+        for key, value in results[0].items():
+            if type(value) == str and value[0] == "{":
+                item = eval(value)
+                for k, v in item[key][0].items():
+                    obj = eval(f"{self.table.capitalize()}_{key}Table({v})")
+                    xx = obj.data[k]
+                    # It's an internal data structure from a *_class.py file
+                    if type(xx) != int and type(xx) != str:
+                        types[k] = xx
+
+        data = list()
+        raw = False              # FIXME: for now force converting the enums
+        if raw:
+            for record in results:
+                # print(record)
+                for k, v in record.items():
+                    # it's a dictionary masquarading as a string, but for us it's
+                    # a jsonb column
+                    if self.types[k] == 'jsonb':
+                        entry = eval(f"%s" % record.get(k))
+                        if not entry:
+                            continue
+                        new = dict()
+                        # Entry = eval(f"{record.get(k)})
+                        if k in entry:
+                            for item in entry[k]:
+                                for k1, v1 in item.items():
+                                    # It's in types_tm.py, so convert the value to the Enum
+                                    if k1 in types:
+                                        enumval = type(types[k1])
+                                        if v1 == 0:
+                                            newenum = enumval(1)
+                                        else:
+                                            newenum = enumval(v1)
+                                        new[k1] = newenum
+                                    else:
+                                        new[k1] = v1
+                        else:
+                            # We see this in old data, just one entry
+                            new = entry
+                            data.append(new)
+                    else:
+                        data.append({k: v})
+            return data
+
+#         SELECT * FROM teams WHERE EXISTS (SELECT TRUE FROM jsonb_array_elements(team_members->'members') x WHERE x->>'function'='MANAGER');
 
         return results
 
@@ -311,7 +378,7 @@ async def main():
 
     geom = Polygon()
     center = Point()
-    results = await pgs.getColumns(["id", "name"])
+    # results = await pgs.getColumns(["id", "name"])
     pt = ProjectsTable(author_id=1, geometry=geom, centroid=center,
                         created='2021-12-15 09:58:02.672236',
                         task_creation_mode='GRID', status='DRAFT',
@@ -328,9 +395,22 @@ async def main():
     # print(f"ID: {id}")
     # await pgs.updateProject(pt2)
 
-    await pgs.deleteRecord([id])
-    log.info(f"Deleted {id} from the database")
+    # await pgs.deleteRecord([id])
+    # log.info(f"Deleted {id} from the database")
 
+    data = await pgs.getColumns(['id', 'teams'])
+    print(f"{len(data)} records returned from simple")
+
+    foo = {'id': 12315}
+    data = await pgs.getColumns(['id', 'teams'], [foo])
+    print(f"{len(data)} records returned from foo")
+
+    foo = {'teams': {"role": tm_admin.types_tm.Teamroles.TEAM_READ_ONLY, "team_id": 144}}
+    data = await pgs.getColumns(['id', 'teams'], [foo])
+    print(f"{len(data)} records returned from NULL")
+    # print(data)
+
+    
     # user = UsersTable(username='foobar', name='barfoo', picture_url='URI', email_address="bar@foo.com", mapping_level='INTERMEDIATE', role='VALIDATOR')
     # await pgs.insertRecords([user])
 
