@@ -43,6 +43,11 @@ from tqdm import tqdm
 import tqdm.asyncio
 from codetiming import Timer
 import asyncio
+from tm_admin.yamlfile import YamlFile
+
+# Find the other files for this project
+import tm_admin as tma
+rootdir = tma.__path__[0]
 
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
@@ -209,11 +214,11 @@ class ProjectsDB(DBSupport):
         inpg = PostgresClient()
         await inpg.connect(inuri)
 
+        await self.mergeTeams(inpg)
+
         await self.mergeInfo(inpg)
 
         await self.mergeChat(inpg)
-
-        await self.mergeTeams(inpg)
 
         await self.mergeInterests(inpg)
 
@@ -284,16 +289,26 @@ class ProjectsDB(DBSupport):
         chunk = round(entries / cores)
         # pbar = tqdm.tqdm(result)
 
+        # yaml = YamlFile(f"{rootdir}/projects/projects_teams.yaml")
+        # for variable in yaml.yaml[0]['project_teams']:
+        #     for k, v in variable.items():
+        #         # It's one of our Enums used in a jsonb column
+        #         if v[:7] == "public.":
+
         # postgres could return this as an array, but we'd still have to process it
         # to create the SQL query, instead we build an array of teams for each
         # project, which becomes a nice clean way to add an array.
         teams = dict()
         for record in result:
+            if record['role'] <= 0:
+                role = Teamroles(1)
+            else:
+                role = Teamroles(record['role'])
             if record['project_id'] not in teams:
-                teams[record['project_id']] = [{"role": record['role'],
+                teams[record['project_id']] = [{"role": role.name,
                                             "team_id": record['team_id']}]
             else:
-                teams[record['project_id']].append({"role": record['role'],
+                teams[record['project_id']].append({"role": role.name,
                                         "team_id": record['team_id']})
         queries = list()
         for project, members in teams.items():
@@ -307,7 +322,7 @@ class ProjectsDB(DBSupport):
             # Note that this will replace any existing values for this column
             asc = str(members).replace("'", '"').replace("\\'", "'")
             sql = "UPDATE projects SET teams = '{\"teams\": %s}' WHERE id=%d;" % (asc, project)
-            # print(sql)
+            print(sql)
             queries.append(sql)
             #result = await self.pg.execute(sql)
 
