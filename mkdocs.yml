@@ -82,6 +82,8 @@ nav:
       - Endpoints: endpoints.md
       - Database schema: schema.md
   - For Developers:
+      - Code Structure: structure.md
+      - Database Support: pgsupport.md
       - Code API: api.md
       - Protobuf API: protos-api.md
       - Class Hierarchy: apidocs/html/index.html
