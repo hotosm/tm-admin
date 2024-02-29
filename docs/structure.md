@@ -5,7 +5,7 @@ development community.
 
 # Code walkthrough
 
-This is a short description of the file layout for this project.
+This is a short description of the files for this project.
 
 ## The Top Level
 
@@ -32,14 +32,14 @@ change.
 This project supports multiple language bindings. These are all
 configured by the YAML based confg file that defines the data
 structures. The *generator.py* program creates the output files from
-the config file. These
+the config file.
 
 For example for the users table:
 
 * users_class.py - A class that defines the data as a dictionary
 * users.proto.py - The protobuf file for gRPC
 * users_proto.py - A class for accessing protobuf messages
-	
+
 ## Adding A Table
 
 To add a new database table, create the directory for it, and then
@@ -60,6 +60,12 @@ The *api.py* files ia an API for accessing the database for Tasking
 Manager style projects. This can be incorporated into a FastAPI or
 Flask backend.
 
+The jsonb columns can also defined by a yaml file. This is useful when
+the josb column has Enum values, as the jsonb columns don't support
+data types. The generated class file will define a data structure for
+the column that makes it easy to access each element in the jsonb
+column with the correct Enum value.
+
 ## Testing
 
 All the test cases in the *tests* directory can be run standalone
@@ -71,3 +77,26 @@ cases must support the asyncio API used in the rest of the code.
 Each table directory contains an *api.py* files, which is support code
 for a website backend. This lets the queries used to support the front
 end share code with the testsuite.
+
+The primary generated python files contain a class that uses a
+dictionary to mirror the table schema. Each key in the class maps to a
+column in the table.
+
+For example, the projects_teams.yaml file generates this class for the
+jsonb column in the projects table:
+
+	class Projects_teamsTable(object):
+		def __init__(self,
+            team_id: int = None, role: tm_admin.types_tm.Teamroles =
+			tm_admin.types_tm.Teamroles.TEAM_READ_ONLY):
+            self.data = {'team_id': team_id, 'role': role}
+
+The Table classes are heavily used by the API as a parameter passed to
+functions, as well as data returned from functions. For example:
+
+    pt = ProjectsTable(id=0, author_id=1, geometry=geom, centroid=center,
+                        created='2021-12-15 09:58:02.672236',
+                        task_creation_mode='GRID', status='DRAFT',
+                        mapping_level='BEGINNER')
+    # returns True or False
+    result = await projects.insertRecords([pt])
