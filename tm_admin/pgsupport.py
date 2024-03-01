@@ -54,8 +54,7 @@ class PGSupport(PostgresClient):
         self.table = None
         self.yaml = None
         if table:
-            filespec = Path(f"{rootdir}/{table}/{table}.yaml")
-            self.yaml = YamlFile(filespec)
+            self.yaml = YamlFile(f"{rootdir}/{table}/{table}.yaml")
             self.table = table
         self.yaml2py = {'int32': 'int',
                     'int64': 'int',
@@ -290,56 +289,18 @@ class PGSupport(PostgresClient):
         # print(sql)
         results = await self.execute(sql)
 
-        types = dict()
-        # We only need to get the data types once
-        for key, value in results[0].items():
-            if type(value) == str and value[0] == "{":
-                item = eval(value)
-                for k, v in item[key][0].items():
-                    obj = eval(f"{self.table.capitalize()}_{key}Table({v})")
-                    xx = obj.data[k]
-                    # It's an internal data structure from a *_class.py file
-                    if type(xx) != int and type(xx) != str:
-                        types[k] = xx
-
         data = list()
-        raw = False              # FIXME: for now force converting the enums
-        if raw:
-            for record in results:
-                # print(record)
-                for k, v in record.items():
-                    # it's a dictionary masquarading as a string, but for us it's
-                    # a jsonb column
-                    if self.types[k] == 'jsonb':
-                        entry = eval(f"%s" % record.get(k))
-                        if not entry:
-                            continue
-                        new = dict()
-                        # Entry = eval(f"{record.get(k)})
-                        if k in entry:
-                            for item in entry[k]:
-                                for k1, v1 in item.items():
-                                    # It's in types_tm.py, so convert the value to the Enum
-                                    if k1 in types:
-                                        enumval = type(types[k1])
-                                        if v1 == 0:
-                                            newenum = enumval(1)
-                                        else:
-                                            newenum = enumval(v1)
-                                        new[k1] = newenum
-                                    else:
-                                        new[k1] = v1
-                        else:
-                            # We see this in old data, just one entry
-                            new = entry
-                            data.append(new)
-                    else:
-                        data.append({k: v})
-            return data
+        for record in results:
+            print(record)
+            entry = dict()
+            for key, value in record.items():
+                if type(value) == str and value[0] == "{":
+                    entry[key] = eval(value)
+                else:
+                    entry[key] = value
+            data.append(entry)
 
-#         SELECT * FROM teams WHERE EXISTS (SELECT TRUE FROM jsonb_array_elements(team_members->'members') x WHERE x->>'function'='MANAGER');
-
-        return results
+        return data
 
 async def main():
     """This main function lets this class be run standalone by a bash script."""
