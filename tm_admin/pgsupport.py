@@ -68,18 +68,18 @@ class PGSupport(PostgresClient):
                     }
         self.types = dict()
 
-    async def setup(self,
-                      uri: str,
+    async def getTypes(self,
+#                      uri: str,
                       table: str = None,
                       ):
         """
-        Connect to the TM Admin database.
+        Get all the columns and datatypes from the config file.
 
         Args:
             uri (str): The URI for the TM Admin database
             table (str): The table this class is supporting
         """
-        await self.connect(uri)
+        # await self.connect(uri)
         if table:
             self.table = table
         filespec = Path(f"{rootdir}/{self.table}/{self.table}.yaml")
@@ -102,7 +102,7 @@ class PGSupport(PostgresClient):
                                     datatype += "[]"
                 self.types[k] = datatype 
 
-    async def deleteRecord(self,
+    async def deleteRecords(self,
                            record_ids: list,
                            ):
         """
@@ -140,7 +140,7 @@ class PGSupport(PostgresClient):
         Returns:
             (bool): Whether the record got inserted into the database
         """
-        # log.warning(f"--- insertRecord(): ---")
+        # log.warning(f"--- insertRecords(): ---")
         if not self.table:
             log.error(f"Not connected to the database!")
             return False
@@ -179,45 +179,73 @@ class PGSupport(PostgresClient):
 
         keys = str(list(data.keys())).replace("'", "")[1:-1]
         values = str(list(data.values()))[1:-1]
-        sql = f"INSERT INTO {self.table}({keys}) VALUES({values})"
+        sql = f"INSERT INTO {self.table}({keys}) VALUES({values}) RETURNING id"
         # print(sql)
         result = await self.execute(sql)
 
-        if len(result) == 0:
-            # Return the ID of the record we just inserted for convience
-            sql = f"SELECT nextval('{self.table}_id_seq'::regclass);"
-            result = await self.execute(sql)
-            # Only one record is returned
-            if 'nextval' in result[0]:
-                return result[0]['nextval']
-
-        return 0
+        return result[0]['id']
 
     async def updateColumns(self,
-                           where: str,
-                           column: dict,
-                           table: str,
+                           columns: dict,
+                           where: dict = None,
                            ):
         """
         Update a column in a database table.
 
         Args:
+            columns (dict): The column and it's new value
             where (str): The condition to limit the records
-            column (dict): The column and it's new value
-            table (str): The table containing the column
 
         Returns:
             (bool): Whether the column got updated.
         """
-        log.warning(f"updateColumn(): unimplemented!")
-        # Get the config file for this table
+        # log.warning(f"updateColumn(): unimplemented!")
         if not self.table:
             log.error(f"Not connected to the database!")
             return False
 
-        # FIXME: use the config to 
+        if where:
+            for test in where:
+                for k, v in test.items():
+                    if type(v) == dict:
+                        # It's a query including a jsonb column
+                        for k1, v1 in v.items():
+                            breakpoint()
+                        # teams->'teams' @? '$[*] ? (@.role == 1)
+                        # FIXME: is it an internal Enum ?
+                        # check = f"{k}->'{k}' @? '$[*] ? (@.{k1} == {v1})'"
+                        continue
+                # if k in self.types:
+                #     if self.types[k] == 'jsonb':
+                #         breakpoint()
+                if v == 'null':
+                    check = f"{k} IS NOT NULL"
+                elif len(check) == 0:
+                    check = f"{k}={v}"
+
+        # We only need one record to get all the columns
+        # keys = str(list(columns[0].keys()))[1:-1].replace("'", '"')
+
+        sql = f"UPDATE {self.table} SET "
+        for update in columns:
+            for key, value in update.items():
+                val = self.types[key]
+                if val[:7] == "public.":
+                    # It's an enum
+                    tmtype = val[7:].capitalize()
+                    if tmtype[-2:] == "[]":
+                        # it's an array
+                        obj = eval("tm_admin.types_tm.%s(%s)" % (tmtype[:-2], value))
+                        # data[key] = "{%s}" % obj.name
+                    else:
+                        obj = eval(f"tm_admin.types_tm.{tmtype}({value})")
+                        sql += f" {key} = '{obj.name}', "
+                else:
+                    sql += f" {key} = {value}, "
+        # print(sql)
+        result = await self.execute(sql[:-2] + " RETURNING id")
         
-        return False
+        return result[0]['id']
 
     async def resetSequence(self):
         """
@@ -269,6 +297,7 @@ class PGSupport(PostgresClient):
         for test in where:
             for k, v in test.items():
                 if type(v) == dict:
+                    # It's a query including a jsonb column
                     for k1, v1 in v.items():
                         # teams->'teams' @? '$[*] ? (@.role == 1)
                         # FIXME: is it an internal Enum ?
@@ -291,7 +320,7 @@ class PGSupport(PostgresClient):
 
         data = list()
         for record in results:
-            print(record)
+            # print(record)
             entry = dict()
             for key, value in record.items():
                 if type(value) == str and value[0] == "{":
@@ -335,7 +364,8 @@ async def main():
     )
 
     pgs = PGSupport(args.table)
-    await pgs.setup(args.uri)
+    await pgs.connect(args.uri)
+    await pgs.getTypes(args.table)
 
     geom = Polygon()
     center = Point()
@@ -368,7 +398,16 @@ async def main():
 
     foo = {'teams': {"role": tm_admin.types_tm.Teamroles.TEAM_READ_ONLY, "team_id": 144}}
     data = await pgs.getColumns(['id', 'teams'], [foo])
-    print(f"{len(data)} records returned from NULL")
+    print(f"{len(data)} records returned from getColumns()")
+    # print(data)
+
+    foo = {"featured": "true"}
+    data = await pgs.updateColumns([foo])
+    print(f"Updated {foo} for all records")
+
+    foo = {"featured": "true", "difficulty": tm_admin.types_tm.Projectdifficulty.CHALLENGING}
+    data = await pgs.updateColumns([foo])
+    # print(f"{len(data)} records returned from updateColumns()")
     # print(data)
 
     
