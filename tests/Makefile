@@ -59,6 +59,6 @@ import:
 
 check:
 	for test in $(TESTS); do \
-	    ./$${test}; \
+	    ./$${test} -v; \
 	done
 force:
