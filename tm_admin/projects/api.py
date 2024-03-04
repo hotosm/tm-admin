@@ -369,7 +369,7 @@ class ProjectsAPI(PGSupport):
             
         """
         # log.warning(f"getAOI(): Unimplemented!")
-        data = await self.getColumns(['geometry'],  [{"id": project_id}])
+        data = await self.getColumns(['geometry'],  {"id": project_id})
 
         # Convert the WKB to a Polygon.
         return wkb.loads(data[0]['geometry'])
