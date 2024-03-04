@@ -29,6 +29,7 @@ from sys import argv
 from tm_admin.users.users import UsersDB
 from tm_admin.types_tm import Userrole, Mappinglevel
 from datetime import datetime
+from tm_admin.messages.api import MessagesAPI
 from tm_admin.users.users_class import UsersTable
 from tm_admin.messages.messages import MessagesDB
 from tm_admin.messages.messages_class import MessagesTable
@@ -44,8 +45,8 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
-user = UsersDB()
-msg = MessagesDB()
+# user = UsersDB()
+messages = MessagesAPI()
 
 async def get_all_messages():
     log.debug(f"--- get_all_messages() unimplemented!")
@@ -208,8 +209,8 @@ async def main():
         stream=sys.stdout,
     )
 
-    await user.connect(args.uri)
-    await msg.connect(args.uri)
+    # await user.connect(args.uri)
+    await messages.initialize(args.uri)
 
     await send_welcome_message()
     await send_message_after_validation()
