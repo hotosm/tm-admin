@@ -34,11 +34,13 @@ from shapely import centroid
 from tm_admin.organizations.organizations import OrganizationsDB
 from tm_admin.organizations.organizations_class import OrganizationsTable
 from tm_admin.dbsupport import DBSupport
-from osm_rawdata.pgasync import PostgresClient
+from tm_admin.types_tm import Organizationtype
+# from osm_rawdata.pgasync import PostgresClient
 from tqdm import tqdm
 import tqdm.asyncio
 from codetiming import Timer
 import asyncio
+from tm_admin.pgsupport import PGSupport
 
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
@@ -47,7 +49,7 @@ cores = info["count"] * 2
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-class OrganizationsAPI(PostgresClient):
+class OrganizationsAPI(PGSupport):
     def __init__(self):
         """
         Create a class to handle the backend API calls, so the code can be shared
@@ -57,6 +59,57 @@ class OrganizationsAPI(PostgresClient):
             (OrganizationsAPI): An instance of this class
         """
         self.orgdb = OrganizationsDB()
+        super().__init__("organizations")
+
+    async def initialize(self,
+                      uri: str,
+                      ):
+        """
+        Connect to all tables for API endpoints that require
+        accessing multiple tables.
+
+        Args:
+            inuri (str): The URI for the TM Admin output database
+        """
+        await self.connect(uri)
+        await self.getTypes("organizations")
+        #await self.messagesdb.connect(uri)
+        #await self.usersdb.connect(uri)
+        #await self.teamsdb.connect(uri)
+
+    async def getByID(self,
+                     org_id: int,
+                    ):
+        """
+        Get all the information for an organization using it's ID
+
+        Args:
+            project_id (int): The organization to get the data for
+
+        Returns:
+            (dict): the organization information
+        """
+        # log.debug(f"--- getByID() ---")
+        sql = f"SELECT * FROM organizations WHERE id={org_id}"
+        results = await self.execute(sql)
+        return results
+
+    async def getByName(self,
+                        name: str,
+                        ):
+        """
+        Get all the information for a organization using the name
+
+        Args:
+            name (str): The organization to get the data for
+
+        Returns:
+            (dict): the organization information
+        """
+        # log.debug(f"--- getByName() ---")
+        sql = f"SELECT * FROM organization WHERE name='{name}'"
+        results = await self.execute(sql)
+        return results
 
     async def create(self,
                      org: OrganizationsTable,
@@ -70,7 +123,12 @@ class OrganizationsAPI(PostgresClient):
         Returns:
             (bool): Whether the organization got created
         """
-        log.warning(f"create(): unimplemented!")
+        # log.warning(f"create(): unimplemented!")
+        result = await self.insertRecords([org])
+
+        # The ID of the record that just got inserted is returned
+        if result:
+            return True
 
         return False
 
@@ -103,53 +161,6 @@ class OrganizationsAPI(PostgresClient):
             (bool): Whether the organization  got deleted
         """
         log.warning(f"delete(): unimplemented!")
-
-    async def getByID(self,
-                     org_id: int,
-                    ):
-        """
-        Get all the information for a organization using it's ID
-
-        Args:
-            org_id (int): The organization to get the data for
-
-        Returns:
-            (dict): the project information
-        """
-        log.debug(f"--- getByID({org_id}) ---")
-        sql = f"SELECT * FROM organizations WHERE id={org_id}"
-        results = await self.execute(sql)
-        return results
-
-    async def getByName(self,
-                        name: str,
-                        ):
-        """
-        Get all the information for a project using the name
-
-        Args:
-            name (str): The organizations to get the data for
-
-        Returns:
-            (dict): the project information
-        """
-        log.debug(f"--- getByName() ---")
-        sql = f"SELECT * FROM organizations WHERE name='{name}'"
-        results = await self.execute(sql)
-        return results
-
-    async def getTeams(self,
-                       org_id: int,
-                       ):
-        """
-
-        Args:
-            
-
-        Returns:
-            
-        """
-        log.warning(f"getTeams(): unimplemented!")
 
     async def getStats(self,
                        org_id: int,

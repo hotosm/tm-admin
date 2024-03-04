@@ -32,7 +32,7 @@ from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
 from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamroles, Teammemberfunctions
-from osm_rawdata.pgasync import PostgresClient
+# from osm_rawdata.pgasync import PostgresClient
 from tm_admin.teams.teams_class import TeamsTable
 from tm_admin.teams.team_members_class import Team_membersTable
 from tm_admin.messages.messages import MessagesDB
@@ -42,6 +42,7 @@ from tm_admin.teams.teams import TeamsDB
 import re
 from codetiming import Timer
 import asyncio
+from tm_admin.pgsupport import PGSupport
 
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
@@ -50,38 +51,34 @@ cores = info["count"] * 2
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-class TeamsAPI(object):
+class TeamsAPI(PGSupport):
     def __init__(self):
         """
         Create a class to handle the backend API calls, so the code can be shared
         between test cases and the actual code.
 
         Returns:
-            (TasksAPI): An instance of this class
+            (TeamsAPI): An instance of this class
         """
         self.allowed_roles = [
             Teamroles.TEAM_MAPPER,
             Teamroles.TEAM_VALIDATOR,
             Teamroles.TEAM_MANAGER,
         ]
-        self.messagesdb = MessagesDB()
-        self.projectsdb = ProjectsDB()
-        self.usersdb = UsersDB()
-        self.teamsdb = TeamsDB()
+        super().__init__("teams")
 
-    async def connect(self,
+    async def initialize(self,
                       uri: str,
                       ):
         """
-        Connect to all tables for API endpoints that require accessing multiple tables.
+        Connect to all tables for API endpoints that require
+        accessing multiple tables.
 
         Args:
             inuri (str): The URI for the TM Admin output database
         """
-        await self.messagesdb.connect(uri)
-        await self.projectsdb.connect(uri)
-        await self.usersdb.connect(uri)
-        await self.teamsdb.connect(uri)
+        await self.connect(uri)
+        await self.getTypes("teams")
 
     async def getByID(self,
                      team_id: int,
@@ -97,7 +94,7 @@ class TeamsAPI(object):
         """
         log.debug(f"--- getByID() ---")
         sql = f"SELECT * FROM teams WHERE id={team_id}"
-        results = await self.teamsdb.pg.execute(sql)
+        results = await self.execute(sql)
         return results
 
     async def getByName(self,
@@ -114,7 +111,7 @@ class TeamsAPI(object):
         """
         log.debug(f"--- getByName() ---")
         sql = f"SELECT * FROM teams WHERE name='{name}'"
-        results = await self.teamsdb.pg.execute(sql)
+        results = await self.execute(sql)
         return results
 
     async def create(self,
@@ -129,7 +126,14 @@ class TeamsAPI(object):
         Returns:
             (bool): Whether the team got created
         """
-        log.warning(f"create(): unimplemented!")
+        # log.warning(f"create(): unimplemented!")
+        result = await self.insertRecords([team])
+
+        # The ID of the record that just got inserted is returned
+        if result:
+            return True
+
+        return False
         
     async def update(self,
                      team: Team_membersTable,
@@ -272,7 +276,7 @@ class TeamsAPI(object):
         """
         sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.active==\"true\" && @.user_id==%d)') AS members FROM teams WHERE id=%d;" % (user_id, team_id)
         print(sql)
-        results = await self.teamsdb.pg.execute(sql)
+        results = await self.execute(sql)
 
         if len(results) > 0:
             value = eval(results[0]['members'])
@@ -299,7 +303,7 @@ class TeamsAPI(object):
         """
         log.warning(f"isManager(): unimplemented!")
         sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.function==\"%s\" && @.user_id==%d)') AS members FROM teams WHERE id=%d;" % (function.name, user_id, team_id)
-        results = await self.teamsdb.pg.execute(sql)
+        results = await self.execute(sql)
         return results
 
     async def joinRequest(self,
@@ -400,7 +404,7 @@ class TeamsAPI(object):
         projectsdb.getTeamRole(project_id, team_id)
         # self.allowed_roles
         sql = f" "
-        results = await self.teamsdb.pg.execute(sql)
+        results = await self.execute(sql)
         return results
         
     async def getActiveMembers(self,
@@ -422,7 +426,7 @@ class TeamsAPI(object):
         else:
             sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.active==\"true\")') AS members FROM teams WHERE id=%d;" % team_id
 
-        results = await self.teamsdb.pg.execute(sql)
+        results = await self.execute(sql)
         return results
 
     async def getMembers(self,
@@ -447,7 +451,7 @@ class TeamsAPI(object):
             # Get just members or managers
             sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.function[*] == \"%s\")')->'user_id' AS members FROM teams WHERE id=%d;" % (function.name, team_id)
 
-        results = await self.teamsdb.pg.execute(sql)
+        results = await self.execute(sql)
         return results
 
 async def main():

@@ -41,13 +41,13 @@ from tm_admin.teams.teams import TeamsDB
 from shapely import wkb, get_coordinates
 from tm_admin.dbsupport import DBSupport
 from tm_admin.generator import Generator
-from osm_rawdata.pgasync import PostgresClient
 import re
 # from progress import Bar, PixelBar
 from tqdm import tqdm
 import tqdm.asyncio
 from codetiming import Timer
 import asyncio
+from tm_admin.pgsupport import PGSupport
 
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
@@ -56,7 +56,7 @@ cores = info["count"] * 2
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-class TasksAPI(PostgresClient):
+class TasksAPI(PGSupport):
     def __init__(self):
         """
         Create a class to handle the backend API calls, so the code can be shared
@@ -65,29 +65,8 @@ class TasksAPI(PostgresClient):
         Returns:
             (TasksAPI): An instance of this class
         """
-        self.allowed_roles = [
-            Teamroles.TEAM_MAPPER,
-            Teamroles.TEAM_VALIDATOR,
-            Teamroles.TEAM_MANAGER,
-        ]
-        self.messagesdb = MessagesDB()
-        self.projectsdb = ProjectsDB()
-        self.usersdb = UsersDB()
+        super().__init__("tasks")
 
-    async def connectDBs(self,
-                      inuri: str,
-                      ):
-        """
-        Connect to all tables for API endpoints that require accessing multiple tables.
-
-        Args:
-            inuri (str): The URI for the TM Admin output database
-        """
-        await self.messagesdb.connect(inuri)
-        await self.projectsdb.connect(inuri)
-        await self.usersdb.connect(inuri)
-        await self.connect(inuri)
-        
     async def getStatus(self,
                       task_id: int,
                       project_id: int,
@@ -135,8 +114,9 @@ class TasksAPI(PostgresClient):
         Get all the information for a project using it's ID
 
         Args:
+            user_id (int): The user ID to lock
             task_id (int): The task to lock
-            project_id (int): The team to get the data for
+            project_id (int): The project this task is part of
 
         Returns:
             (dict): the task information
@@ -153,12 +133,17 @@ class TasksAPI(PostgresClient):
         Create a task and add it to the database.
 
         Args:
-            task (TeamsTable): The taskl data
+            task (TasksTable): The task data
 
         Returns:
             (bool): Whether the task got created
         """
-        log.warning(f"create(): unimplemented!")
+        # log.warning(f"create(): unimplemented!")
+        result = await self.insertRecords([task])
+
+        # The ID of the record that just got inserted is returned
+        if result:
+            return True
 
         return False
 

@@ -41,7 +41,7 @@ from tm_admin.teams.teams import TeamsDB
 from shapely import wkb, get_coordinates
 from tm_admin.dbsupport import DBSupport
 from tm_admin.generator import Generator
-from osm_rawdata.pgasync import PostgresClient
+from tm_admin.pgsupport import PGSupport
 import re
 # from progress import Bar, PixelBar
 from tqdm import tqdm
@@ -56,7 +56,7 @@ cores = info["count"] * 2
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-class UsersAPI(PostgresClient):
+class UsersAPI(PGSupport):
     def __init__(self):
         self.allowed_roles = [
             Teamroles.TEAM_MAPPER,
@@ -65,7 +65,23 @@ class UsersAPI(PostgresClient):
         ]
         self.messagesdb = MessagesDB()
         self.projectsdb = ProjectsDB()
-        # super().__init__()
+        super().__init__("users")
+
+    async def initialize(self,
+                      uri: str,
+                      ):
+        """
+        Connect to all tables for API endpoints that require
+        accessing multiple tables.
+
+        Args:
+            inuri (str): The URI for the TM Admin output database
+        """
+        await self.connect(uri)
+        await self.getTypes("users")
+        #await self.messagesdb.connect(uri)
+        #await self.usersdb.connect(uri)
+        #await self.teamsdb.connect(uri)
 
     async def create(self,
                      user: UsersTable,
@@ -109,46 +125,6 @@ class UsersAPI(PostgresClient):
         """
         log.warning(f"delete(): unimplemented!")
 
-    async def updateColumn(self,
-                           user_id: int,
-                           data: dict,
-                           ):
-        """
-
-        Args:
-            
-
-        Returns:
-            
-        """
-        log.warning(f"updateColumn(): unimplemented!")
-        [[column, value]] = data.items()
-        sql = f"UPDATE users SET {column}='{value}' WHERE id='{user_id}'"
-        print(sql)
-        await self.execute(sql)
-
-        return True
-
-    async def appendColumn(self,
-                           user_id: int,
-                           data: dict,
-                           ):
-        """
-
-        Args:
-            
-
-        Returns:
-            
-        """
-        log.warning(f"appendColumn(): unimplemented!")
-        [[column, value]] = data.items()
-        sql = f"UPDATE users SET {column}='{value}' WHERE id='{user_id}'"
-        print(sql)
-        await self.execute(sql)
-
-        return True
-        
     async def getByID(self,
                      user_id: int,
                     ):

@@ -33,21 +33,22 @@ from shapely.geometry import shape
 from shapely import centroid
 from tm_admin.types_tm import Mappingtypes
 from tm_admin.messages.messages_class import MessagesTable
-from tm_admin.tasks.tasks_class import TasksTable
+# from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.messages.messages import MessagesDB
-from tm_admin.projects.projects import ProjectsDB
+# from tm_admin.projects.projects import ProjectsDB
 from tm_admin.users.users import UsersDB
-from tm_admin.teams.teams import TeamsDB
+# from tm_admin.teams.teams import TeamsDB
 from shapely import wkb, get_coordinates
 from tm_admin.dbsupport import DBSupport
 from tm_admin.generator import Generator
-from osm_rawdata.pgasync import PostgresClient
+# from osm_rawdata.pgasync import PostgresClient
 import re
 # from progress import Bar, PixelBar
 from tqdm import tqdm
 import tqdm.asyncio
 from codetiming import Timer
 import asyncio
+from tm_admin.pgsupport import PGSupport
 
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
@@ -56,7 +57,7 @@ cores = info["count"] * 2
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-class MessagesAPI(PostgresClient):
+class MessagesAPI(PGSupport):
     def __init__(self):
         """
         Create a class to handle the backend API calls, so the code can be shared
@@ -65,28 +66,60 @@ class MessagesAPI(PostgresClient):
         Returns:
             (MessagesAPI): An instance of this class
         """
-        self.allowed_roles = [
-            Teamroles.TEAM_MAPPER,
-            Teamroles.TEAM_VALIDATOR,
-            Teamroles.TEAM_MANAGER,
-        ]
-        self.messagesdb = MessagesDB()
-        self.usersdb = UsersDB()
-        self.teamsdb = TeamsDB()
+        # self.messagesdb = MessagesDB()
+        # self.usersdb = UsersDB()
+        # self.teamsdb = TeamsDB()
 
-    async def connectDBs(self,
+        super().__init__("campaigns")
+
+    async def initialize(self,
                       uri: str,
                       ):
         """
-        Connect to all tables for API endpoints that require accessing multiple tables.
+        Connect to all tables for API endpoints that require
+        accessing multiple tables.
 
         Args:
             inuri (str): The URI for the TM Admin output database
         """
         await self.connect(uri)
-        await self.messagesdb.connect(uri)
-        await self.usersdb.connect(uri)
-        await self.teamsdb.connect(uri)
+        await self.getTypes("campaigns")
+        #await self.usersdb.connect(uri)
+        #await self.teamsdb.connect(uri)
+
+    async def getByID(self,
+                     org_id: int,
+                    ):
+        """
+        Get all the information for an message using it's ID
+
+        Args:
+            project_id (int): The message to get the data for
+
+        Returns:
+            (dict): the message information
+        """
+        # log.debug(f"--- getByID() ---")
+        sql = f"SELECT * FROM messages WHERE id={org_id}"
+        results = await self.execute(sql)
+        return results
+
+    async def getByName(self,
+                        name: str,
+                        ):
+        """
+        Get all the information for a message using the name
+
+        Args:
+            name (str): The message to get the data for
+
+        Returns:
+            (dict): the message information
+        """
+        # log.debug(f"--- getByName() ---")
+        sql = f"SELECT * FROM messages WHERE name='{name}'"
+        results = await self.execute(sql)
+        return results
 
     async def create(self,
                      message: MessagesTable,
@@ -101,6 +134,12 @@ class MessagesAPI(PostgresClient):
             (bool): Whether the message got created
         """
         log.warning(f"create(): unimplemented!")
+
+        result = await self.insertRecords([message])
+
+        # The ID of the record that just got inserted is returned
+        if result:
+            return True
 
         return False
 
