@@ -100,3 +100,55 @@ functions, as well as data returned from functions. For example:
                         mapping_level='BEGINNER')
     # returns True or False
     result = await projects.insertRecords([pt])
+
+To support prepared SQL statements, most of the API functions take a
+list or a dictionary of multiple entries. The functions for querying
+or updating data take two parameters.
+
+
+### Inserting a Record
+
+The insertRecords() method takes a list of Table classes, as the above
+example shows. The *id* column is a sequence variable, so will
+auto-increment if no *id* is specified. If the *id* is specifed in the
+Table data structure, then that is the value used for the
+record. Inserting a record with an id is only used when importing
+data from the Tasking Manager. This function returns the *id* column
+of the just inserted record.
+
+### Querying a Table
+
+The first parameter is the columns to return from query. The second is
+the conditions for the WHERE clause in SQL. If there is no second
+parameter, then all the data in the requested columns is returned.
+
+This example returns the list of teams and roles for this
+project. Multiple conditions for WHERE can be specified, when
+converted to SQL they use an *OR* betweeen them. If *"null"* is used
+as the value, then in SQL this becomes *"IS NOT NULL"*. The returned
+data is always a list, even if it contains only a single entry.
+
+	project_id = 15173
+	data = await projects.getColumns(['teams', 'name'],  [{"id": project_id}])
+
+### Updating a Table
+
+Updating a record is more complicated since some columns are JSONB or
+arrays. This function takes two dictionaries. The first parameter
+defines the column to update, the second is the WHERE clause. This
+function returns the *id* column of the just update record, or zero if
+no records match the WHERE criteria.
+
+If there is no WHERE clause, then all the records in the table are
+updated.
+
+    foo = {"featured": "true"}
+    data = await projects.updateColumns(foo)
+
+Enums are also supported, as they are used heavily in this project as
+opposed to just the numerical value. This makes the code and the table
+data more readable.
+
+    foo = {"featured": "true", "difficulty": tm_admin.types_tm.Projectdifficulty.CHALLENGING}
+	project_id = 1
+	data = await projects.updateColumns(foo, {"id": project_id})
