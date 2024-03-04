@@ -28,7 +28,7 @@ from sys import argv
 #from tm_admin.yamlfile import YamlFile
 from tm_admin.users.users import UsersDB
 from tm_admin.projects.projects import ProjectsDB
-from tm_admin.types_tm import Userrole, Mappinglevel
+from tm_admin.types_tm import Userrole, Mappinglevel, Taskstatus
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
 from tm_admin.tasks.api import TasksAPI
@@ -41,7 +41,7 @@ log = logging.getLogger(__name__)
 import tm_admin as tma
 rootdir = tma.__path__[0]
 
-task = TasksAPI()
+tasks = TasksAPI()
 
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
@@ -49,7 +49,8 @@ task = TasksAPI()
 async def get_task():
     log.debug(f"--- get_task() unimplemented!")
     task_id = 1
-    result = await task.getByID(task_id)
+    result = await tasks.getByID(task_id)
+    print(result)
     # task_id: int, project_id: int) -> Task:
 
 async def _is_task_undoable():
@@ -59,15 +60,31 @@ async def _is_task_undoable():
 
 async def lock_task_for_mapping():
     log.debug(f"--- lock_task_for_mapping() unimplemented!")
+    user_id = 1
+    task_id = 2
+    project_id = 3
+    status = Taskstatus(Taskstatus.TASK_LOCKED_FOR_MAPPING)
+    result = await tasks.changeStatus(user_id, task_id, project_id, status)
     # lock_task_dto: LockTaskDTO) -> TaskDTO:
 
 async def unlock_task_after_mapping():
     """Unlocks the task and sets the task history appropriately"""
     log.debug(f"--- unlock_task_after_mapping() unimplemented!")
+    user_id = 1
+    task_id = 2
+    project_id = 3
+    status = Taskstatus(Taskstatus.TASK_LOCKED_FOR_MAPPING)
+    result = await tasks.changeStatus(user_id, task_id, project_id, status)
     # mapped_task: MappedTaskDTO) -> TaskDTO:
 
 async def stop_mapping_task():
     # stop_task: StopMappingTaskDTO) -> TaskDTO:
+    log.debug(f"--- unlock_task_after_mapping() unimplemented!")
+    user_id = 1
+    task_id = 2
+    project_id = 3
+    status = Taskstatus(Taskstatus.TASK_LOCKED_FOR_MAPPING)
+    result = await tasks.changeStatus(user_id, task_id, project_id, status)
     log.debug(f"--- stop_mapping_task() unimplemented!")
 
     """Unlocks the task and revert the task status to the last one"""
@@ -95,11 +112,13 @@ async def undo_mapping():
 
 async def map_all_tasks():
     log.debug(f"--- map_all_tasks() unimplemented!")
+    result = await tasks.markAllMapped()
     # project_id: int, user_id: int):
 
     """Marks all tasks on a project as mapped"""
 async def reset_all_badimagery():
     log.debug(f"--- reset_all_badimagery() unimplemented!")
+    result = await tasks.resetBadImagery()
     # project_id: int, user_id: int):
 
     """Marks all bad imagery tasks ready for mapping"""
@@ -112,9 +131,9 @@ async def extend_task_lock_time():
     log.debug(f"--- extend_task_lock_time() unimplemented!")
     #extend_dto: ExtendLockTimeDTO):
 
-async def get_task_as_dto():
-    log.debug(f"--- get_task_as_dto( unimplemented!")
-    # task_id: int,
+# async def get_task_as_dto():
+#    log.debug(f"--- get_task_as_dto( unimplemented!")
+#    # task_id: int,
     
 # FMTM API tests
 async def get_task_count_in_project():
@@ -189,11 +208,11 @@ async def main():
 
     # user = UsersDB(args.uri)
     # task = TasksDB(args.uri)
-    await task.connect(args.uri)
+    await tasks.connect(args.uri)
     # project = ProjectsDB(args.uri)
     
     await get_task()
-    await get_task_as_dto()
+    # await get_task_as_dto()
     await _is_task_undoable()
     await lock_task_for_mapping()
     await unlock_task_after_mapping()

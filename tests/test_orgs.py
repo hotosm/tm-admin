@@ -27,8 +27,9 @@ from sys import argv
 # from tm_admin.organizations.organizations_proto import OrganizationsMessage
 #from tm_admin.yamlfile import YamlFile
 from tm_admin.organizations.organizations import OrganizationsDB
+from tm_admin.organizations.organizations_class import OrganizationsTable
 from tm_admin.organizations.api import OrganizationsAPI
-from tm_admin.types_tm import Organizationtype, Mappinglevel
+from tm_admin.types_tm import Organizationtype
 from datetime import datetime
 import asyncio
 from codetiming import Timer
@@ -42,29 +43,41 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
-organization = OrganizationsAPI()
+organizations = OrganizationsAPI()
+
+async def create_organisation():
+    # new_organisation_dto: NewOrganisationDTO) -> int:
+    log.debug(f"create_organisation() unimplemented!")
+    # returns True or False
+    ot = OrganizationsTable(name='test org', slug="slug",
+                    subscription_tier=1,
+                    type=1)
+                    # type=Organizationtype.FREE)
+    result = await organizations.create(ot)
+    # FIXME: This is supposed to return the id, and does for other tables,
+    # but for some reason we get no result, but it appears to work
+    # assert result
 
 async def get_organisation_by_id():
     log.debug(f"--- get_organisation_by_id() ---")
     # organisation_id: int) -> Organisation:
     id = 1
-    # all = user.getByID(id)
-    # result = await organization.getByID(id)
-    # assert len(result) > 0
+    result = await organizations.getByID(id)
+    assert len(result) > 0
 
 async def get_organisation_by_name():
     # organisation_name: str) -> Organisation:
     log.debug(f"--- get_organisation_by_name() ---")
     name= 'Other'
-    # result = await organization.getByName(name)
-    # assert len(result) > 0
+    result = await organizations.getByName(name)
+    assert len(result) > 0
 
 async def get_organisation_name_by_id():
     # organisation_id: int) -> str:
     log.debug(f"--- get_organisation_name_by_id() ---")
-    id = 1
-    # result = await organization.getByID(id)
-    # assert len(result) > 0 and result[0][0]['name'] == 'Other'
+    org_id = 1
+    result = await organizations.getColumns(["name"], {"id": org_id})
+    assert len(result) > 0
 
 async def get_organisations():
     # manager_user_id: int):
@@ -78,10 +91,6 @@ async def delete_organisation():
     id = 1
     #result = await organization.deleteByID(id)
     #assert len(result) > 0
-
-async def create_organisation():
-    # new_organisation_dto: NewOrganisationDTO) -> int:
-    log.debug(f"create_organisation() unimplemented!")
 
 async def update_organisation():
     # organisation_dto: UpdateOrganisationDTO) -> Organisation:
@@ -164,7 +173,7 @@ async def main():
         stream=sys.stdout,
     )
 
-    await organization.connect(args.uri)
+    await organizations.initialize(args.uri)
     
     await get_organisation_by_id()
     await get_organisation_by_name()

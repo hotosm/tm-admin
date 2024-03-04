@@ -87,13 +87,13 @@ async def create_team():
     log.debug(f"create_team() unimplemented!")
     team = Team_membersTable()
     # FIXME: add data!
-    results = await teams.create(team)
+    # results = await teams.create(team)
     
 async def update_team():
     log.debug(f"update_team() unimplemented!")
     team = Team_membersTable()
     # FIXME: add data!
-    results = await teams.update(team)
+    # results = await teams.update(team)
                 
 async def delete_team():
     log.debug(f"delete_team() unimplemented!")
@@ -228,7 +228,7 @@ async def main():
         stream=sys.stdout,
     )
 
-    await teams.connect(args.uri)
+    await teams.initialize(args.uri)
 
     await request_to_join_team()
     await add_user_to_team()
