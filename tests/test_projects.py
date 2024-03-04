@@ -42,6 +42,7 @@ from tm_admin.users.api import UsersAPI
 from tm_admin.projects.api import ProjectsAPI
 from tm_admin.projects.api import ProjectsAPI
 # from tm_admin.users.api import UsersAPI
+from shapely.geometry import Polygon, Point, shape
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -53,12 +54,63 @@ rootdir = tma.__path__[0]
 # database, the other for tm_admin.
 
 dbname = os.getenv("TMDB", default="localhost/testdata")
-user = UsersAPI()
+users = UsersAPI()
 #users.connect("localhost/tm_admin")
 projects = ProjectsAPI()
 tasks = TasksAPI()
 teams = TeamsAPI()
 
+# These tests are for the API endpoints
+async def create_project():
+    """
+    Create a project. We don't need any valid geometries for this test.
+
+    The id column defaults to auto-increment. TM doesn't have any ids below
+    100, so we can use the 0-100 range for testing on a live database.
+    """
+    geom = Polygon()
+    center = Point()
+    pt = ProjectsTable(id=0, author_id=1, geometry=geom, centroid=center,
+                        created='2021-12-15 09:58:02.672236',
+                        task_creation_mode='GRID', status='DRAFT',
+                        mapping_level='BEGINNER')
+    # returns True or False
+    result = await projects.create(pt)
+    assert result
+
+# These tests are for basic table management
+async def delete_project():
+    """
+    Delete a project from the database.
+
+    Returns:
+        (bool): True or False
+    """
+    pt = 1
+    result = await projects.delete(pt)
+    assert result
+
+async def update_project():
+    # Create a project
+    # returns True or False
+    geom = Polygon()
+    center = Point()
+    pt = ProjectsTable(id=0, author_id=2, geometry=geom, centroid=center,
+                        created='2022-10-15 09:58:02.672236',
+                        task_creation_mode='UPLOAD', status='PUBLISHED',
+                        mapping_level='BEGINNER', teams={2, 3, 4})
+    result = await projects.update(pt)
+    assert result
+
+async def get_team_role():
+    log.debug(f"--- get_team_role() ---")
+    project_id = 13299
+    team_id = 1
+    result = await projects.getTeamRole(project_id, team_id)
+    # print(result)
+    assert result == Teamroles.TEAM_READ_ONLY
+
+# These endpoint tests come from the TM backend
 async def get_project_by_id():
     # project_id: int) -> Project:
     log.debug(f"--- get_project_by_id() ---")
@@ -71,39 +123,95 @@ async def get_project_by_id():
 async def exists():
     # project_id: int) -> bool:
     log.debug(f"--- exists() ---")
-    id = 1
+    id = 1000
     # all = user.getByID(id)
     result = await projects.getByID(id)
-    assert len(result) == 0
+    assert len(result) > 0
 
 async def get_project_by_name():
     # project_id: int) -> Project:
     log.debug(f"--- get_project_by_name() ---")
     name = 'Kigoma_13'
     result = await projects.getByName(name)
-    # assert len(result) > 0
+    assert len(result) > 0
 
 async def get_project_priority_areas():
     # project_id):
     log.debug(f"--- get_project_priority_areas() ---")
-    pid = 3595
-    # result = await projects.getColumn(pid, 'priority_areas')
+    project_id = 3595
+    # result = await projects.getPriorityAreas(project_id)
+    data = await projects.getColumns(['priority_areas'], [{"id": project_id}])
+    areas =  data[0]['priority_areas']
+    # print(result)
+    assert len(areas) > 0
+
+async def get_project_organisation():
+    # project_id: int) -> Organisation:
+    log.debug(f"--- get_project_organisation() ---")
+    project_id = 3595
+    # result = await projects.getOrganization(project_id)
+    data = await projects.getColumns(['organisation_id'], [{"id": project_id}])
+    org_id =  data[0]['organisation_id']
+    # print(result)
+    assert org_id > 0
+
+async def get_project_aoi():
+    # project_id):
+    log.debug(f"--- get_project_aoi() ---")
+    project_id = 3595
+    result = await projects.getAOI(project_id)
+    # print(result)
+    assert type(result) == Polygon
+
+async def get_project_title():
+    # project_id: int, preferred_locale: str = "en") -> str:
+    log.debug(f"--- get_project_title() ---")
+    project_id = 14672
+    data = await projects.getColumns(['name'],  [{"id": project_id}])
+    name = data[0]['name']
+    # result = await projects.getName(project_id)
+    # print(result)
+    assert len(name) > 0
+
+async def get_featured_projects():
+    log.debug(f"--- get_featured_projects() ---")
+    result = await projects.getColumns(['id'],  [{"featured": "true"}])
+    # FIXME: this always fails because there are no projects with this
+    # set to a value, everything is the f=default, false.
+    # result = await projects.getByWhere(f" featured IS NOT NULL")
     # assert len(result) > 0
 
+async def get_project_teams():
+    # project_id: int):
+    log.debug(f"--- get_project_teams() ---")
+    project_id = 15173
+    data = await projects.getColumns(['teams'],  [{"id": project_id}])
+    teams = data[0]['teams']
+    assert len(teams) > 0
+
+async def unset_project_as_featured():
+    # project_id: int):
+    log.debug(f"--- unset_project_as_featured() ---")
+    project_id= 2
+    where = {"id": project_id}
+    result = await projects.updateColumns([{'featured': "false"}])
+    assert result > 0
+
+async def set_project_as_featured():
+    # project_id: int):
+    log.debug(f"--- set_project_as_featured() ---")
+    pid = 2
+    where = {"id": project_id}
+    result = await projects.updateColumns([{'featured': "true"}], where)
+    assert result > 0
+
+##########################
+# FIXME: Partially implemented
 async def get_project_tasks():
     # project_id):
     log.debug(f"--- get_project_tasks() ---")
     pid = 150
     # result = await tasks.getByWhere(f" project_id={pid}")
-    # assert len(result) > 0
-
-async def get_project_aoi():
-    # project_id):
-    log.debug(f"--- get_project_aoi() ---")
-    pid = 150
-    # result = await projects.getColumn(pid, 'geometry')
-    # FIXME: this should test the geometry to make
-    # sure it's valid
     # assert len(result) > 0
 
 async def is_user_permitted_to_validate():
@@ -123,13 +231,6 @@ async def is_user_permitted_to_map():
     # FIXME: This only works if the user has the right role
     # assert len(result) > 0 and result[0][0] != Userrole.USER_READ_ONLY
     # assert len(result) > 0
-
-async def get_project_title():
-    # project_id: int, preferred_locale: str = "en") -> str:
-    log.debug(f"--- get_project_title() ---")
-    pid = 150
-    # result = await project.getColumn(pid, 'name')
-    # assert len(result) > 0 and result[0][0][:10] == 'Mozambique'
 
 async def is_favorited():
     # project_id: int, user_id: int) -> bool:
@@ -164,18 +265,6 @@ async def set_project_as_featured():
     pid = 2
     # result = await project.updateColumn(pid, {'featured': True})
     # assert result
-
-async def unset_project_as_featured():
-    # project_id: int):
-    log.debug(f"--- unset_project_as_featured() ---")
-    pid = 2
-    # result = await project.updateColumn(pid, {'featured': False})
-    # assert result
-
-async def get_featured_projects():
-    log.debug(f"--- get_featured_projects() ---")
-    # result = await projects.getByWhere(f" featured IS NOT NULL")
-    # assert len(result)
 
 async def evaluate_mapping_permission():
     # project_id: int, user_id: int, mapping_permission: int
@@ -235,14 +324,6 @@ async def get_project_user_stats():
     # project_id: int, username: str) -> ProjectUserStatsDTO:
     log.debug(f"get_project_user_stats() unimplemented!")
 
-async def get_project_teams():
-    # project_id: int):
-    log.debug(f"get_project_teams() unimplemented!")
-
-async def get_project_organisation():
-    # project_id: int) -> Organisation:
-    log.debug(f"get_project_organisation() unimplemented!")
-
 async def send_email_on_project_progress():
     # project_id):
     log.debug(f"send_email_on_project_progress() unimplemented!")
@@ -255,13 +336,13 @@ async def send_email_on_project_progress():
 
 # FMTM API tests
 async def get_projects():
-    log.debug(f"--- FMTM get_projects() ---")
+    log.debug(f"--- FMTM get_projects() unimplemented")
     # result = await user.getAll()
     # assert len(result) > 0
 
 async def get_project():
     # db: Session, project_id: int):
-    log.debug(f"--- FMTM get_project() ---")
+    log.debug(f"--- FMTM get_project() unimplemented")
     id = 150
     # result = await project.getByWhere(f" id='{id}'")
     # assert len(result) > 0
@@ -274,7 +355,7 @@ async def get_project():
 
 async def get_project_geometry():
     # db: Session, project_id: int):
-    log.debug(f"--- FMTM get_project_geometry() ---")
+    log.debug(f"--- FMTM get_project_geometry() unimplemented")
     pid = 150
     # result = await project.getColumn(pid, 'geometry')
     # FIXME: this should test the geometry to make
@@ -417,10 +498,17 @@ async def main():
     # tasks = TasksDB(args.uri)
     # users = UsersDB(args.uri)
     # projects = ProjectsDB(args.uri)
-    await user.connect(args.uri)
-    await projects.connect(args.uri)
-    await tasks.connectDBs(args.uri)
+    # await users.connect(args.uri)
+    # await users.getTypes("users")
+    # await tasks.connectDBs(args.uri)
+    # await tasks.getTypes("tasks")
+    await projects.initialize(args.uri)
 
+    # These tests are for added endpoints
+    await create_project()
+    await get_team_role()
+
+    # These endpoint tests come from the TM backend
     await get_project_by_id()
     await exists()
     await get_project_by_name()
