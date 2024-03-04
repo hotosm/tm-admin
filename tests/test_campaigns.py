@@ -26,12 +26,11 @@ import os
 from sys import argv
 # from tm_admin.users.users_proto import UsersMessage
 #from tm_admin.yamlfile import YamlFile
-from tm_admin.users.users import UsersDB
-from tm_admin.projects.api import ProjectsAPI
-from tm_admin.teams.api import TeamsAPI
-from tm_admin.projects.projects import ProjectsDB
+# from tm_admin.users.users import UsersDB
+# from tm_admin.projects.api import ProjectsAPI
+from tm_admin.campaigns.api import CampaignsAPI
+#from tm_admin.projects.projects import ProjectsDB
 from tm_admin.campaigns.campaigns import CampaignsDB
-# from tm_admin.campaigns.api import CampaignsAPI
 from tm_admin.types_tm import Userrole, Mappinglevel
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
@@ -47,26 +46,34 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed.
 # One has the TM database, the other for tm_admin.
 
-campaign = CampaignsDB()
+campaigns = CampaignsAPI()
+
+async def create_campaign():
+    """Creates a new campaign"""
+    # campaign_dto: NewCampaignDTO):
+    log.debug(f"--- create_campaign() unimplemented!")
+    camp = CampaignsTable(name='test campaign', logo='foo.png',
+                          description="test")
+    result = await campaigns.create(camp)
 
 async def get_all_campaigns():
     """Returns a list of all campaigns"""
     # ) -> CampaignListDTO:
     log.debug(f"--- get_all_campaigns() ---")
-    result = await campaign.getAll()
-    assert len(result) > 0
+    # result = await campaign.getAll()
+    # assert len(result) > 0
 
 async def get_campaign():
     """Gets the specified campaign"""
     log.debug(f"--- get_campaign() ---")
     id = 4
-    result = await campaign.getByID(id)
+    result = await campaigns.getByID(id)
     assert len(result) > 0
 
 async def get_campaign_by_name():
     name = 'Mbomou'
     log.debug(f"--- get_campaign_by_name() ---")
-    result = await campaign.getByName(name)
+    result = await campaigns.getByName(name)
     assert len(result) > 0
 
 async def delete_campaign():
@@ -84,10 +91,9 @@ async def delete_project_campaign():
     id = 5
     # result = campaign.deleteByID(id)
 
-async def create_campaign():
-    """Creates a new campaign"""
-    # campaign_dto: NewCampaignDTO):
-    log.debug(f"--- create_campaign() unimplemented!")
+async def campaign_organisation_exists():
+    # campaign_id: int, org_id: int):
+    log.debug(f"--- campaign_organisation_exists() unimplemented!")
 
 async def create_campaign_project():
     """Assign a campaign with a project"""
@@ -98,10 +104,6 @@ async def create_campaign_organisation():
     """Creates new campaign from DTO"""
     # organisation_id: int, campaign_id: int):
     log.debug(f"--- create_campaign_organisation() unimplemented!")
-
-async def campaign_organisation_exists():
-    # campaign_id: int, org_id: int):
-    log.debug(f"--- campaign_organisation_exists() unimplemented!")
 
 async def delete_organisation_campaign():
     """Delete campaign for a organisation"""
@@ -147,7 +149,7 @@ async def main():
     )
 
     # await user.connect(args.uri)
-    await campaign.connect(args.uri)
+    await campaigns.initialize(args.uri)
 
     await get_campaign()
     await get_campaign_by_name()
