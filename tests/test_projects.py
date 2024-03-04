@@ -40,7 +40,6 @@ from tm_admin.teams.api import TeamsAPI
 from tm_admin.tasks.api import TasksAPI
 from tm_admin.users.api import UsersAPI
 from tm_admin.projects.api import ProjectsAPI
-from tm_admin.projects.api import ProjectsAPI
 # from tm_admin.users.api import UsersAPI
 from shapely.geometry import Polygon, Point, shape
 
@@ -192,17 +191,15 @@ async def get_project_teams():
 async def unset_project_as_featured():
     # project_id: int):
     log.debug(f"--- unset_project_as_featured() ---")
-    project_id= 2
-    where = {"id": project_id}
-    result = await projects.updateColumns([{'featured': "false"}])
+    project_id = 2
+    result = await projects.updateColumns({'featured': "false"}, {"id": project_id})
     assert result > 0
 
 async def set_project_as_featured():
     # project_id: int):
     log.debug(f"--- set_project_as_featured() ---")
     pid = 2
-    where = {"id": project_id}
-    result = await projects.updateColumns([{'featured': "true"}], where)
+    result = await projects.updateColumns({'featured': "true"}, {"id": project_id})
     assert result > 0
 
 ##########################
