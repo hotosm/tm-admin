@@ -48,6 +48,17 @@ rootdir = tma.__path__[0]
 # user = UsersDB()
 messages = MessagesAPI()
 
+async def create_message():
+    project_id = 1
+    # log.debug(f"--- create_message() unimplemented!")
+    msg = MessagesTable(message="Hello World!",
+                        subject="test",
+                        project_id=project_id,
+                        from_user_id=0,
+                        to_user_id=1
+                        )
+    result = await messages.create(msg)
+
 async def get_all_messages():
     log.debug(f"--- get_all_messages() unimplemented!")
     # user_id: int,
@@ -211,6 +222,7 @@ async def main():
 
     # await user.connect(args.uri)
     await messages.initialize(args.uri)
+    await create_message()
 
     await send_welcome_message()
     await send_message_after_validation()

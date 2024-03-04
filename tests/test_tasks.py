@@ -26,11 +26,11 @@ import os
 from sys import argv
 # from tm_admin.users.users_proto import UsersMessage
 #from tm_admin.yamlfile import YamlFile
-from tm_admin.users.users import UsersDB
-from tm_admin.projects.projects import ProjectsDB
+# from tm_admin.users.users import UsersDB
+# from tm_admin.projects.projects import ProjectsDB
 from tm_admin.types_tm import Userrole, Mappinglevel, Taskstatus
 from datetime import datetime
-from tm_admin.users.users_class import UsersTable
+from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.tasks.api import TasksAPI
 import asyncio
 from codetiming import Timer
@@ -45,6 +45,16 @@ tasks = TasksAPI()
 
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
+
+async def create_task():
+    project_id = 1
+    log.debug(f"--- create_task() unimplemented!")
+    task = TasksTable(project_id=1,
+                      project_task_name="testing, 1,2,3",
+                      is_square="false",
+                      task_status=Taskstatus.READY,
+                    )
+    result = await tasks.create(task)
 
 async def get_task():
     log.debug(f"--- get_task() unimplemented!")
@@ -208,7 +218,8 @@ async def main():
 
     # user = UsersDB(args.uri)
     # task = TasksDB(args.uri)
-    await tasks.connect(args.uri)
+    await tasks.initialize(args.uri)
+    await create_task()
     # project = ProjectsDB(args.uri)
     
     await get_task()
