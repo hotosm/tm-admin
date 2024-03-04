@@ -269,7 +269,7 @@ class PGSupport(PostgresClient):
 
     async def getColumns(self,
                          columns: list,
-                         where: list = list(),
+                         where: dict = None,
                          ):
         """
         Get columns from a database table.
@@ -286,22 +286,21 @@ class PGSupport(PostgresClient):
         get = str(columns)[1:-1].replace("'", "")
 
         check = str()
-        for test in where:
-            for k, v in test.items():
-                if type(v) == dict:
-                    # It's a query including a jsonb column
-                    for k1, v1 in v.items():
-                        # teams->'teams' @? '$[*] ? (@.role == 1)
-                        # FIXME: is it an internal Enum ?
-                        check = f"{k}->'{k}' @? '$[*] ? (@.{k1} == {v1})'"
-                        continue
+        for k, v in where.items():
+            if type(v) == dict:
+                # It's a query including a jsonb column
+                for k1, v1 in v.items():
+                    # teams->'teams' @? '$[*] ? (@.role == 1)
+                    # FIXME: is it an internal Enum ?
+                    check = f"{k}->'{k}' @? '$[*] ? (@.{k1} == {v1})'"
+                    continue
                 # if k in self.types:
                 #     if self.types[k] == 'jsonb':
                 #         breakpoint()
-                if v == 'null':
-                    check = f"{k} IS NOT NULL"
-                elif len(check) == 0:
-                    check = f"{k}={v}"
+            elif v == 'null':
+                check = f"{k} IS NOT NULL"
+            elif len(check) == 0:
+                check = f"{k}={v}"
 
         if where:
             sql = f"SELECT {get} FROM {self.table} WHERE {check}"
