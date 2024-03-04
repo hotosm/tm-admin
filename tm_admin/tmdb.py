@@ -70,8 +70,7 @@ async def importThread(
     # log.debug(f"There are {len(data)} data entries")
     if table == 'organisations':
         table = 'organizations'
-        builtins = ['int32', 'int64', 'string', 'timestamp', 'bool']
-    else:
+    if len(data) > 0:
         builtins = ['int32', 'int64', 'string', 'timestamp', 'bool']
         pbar = tqdm.tqdm(data)
         for record in pbar:
@@ -384,7 +383,7 @@ class TMImport(object):
 
         sql = f"SELECT * FROM {table}"
         # print(sql)
-        print(self.tmdb.dburi)
+        # print(self.tmdb.dburi)
 
         log.warning(f"This operation may be slow for large datasets.")
         data = await self.tmdb.execute(sql)
