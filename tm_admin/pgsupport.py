@@ -204,46 +204,35 @@ class PGSupport(PostgresClient):
             log.error(f"Not connected to the database!")
             return False
 
+        check = str()
         if where:
-            for test in where:
-                for k, v in test.items():
-                    if type(v) == dict:
-                        # It's a query including a jsonb column
-                        for k1, v1 in v.items():
-                            breakpoint()
-                        # teams->'teams' @? '$[*] ? (@.role == 1)
-                        # FIXME: is it an internal Enum ?
-                        # check = f"{k}->'{k}' @? '$[*] ? (@.{k1} == {v1})'"
-                        continue
+            check = " WHERE "
+            for k, v in where.items():
                 # if k in self.types:
                 #     if self.types[k] == 'jsonb':
                 #         breakpoint()
                 if v == 'null':
-                    check = f"{k} IS NOT NULL"
-                elif len(check) == 0:
-                    check = f"{k}={v}"
-
-        # We only need one record to get all the columns
-        # keys = str(list(columns[0].keys()))[1:-1].replace("'", '"')
+                    check += f"{k} IS NOT NULL OR "
+                else:
+                    check += f"{k}={v} OR "
 
         sql = f"UPDATE {self.table} SET "
-        for update in columns:
-            for key, value in update.items():
-                val = self.types[key]
-                if val[:7] == "public.":
-                    # It's an enum
-                    tmtype = val[7:].capitalize()
-                    if tmtype[-2:] == "[]":
-                        # it's an array
-                        obj = eval("tm_admin.types_tm.%s(%s)" % (tmtype[:-2], value))
-                        # data[key] = "{%s}" % obj.name
-                    else:
-                        obj = eval(f"tm_admin.types_tm.{tmtype}({value})")
-                        sql += f" {key} = '{obj.name}', "
+        for key, value in columns.items():
+            val = self.types[key]
+            if val[:7] == "public.":
+                # It's an enum
+                tmtype = val[7:].capitalize()
+                if tmtype[-2:] == "[]":
+                    # it's an array
+                    obj = eval("tm_admin.types_tm.%s(%s)" % (tmtype[:-2], value))
+                    # data[key] = "{%s}" % obj.name
                 else:
-                    sql += f" {key} = {value}, "
+                    obj = eval(f"tm_admin.types_tm.{tmtype}({value})")
+                    sql += f" {key} = '{obj.name}', "
+            else:
+                sql += f" {key} = {value}, "
         # print(sql)
-        result = await self.execute(sql[:-2] + " RETURNING id")
+        result = await self.execute(sql[:-2] + f" {check[:-3]} RETURNING id")
         
         return result[0]['id']
 
