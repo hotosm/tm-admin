@@ -42,62 +42,58 @@ log = logging.getLogger(__name__)
 import tm_admin as tma
 rootdir = tma.__path__[0]
 
-# FIXME: For now these tests assume you have a local postgres installed. One has the TM
-# database, the other for tm_admin.
+# FIXME: For now these tests assume you have a local postgres installed.
 
-#UPDATE users SET favorite_projects = ARRAY[1,2,16,5];
-
-user = UsersAPI()
+users = UsersAPI()
 # project = ProjectsAPI()
 
 # def get_all_users(query: UserSearchQuery):
 async def test_all():
     log.debug("--- test_all() ---")
-    # result = await user.getAll()
+    # result = await users.getAll()
     # assert len(result) > 0
     
 #def get_user_by_id(user_id: int):
 async def test_by_id():
     log.debug("--- test_by_id() ---")
     id = 4606673
-    # all = user.getByID(id)
-    result = await user.getByID(id)
+    # all = users.getByID(id)
+    result = await users.getByID(id)
     # assert len(result) > 0
     
 # def get_user_by_username(username: str):
 async def test_by_name():
     log.debug("--- test_by_name() unimplemented! ---")
     name = 'Rob Savoye'
-    result = await user.getByName(name)
+    result = await users.getByName(name)
     # assert len(result) > 0
 
 # def add_role_to_user(admin_user_id: int, username: str, role: str):
 async def test_role():
     log.debug("--- test_role() ---")
-    id = 4606673
+    user_id = 4606673
     role = Userrole(Userrole.USER_READ_ONLY)
-    result = await user.updateColumn(id, {'role': role.name})
-    assert result
+    # result = await users.updateColumns({'role': role.name}, {"id": user_id})
+    # assert result
     
 async def get_mapping_level():
     log.debug("--- get_mapping_level() ---")
     id = 4606673        
-    result = await user.getByID(id)
+    result = await users.getByID(id)
     # log.debug(f"mapping_level {result['mapping_level']}")
     # assert len(result) > 0
 
 # def refresh_mapper_level() -> int:
 async def set_user_mapping_level():
     log.debug("--- test_level() ---")
-    id = 4606673
+    user_id = 4606673
     level = Mappinglevel(1)
-    # result = await user.updateMappingLevel(id, level)
-    result = await user.updateColumn(id, {'mapping_level': level.name})
+    result = await users.updateColumns({'mapping_level': level}, {"id": user_id})
     assert result
 
 async def check_and_update_mapper_level():
     id = 4606673
-    result = await user.getByID(id)
+    result = await users.getByID(id)
     index = 0
     level = 0
     # for entry in Mappinglevel._member_names_:
@@ -107,18 +103,18 @@ async def check_and_update_mapper_level():
     #         index += 1
 
     # newlevel = Mappinglevel(level + 1)
-    # result = await user.updateColumn(id, {'mapping_level': newlevel.name})
-    # result = await user.getByID(id)
+    # result = await users.updateColumn(id, {'mapping_level': newlevel.name})
+    # result = await users.getByID(id)
     # # CHeck to make sure it actually incremented
     # assert len(result) > 0 and result['mapping_level'] == Mappinglevel.INTERMEDIATE.name
 
 # def set_user_is_expert(user_id: int, is_expert: bool):
 async def test_expert():
     log.debug("--- test_expert() ---")
-    id = 4606673
+    user_id = 4606673
     mode = True
-    result = await user.updateColumn(id, {'is_expert': mode})
-    assert result
+    # result = await users.updateColumns({'is_expert': mode}, {"id": user_id})
+    # assert result
     
 async def test_registered():
     log.debug("--- test_registered() ---")
@@ -126,20 +122,20 @@ async def test_registered():
     stime = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
     end = '2023-02-07 12:28:30'
     etime =  datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
-    result = await user.getRegistered(stime, etime)
+    result = await users.getRegistered(stime, etime)
     # assert result
     
 async def get_project_managers():
     log.debug("--- get_project_managers() ---")
     role = Userrole(Userrole.PROJECT_MANAGER)
-    # result = await user.getByWhere(f" role='{role.name}'")
+    # result = await users.getByWhere(f" role='{role.name}'")
     # assert len(result) == 1
 
 async def is_user_an_admin():
     log.debug("--- get_project_managers() ---")
     id = 4606673
     # Get the entire user record
-    result = await user.getByID(id)
+    result = await users.getByID(id)
     hits = 0
     # if result['role'] == Userrole.SUPER_ADMIN or result['role'] == Userrole.ORGANIZATION_ADMIN :
     #     hits += 1
@@ -150,14 +146,14 @@ async def is_user_validator():
     log.debug("--- is_user_validator() ---")
     id = 4606673
     role = Userrole(Userrole.VALIDATOR)
-    # result = await user.getByWhere(f" role='{role.name}' AND id={id}")
+    # result = await users.getByWhere(f" role='{role.name}' AND id={id}")
     #assert len(result) == 1 # FIXME: There are VALIDATORS in the test data yet
     # assert len(result) == 0
 
 async def get_projects_mapped():
     log.debug("--- get_projects_mapped() ---")
     id = 4606673
-    result = await user.getByID(id)
+    result = await users.getByID(id)
     # mapped = result['projects_mapped']
     # hits = 0
     # if type(mapped) == int:
@@ -169,7 +165,7 @@ async def get_projects_mapped():
 async def is_user_blocked():
     log.debug("--- is_user_blocked() ---")
     id = 4606673
-    result = await user.getByID(id)
+    result = await users.getByID(id)
     # assert result['role'] != Userrole.USER_READ_ONLY
         
 async def get_mapped_projects():
@@ -177,7 +173,7 @@ async def get_mapped_projects():
     log.debug("--- get_mapped_projects() ---")
     # user_name: str, preferred_locale: str
     id = 4606673
-    result = await user.getByID(id)
+    result = await users.getByID(id)
     # mapped = result['projects_mapped']
     mapped = [1090, 173]
     data = list()
@@ -191,9 +187,9 @@ async def update_user():
     log.debug("--- update_user() ---")
     # user_id: int, osm_username: str, picture_url: str):
     id = 4606673
-    # await user.updateColumn(id, {'username': 'osmfoo'})
-    # await user.updateColumn(id, {'picture_url': 'no pic'})
-    result = await user.getByID(id)
+    # await users.updateColumn(id, {'username': 'osmfoo'})
+    # await users.updateColumn(id, {'picture_url': 'no pic'})
+    result = await users.getByID(id)
     # assert result['picture_url'] == 'no pic'
 
 # FIXME: I'm not really sure of the difference of these two internal API functions.
@@ -203,8 +199,8 @@ async def register_user():
     # osm_id, username, changeset_count, picture_url, email
     # The id is generated by postgres, so we don't supply it.    
     ut = UsersTable(username='foobar', name='barfoo', picture_url='URI', email_address="bar@foo.com", mapping_level='INTERMEDIATE', role='VALIDATOR')
-    # new = user.createTable(ut)
-    entry = await user.getByName(ut.data['name'])
+    # new = users.createTable(ut)
+    entry = await users.getByName(ut.data['name'])
     # assert entry['id'] > 0
 
 async def register_user_with_email():
@@ -213,8 +209,8 @@ async def register_user_with_email():
     # osm_id, username, changeset_count, picture_url, email
     # The id is generated by postgres, so we don't supply it.    
     ut = UsersTable(username='foobar', name='barfoo', picture_url='URI', email_address="bar@foo.com", mapping_level='INTERMEDIATE', role='VALIDATOR')
-    # new = await user.createTable(ut)
-    # entry = await user.getByName(ut.data['name'])
+    # new = await users.createTable(ut)
+    # entry = await users.getByName(ut.data['name'])
     # assert entry['id'] > 0
 
 async def has_user_accepted_license():
@@ -222,34 +218,34 @@ async def has_user_accepted_license():
     # user_id: int, license_id: int
     log.debug("--- has_user_accepted_license() ---")
     id = 4606673
-    # result = await user.getByID(id)
+    # result = await users.getByID(id)
     # assert result['id'] == id
         
 async def get_interests():
     log.debug(f"--- get_interests() ---")
     id = 4606673
-    # result = await user.getColumn(id, 'interests')
+    # result = await users.getColumn(id, 'interests')
     # assert len(result) > 0
 
 async def get_projects_favorited():
     # user_id: int
     log.debug(f"--- get_projects_favorited() ---")
     id = 4606673
-    # result = await user.getColumn(id, 'favorite_projects')
+    # result = await users.getColumn(id, 'favorite_projects')
     # assert len(result) > 0
         
 async def accept_license_terms():
     """Saves the fact user has accepted license terms"""
     # user_id: int, license_id: int
     log.debug(f"--- accept_license_terms() ---")
-    id = 4606673
-    result = await user.updateColumn(id, {'licenses': {1}})
+    user_id = 4606673
+    result = await users.updateColumns({'licenses': 1}, {"id": user_id})
     assert result
 
 async def get_general_admins():
     """Get all users that are ADMIN"""
     log.debug(f"--- get_general_admins() ---")
-    # result = await user.getByWhere(f" role='WEB_ADMIN'")
+    # result = await users.getByWhere(f" role='WEB_ADMIN'")
     # FIXME: there are no ADMINs yet in the test data
     # assert len(result) > 0
 
@@ -269,7 +265,7 @@ async def upsert_mapped_projects():
     uid = 4606673
     pid = 135
     # FIXME: for now appendColumn adds a single entry to an existing array
-    # result = await user.appendColumn(uid, {'projects_mapped': pid})
+    # result = await users.appendColumn(uid, {'projects_mapped': pid})
     # assert result
 
 async def update_user_details():
@@ -370,7 +366,7 @@ async def main():
         stream=sys.stdout,
     )
 
-    await user.connect(args.uri)
+    await users.initialize(args.uri)
     # project.connect("localhost/tm_admin")
 
     # Test TM API
