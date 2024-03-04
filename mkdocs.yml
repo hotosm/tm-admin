@@ -85,6 +85,7 @@ nav:
       - Code Structure: structure.md
       - Database Support: pgsupport.md
       - Code API: api.md
+      - Using asyncpg: pgasync.md
       - Protobuf API: protos-api.md
       - Class Hierarchy: apidocs/html/index.html
       - Versioning: https://docs.hotosm.org/dev-guide/version-control/#creating-releases
