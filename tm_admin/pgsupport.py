@@ -183,7 +183,10 @@ class PGSupport(PostgresClient):
         # print(sql)
         result = await self.execute(sql)
 
-        return result[0]['id']
+        if len(result) > 0:
+            return result[0]['id']
+        else:
+            return list()
 
     async def updateColumns(self,
                            columns: dict,
@@ -222,19 +225,19 @@ class PGSupport(PostgresClient):
             if val[:7] == "public.":
                 # It's an enum
                 tmtype = val[7:].capitalize()
-                if tmtype[-2:] == "[]":
-                    # it's an array
-                    obj = eval("tm_admin.types_tm.%s(%s)" % (tmtype[:-2], value))
-                    # data[key] = "{%s}" % obj.name
-                else:
-                    obj = eval(f"tm_admin.types_tm.{tmtype}({value})")
-                    sql += f" {key} = '{obj.name}', "
+                obj = eval(f"tm_admin.types_tm.{tmtype}({value})")
+                sql += f" {key} = '{obj.name}', "
+            elif val[-2:] == "[]" or val == "jsonb":
+                sql += f" {key} = {key}||{value}, "
             else:
                 sql += f" {key} = {value}, "
-        # print(sql)
-        result = await self.execute(sql[:-2] + f" {check[:-3]} RETURNING id")
-        
-        return result[0]['id']
+        query = sql[:-2] + f" {check[:-3]} RETURNING id"
+        # print(query)
+        result = await self.execute(query)
+        if len(result) > 0:
+            return result[0]['id']
+        else:
+            return 0
 
     async def resetSequence(self):
         """
