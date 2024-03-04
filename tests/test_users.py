@@ -59,29 +59,28 @@ async def test_by_id():
     id = 4606673
     # all = users.getByID(id)
     result = await users.getByID(id)
-    # assert len(result) > 0
+    assert len(result) > 0
     
 # def get_user_by_username(username: str):
 async def test_by_name():
     log.debug("--- test_by_name() unimplemented! ---")
     name = 'Rob Savoye'
     result = await users.getByName(name)
-    # assert len(result) > 0
+    assert len(result) > 0
 
 # def add_role_to_user(admin_user_id: int, username: str, role: str):
 async def test_role():
     log.debug("--- test_role() ---")
     user_id = 4606673
     role = Userrole(Userrole.USER_READ_ONLY)
-    # result = await users.updateColumns({'role': role.name}, {"id": user_id})
-    # assert result
-    
+    result = await users.updateColumns({'role': role}, {"id": user_id})
+    assert result
+
 async def get_mapping_level():
     log.debug("--- get_mapping_level() ---")
-    id = 4606673        
-    result = await users.getByID(id)
-    # log.debug(f"mapping_level {result['mapping_level']}")
-    # assert len(result) > 0
+    user_id = 4606673
+    result = await users.getColumns(['mapping_level'], {"id": user_id})
+    assert len(result) > 0
 
 # def refresh_mapper_level() -> int:
 async def set_user_mapping_level():

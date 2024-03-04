@@ -49,10 +49,8 @@ log = logging.getLogger(__name__)
 import tm_admin as tma
 rootdir = tma.__path__[0]
 
-# FIXME: For now these tests assume you have a local postgres installed. One has the TM
-# database, the other for tm_admin.
+# FIXME: For now these tests assume you have a local postgres installed.
 
-dbname = os.getenv("TMDB", default="localhost/testdata")
 users = UsersAPI()
 #users.connect("localhost/tm_admin")
 projects = ProjectsAPI()
@@ -139,7 +137,7 @@ async def get_project_priority_areas():
     log.debug(f"--- get_project_priority_areas() ---")
     project_id = 3595
     # result = await projects.getPriorityAreas(project_id)
-    data = await projects.getColumns(['priority_areas'], [{"id": project_id}])
+    data = await projects.getColumns(['priority_areas'], {"id": project_id})
     areas =  data[0]['priority_areas']
     # print(result)
     assert len(areas) > 0
@@ -149,7 +147,7 @@ async def get_project_organisation():
     log.debug(f"--- get_project_organisation() ---")
     project_id = 3595
     # result = await projects.getOrganization(project_id)
-    data = await projects.getColumns(['organisation_id'], [{"id": project_id}])
+    data = await projects.getColumns(['organisation_id'], {"id": project_id})
     org_id =  data[0]['organisation_id']
     # print(result)
     assert org_id > 0
@@ -166,7 +164,7 @@ async def get_project_title():
     # project_id: int, preferred_locale: str = "en") -> str:
     log.debug(f"--- get_project_title() ---")
     project_id = 14672
-    data = await projects.getColumns(['name'],  [{"id": project_id}])
+    data = await projects.getColumns(['name'],  {"id": project_id})
     name = data[0]['name']
     # result = await projects.getName(project_id)
     # print(result)
@@ -174,7 +172,7 @@ async def get_project_title():
 
 async def get_featured_projects():
     log.debug(f"--- get_featured_projects() ---")
-    result = await projects.getColumns(['id'],  [{"featured": "true"}])
+    result = await projects.getColumns(['id'],  {"featured": "true"})
     # FIXME: this always fails because there are no projects with this
     # set to a value, everything is the f=default, false.
     # result = await projects.getByWhere(f" featured IS NOT NULL")
@@ -184,7 +182,7 @@ async def get_project_teams():
     # project_id: int):
     log.debug(f"--- get_project_teams() ---")
     project_id = 15173
-    data = await projects.getColumns(['teams'],  [{"id": project_id}])
+    data = await projects.getColumns(['teams'], {"id": project_id})
     teams = data[0]['teams']
     assert len(teams) > 0
 
