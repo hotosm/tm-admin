@@ -41,6 +41,7 @@ from tm_admin.teams.teams import TeamsDB
 from shapely import wkb, get_coordinates
 from tm_admin.dbsupport import DBSupport
 from tm_admin.generator import Generator
+from tm_admin.pgsupport import PGSupport
 from osm_rawdata.pgasync import PostgresClient
 import re
 # from progress import Bar, PixelBar
@@ -48,6 +49,7 @@ from tqdm import tqdm
 import tqdm.asyncio
 from codetiming import Timer
 import asyncio
+from shapely import wkb, wkt
 
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
@@ -56,7 +58,7 @@ cores = info["count"] * 2
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-class ProjectsAPI(PostgresClient):
+class ProjectsAPI(PGSupport):
     def __init__(self):
         """
         Create a class to handle the backend API calls, so the code can be shared
@@ -73,8 +75,9 @@ class ProjectsAPI(PostgresClient):
         self.messagesdb = MessagesDB()
         self.usersdb = UsersDB()
         self.teamsdb = TeamsDB()
+        super().__init__("projects")
 
-    async def connectDBs(self,
+    async def initialize(self,
                       uri: str,
                       ):
         """
@@ -84,9 +87,10 @@ class ProjectsAPI(PostgresClient):
             inuri (str): The URI for the TM Admin output database
         """
         await self.connect(uri)
-        await self.messagesdb.connect(uri)
-        await self.usersdb.connect(uri)
-        await self.teamsdb.connect(uri)
+        await self.getTypes("projects")
+        #await self.messagesdb.connect(uri)
+        #await self.usersdb.connect(uri)
+        #await self.teamsdb.connect(uri)
 
     async def create(self,
                      project: ProjectsTable,
@@ -100,7 +104,12 @@ class ProjectsAPI(PostgresClient):
         Returns:
             (bool): Whether the project got created
         """
-        log.warning(f"create(): unimplemented!")
+        # log.warning(f"--- create() ---")
+        result = await self.insertRecords([project])
+
+        # The ID of the record that just got inserted is returned
+        if result > 0:
+            return True
 
         return False
 
@@ -187,12 +196,28 @@ class ProjectsAPI(PostgresClient):
             team_id (id): The team ID
 
         Returns:
-            (Teamrole): The role of this team ion this project
+            (Teamrole): The role of this team in this project
         """
         log.warning(f"getProjectByTeam(): unimplemented!")
-        sql = f"SELECT FROM projects WHERE project_id={project_id}"
-        
-        return False
+        # sql = f"SELECT FROM projects WHERE project_id={project_id}"
+        # where = [{'teams': {"team_id": team_id, "project_id": project_id}}]
+        #data = await self.getColumns(['id', 'teams'], where)
+        # The role is in a list of dicts in a jsonb column.
+
+        sql = f"SELECT jsonb_path_query(teams, '$.teams[*] ? (@.team_id[*] == {team_id})') AS results FROM projects WHERE id = {project_id};"
+        results = await self.execute(sql)
+
+        # There should only be one item in the results. Since it's a jsonb column
+        # the data is returned as a string. In the string is an enum value, which
+        # gets converted to the actual enum for Teamroles.
+        if results[0]['results'][0] == '{':
+            tmp1 = eval(results[0]['results'])
+            tmp2 = f"Teamroles.{tmp1['role']}"
+            role = eval(tmp2)
+            return role
+        else:
+            # we should never get here, but you never know...
+            return None
 
     async def getByName(self,
                         name: str,
@@ -319,46 +344,6 @@ class ProjectsAPI(PostgresClient):
 
         return False
 
-    # These next methods are mostly just for convient access to a single column
-    async def getFeatures(self):
-        """
-
-        Args:
-            
-
-        Returns:
-            
-        """
-        log.warning(f"getFeatures(): unimplemented!")
-
-        return False
-
-    async def getTeams(self):
-        """
-
-        Args:
-            
-
-        Returns:
-            
-        """
-        log.warning(f"getTeams(): unimplemented!")
-
-        return False
-
-    async def getOrganization(self):
-        """
-
-        Args:
-            
-
-        Returns:
-            
-        """
-        log.warning(f"getOrganization(): unimplemented!")
-
-        return False
-
     async def getTasks(self):
         """
 
@@ -368,53 +353,34 @@ class ProjectsAPI(PostgresClient):
         Returns:
             
         """
-        log.warning(f"(): Unimplemented!")
+        log.warning(f"getTasks(): Unimplemented!")
 
         return False
 
-    async def getOrganization(self):
+    async def getAOI(self,
+                         project_id: int,
+                         ):
         """
 
         Args:
+            project_id (int): The project to get the data for
             
-
         Returns:
             
         """
-        log.warning(f"(): Unimplemented!")
+        # log.warning(f"getAOI(): Unimplemented!")
+        data = await self.getColumns(['geometry'],  [{"id": project_id}])
 
-        return False
+        # Convert the WKB to a Polygon.
+        return wkb.loads(data[0]['geometry'])
 
-    async def getPriorityAreas(self):
+    async def getDailyContributions(self,
+                               project_id: int,
+                                ):
         """
 
         Args:
-            
-
-        Returns:
-            
-        """
-        log.warning(f"(): Unimplemented!")
-
-        return False
-
-    async def getAOI(self):
-        """
-
-        Args:
-            
-
-        Returns:
-            
-        """
-        log.warning(f"(): Unimplemented!")
-
-        return False
-
-    async def getDailyContributions(self):
-        """
-
-        Args:
+            project_id (int): The project to get the data for
             
 
         Returns:
