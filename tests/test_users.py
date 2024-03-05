@@ -289,7 +289,7 @@ async def accept_license_terms():
     """Saves the fact user has accepted license terms"""
     # user_id: int, license_id: int
     log.debug(f"--- accept_license_terms() ---")
-    user_id = 4606673
+    user_id = 1
     result = await users.updateColumns({'licenses': 1}, {"id": user_id})
     assert result
 
@@ -402,7 +402,7 @@ async def get_user_by_id():
 async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
-    parser.add_argument("-u", "--uri", default='localhost/tm_admin', help="Database URI")
+    parser.add_argument("-u", "--uri", default='localhost/testdata', help="Database URI")
     args = parser.parse_args()
     # if verbose, dump to the terminal.
     log_level = os.getenv("LOG_LEVEL", default="INFO")
@@ -469,6 +469,8 @@ async def main():
     await get_user_role_by_user_id()
     await create_user_roles()
     await get_user_by_id()
+
+    await users.delete([1, 2, 3])
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
