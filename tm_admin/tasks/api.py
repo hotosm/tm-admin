@@ -67,6 +67,19 @@ class TasksAPI(PGSupport):
         """
         super().__init__("tasks")
 
+    async def initialize(self,
+                      uri: str,
+                      ):
+        """
+        Connect to all tables for API endpoints that require
+        accessing multiple tables.
+
+        Args:
+            inuri (str): The URI for the TM Admin output database
+        """
+        await self.connect(uri)
+        await self.getTypes("tasks")
+
     async def getStatus(self,
                       task_id: int,
                       project_id: int,

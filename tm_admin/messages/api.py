@@ -83,7 +83,7 @@ class MessagesAPI(PGSupport):
             inuri (str): The URI for the TM Admin output database
         """
         await self.connect(uri)
-        await self.getTypes("campaigns")
+        await self.getTypes("messages")
         #await self.usersdb.connect(uri)
         #await self.teamsdb.connect(uri)
 
@@ -133,7 +133,7 @@ class MessagesAPI(PGSupport):
         Returns:
             (bool): Whether the message got created
         """
-        log.warning(f"create(): unimplemented!")
+        # log.warning(f"create(): unimplemented!")
 
         result = await self.insertRecords([message])
 
@@ -160,18 +160,19 @@ class MessagesAPI(PGSupport):
         return False
 
     async def delete(self,
-                    message_id: int,
+                    message_ids: list,
                     ):
         """
-        Delete a message from the database.
+        Delete messages from the database.
 
         Args:
-            message_id (id): The message data
+            message_id (list): The messages
 
         Returns:
-            (bool): Whether the message got deleted
+            (bool): Whether the messages got deleted
         """
-        log.warning(f"delete(): unimplemented!")
+        # log.warning(f"delete(): unimplemented!")
+        await self.deleteRecords(message_ids)
 
         return False
 

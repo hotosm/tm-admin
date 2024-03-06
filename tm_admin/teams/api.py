@@ -152,37 +152,22 @@ class TeamsAPI(PGSupport):
         return False
         
     async def delete(self,
-                     team_id: int,
+                     team_ids: int,
                      ):
         """
         Delete a team from the database.
 
         Args:
-            team_id (int): The team ID
+            team_ids (int): The team ID
 
         Returns:
             (bool): Whether the team got deleted
         """
-        log.warning(f"delete(): unimplemented!")
+        # log.warning(f"delete(): unimplemented!")
+        await self.deleteRecords(team_ids)
 
-        return False
+        return True
         
-    async def getAllTeams(self,
-                          project_id: int,
-                          ):
-        """
-        Get all the teams for a project.
-
-        Args:
-            project_id (int): The project ID
-
-        Returns:
-            dict): The data for the teams
-        """
-        log.warning(f"getAllTeams(): unimplemented!")
-    
-        return False
-
     async def addMember(self,
                         member: Team_membersTable,
                         ):
@@ -259,32 +244,6 @@ class TeamsAPI(PGSupport):
 
         return False
 
-    async def isActive(self,
-                       team_id: int,
-                       user_id: int,
-                       ):
-        log.warning(f"--- isActive(: ---")
-        """
-        Check if a team member is an active or inactive members of a team.
-
-        Args:
-            team_id (int): The team to check
-            user_id (int): The user to check
-
-        Returns:
-            (bool): Whether the user is active on this team or not
-        """
-        sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.active==\"true\" && @.user_id==%d)') AS members FROM teams WHERE id=%d;" % (user_id, team_id)
-        print(sql)
-        results = await self.execute(sql)
-
-        if len(results) > 0:
-            value = eval(results[0]['members'])
-            if value['active'] == "true":
-                return True
-
-        return False
-
     async def checkFunction(self,
                        team_id: int,
                        user_id: int,
@@ -303,8 +262,9 @@ class TeamsAPI(PGSupport):
         """
         log.warning(f"isManager(): unimplemented!")
         sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.function==\"%s\" && @.user_id==%d)') AS members FROM teams WHERE id=%d;" % (function.name, user_id, team_id)
-        results = await self.execute(sql)
-        return results
+        result = await self.execute(sql)
+
+        return result
 
     async def joinRequest(self,
                           team_id: int,

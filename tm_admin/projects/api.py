@@ -88,9 +88,6 @@ class ProjectsAPI(PGSupport):
         """
         await self.connect(uri)
         await self.getTypes("projects")
-        #await self.messagesdb.connect(uri)
-        #await self.usersdb.connect(uri)
-        #await self.teamsdb.connect(uri)
 
     async def create(self,
                      project: ProjectsTable,
@@ -130,18 +127,19 @@ class ProjectsAPI(PGSupport):
         return False
 
     async def delete(self,
-                    project_id: int,
+                    project_ids: int,
                     ):
         """
         Delete a project from the database.
 
         Args:
-            project_id (id): The project data
+            project_ids (id): The project to delete
 
         Returns:
             (bool): Whether the project got deleted
         """
-        log.warning(f"delete(): unimplemented!")
+        # log.warning(f"delete(): unimplemented!")
+        await self.deleteRecords([project_ids])
 
         return False
 

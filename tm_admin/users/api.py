@@ -95,7 +95,14 @@ class UsersAPI(PGSupport):
         Returns:
             (bool): Whether the user got created
         """
-        log.warning(f"create(): unimplemented!")
+        # log.warning(f"create(): unimplemented!")
+        result = await self.insertRecords([user])
+
+        # The ID of the record that just got inserted is returned
+        if result:
+            return True
+
+        return False
 
     async def update(self,
                      org: UsersTable,
@@ -112,7 +119,7 @@ class UsersAPI(PGSupport):
         log.warning(f"update(): unimplemented!")
 
     async def delete(self,
-                    user_id: int,
+                    user_ids: list,
                      ):
         """
         Delete a user from the database.
@@ -123,24 +130,24 @@ class UsersAPI(PGSupport):
         Returns:
             (bool): Whether the user got deleted
         """
-        log.warning(f"delete(): unimplemented!")
+        #log.warning(f"delete(): unimplemented!")
+        await self.deleteRecords(user_ids)
 
     async def getByID(self,
                      user_id: int,
                     ):
         """
-        Get all the information for a project using it's ID
+        Get all the information for a user using it's ID
 
         Args:
-            project_id (int): The team to get the data for
+            user_id (int): The team to get the data for
 
         Returns:
-            (dict): the project information
+            (dict): the user information
         """
-        log.debug(f"--- getByID() ---")
-        sql = f"SELECT * FROM users WHERE id={user_id}"
-        results = await self.execute(sql)
-        return results
+        # log.debug(f"--- getByID() ---")
+        result = await self.getColumns(['*'], {"id": user_id})
+        return result
 
     async def getByName(self,
                         name: str,
@@ -158,6 +165,42 @@ class UsersAPI(PGSupport):
         sql = f"SELECT * FROM users WHERE name='{name}'"
         results = await self.execute(sql)
         return results
+
+    async def getRole(self,
+                  user_id: int,
+                  ):
+        """
+        Get the role for a user.
+
+        Args:
+            user_id (int): The user's ID
+
+        Returns:
+            (Userrole): The user's role
+        """
+        result = await self.getColumns(['role'], {"id": user_id})
+
+        return eval(f"Userrole.{result[0]['role']}")
+
+    async def getBlocked(self,
+                  user_id: int,
+                  ):
+        """
+        Get the role for a user.
+
+        Args:
+            user_id (int): The user's ID
+
+        Returns:
+            (bool): If the user is blocked or not
+        """
+        result = await self.getColumns(['role'], {"id": user_id})
+
+        role = eval(f"Userrole.{result[0]['role']}")
+        if role == Userrole.USER_READ_ONLY:
+            return True
+        else:
+            return False
 
     async def updateRole(self,
                    id: int,
