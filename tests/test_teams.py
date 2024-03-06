@@ -129,38 +129,6 @@ async def accept_reject_join_request():
     results = await teams.processInvite(team_id, user_id, name, action)
     # team_id, from_user_id, username, function, action
     
-async def accept_reject_invitation_request():
-    log.debug(f"accept_reject_invitation_request() unimplemented!")
-
-async def leave_team():
-    log.debug(f"leave_team() unimplemented!")
-    # team_id, username
-    
-async def add_team_project():
-    log.debug(f"add_team_project() unimplemented!")
-    
-async def delete_team_project():
-    log.debug(f"delete_team_project() unimplemented!")
-    # team_id, project_id
-    
-async def get_projects_by_team_id():
-    log.debug(f"get_projects_by_team_id() unimplemented!")
-    # team_id: int
-
-# FIXME: This should be in the projects API
-async def change_team_role():
-    log.debug(f"change_team_role() unimplemented!")
-    #  int, project_id: int, role: str
-
-# FIXME: this should be in the organizations API
-async def assert_validate_organisation():
-    log.debug(f"assert_validate_organisation() unimplemented!")
-    # org_id: int
-                
-async def assert_validate_members():
-    log.debug(f"assert_validate_members(team_dto:) unimplemented!")
-    #  TeamDTO
-    
 async def _get_active_team_members():
     log.debug(f"--- _get_active_team_members() ---")
     team_id = 1
@@ -192,7 +160,7 @@ async def is_user_team_member():
     function = Teammemberfunctions(Teammemberfunctions.MEMBER)
     result = await teams.checkFunction(team_id, user_id, function)
     assert result
-    
+
 async def is_user_team_manager():
     log.debug(f"--- is_user_team_manager() ---")
     # team_id: int, user_id: int
@@ -201,19 +169,51 @@ async def is_user_team_manager():
     function = Teammemberfunctions(Teammemberfunctions.MANAGER)
     result = await teams.checkFunction(team_id, user_id, function)
     assert result
-    
+
+async def accept_reject_invitation_request():
+    log.debug(f"accept_reject_invitation_request() unimplemented!")
+
+async def leave_team():
+    log.debug(f"leave_team() unimplemented!")
+    # team_id, username
+
+async def add_team_project():
+    log.debug(f"add_team_project() unimplemented!")
+
+async def delete_team_project():
+    log.debug(f"delete_team_project() unimplemented!")
+    # team_id, project_id
+
+async def get_projects_by_team_id():
+    log.debug(f"get_projects_by_team_id() unimplemented!")
+    # team_id: int
+
+# FIXME: This should be in the projects API
+async def change_team_role():
+    log.debug(f"change_team_role() unimplemented!")
+    #  int, project_id: int, role: str
+
+# FIXME: this should be in the organizations API
+async def assert_validate_organisation():
+    log.debug(f"assert_validate_organisation() unimplemented!")
+    # org_id: int
+
+async def assert_validate_members():
+    log.debug(f"assert_validate_members(team_dto:) unimplemented!")
+    #  TeamDTO
+
 async def check_team_membership():
     log.debug(f"check_team_membership() unimplemented!")
     # project_id: int, allowed_roles: list, user_id: int
-    
+
 async def activate_team_member():
     log.debug(f"activate_team_member() unimplemented!")
     # team_id: int, user_id: int
-    
+
 async def delete_invite():
     log.debug(f"delete_invite() unimplemented!")
     # team_id: int, user_id: int
-    
+
 async def send_message_to_all_team_members():
     log.debug(f"send_message_to_all_team_members() unimplemented!")
 
