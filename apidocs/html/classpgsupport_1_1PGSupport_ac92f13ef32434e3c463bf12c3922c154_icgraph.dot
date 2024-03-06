@@ -1,0 +1,18 @@
+digraph "pgsupport.PGSupport.getColumns"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="pgsupport.PGSupport.getColumns",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="tmdb.TMImport.getAllData",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtmdb_1_1TMImport.html#aea4f362d2d50f3b6d589875c21ca790e",tooltip=" "];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="api.ProjectsAPI.getAOI",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1ProjectsAPI.html#aac4b88d15f24c7ace68fc7ce491878ed",tooltip=" "];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="api.UsersAPI.getBlocked",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1UsersAPI.html#ae619d887cc0dea213c5e1018fdb5d205",tooltip=" "];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="api.UsersAPI.getByID",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1UsersAPI.html#ab4e8c84ab1049f833f0bb6f0c738527d",tooltip=" "];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="api.UsersAPI.getRole",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1UsersAPI.html#a8fbedb94e41124356cc00bccfa960dc8",tooltip=" "];
+}

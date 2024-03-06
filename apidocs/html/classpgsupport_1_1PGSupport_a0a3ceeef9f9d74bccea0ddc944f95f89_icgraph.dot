@@ -1,0 +1,22 @@
+digraph "pgsupport.PGSupport.insertRecords"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="pgsupport.PGSupport.insert\lRecords",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="api.CampaignsAPI.create",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1CampaignsAPI.html#ac9113d809d8e756d7e87bc8fc8c48442",tooltip=" "];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="api.MessagesAPI.create",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1MessagesAPI.html#a068dbe65ab9583589a57d04fba2e6e7f",tooltip=" "];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="api.OrganizationsAPI.create",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1OrganizationsAPI.html#aa67847f3a3cef3ed0c74a86b4f8f88df",tooltip=" "];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="api.ProjectsAPI.create",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1ProjectsAPI.html#a530f889ef1e6c1cfd7538db972e648e3",tooltip=" "];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="api.TasksAPI.create",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1TasksAPI.html#afdeb6c7efc581a3f025a05621b3c955b",tooltip=" "];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="api.TeamsAPI.create",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1TeamsAPI.html#a65400e13d835b198eaf208d7ad2a97de",tooltip=" "];
+  Node1 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="api.UsersAPI.create",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1UsersAPI.html#a1292a724dfc055306f7c3676af9594a1",tooltip=" "];
+}

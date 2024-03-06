@@ -1,0 +1,3310 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Classes for administrative functions for Tasking Manager style projects.">
+      
+      
+      
+        <link rel="canonical" href="https://www.hotosm.org/protos-api/">
+      
+      
+        <link rel="prev" href="../pgasync/">
+      
+      
+        <link rel="next" href="../apidocs/html/">
+      
+      
+      <link rel="icon" href="../images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.6">
+    
+    
+      
+        <title>Protobuf API - tm-admin</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.35e1ed30.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../css/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#protocol-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="tm-admin" class="md-header__button md-logo" aria-label="tm-admin" data-md-component="logo">
+      
+  <img src="../images/hot_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            tm-admin
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Protobuf API
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hotosm/tm-admin/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hotosm/tm-admin
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="tm-admin" class="md-nav__button md-logo" aria-label="tm-admin" data-md-component="logo">
+      
+  <img src="../images/hot_logo.png" alt="logo">
+
+    </a>
+    tm-admin
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hotosm/tm-admin/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hotosm/tm-admin
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Utilities
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Utilities
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tmadmin-manage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    tmadmin-manager
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tmdb/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    tmdb
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    generator
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../importing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importing TM data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Deep Dives
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Deep Dives
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Building
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuring/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configuring
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../communication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Communication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data Flow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataexchange/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data Exchange
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../endpoints/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Endpoints
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Database schema
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    For Developers
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            For Developers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../structure/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Code Structure
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pgsupport/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Database Support
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Code API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pgasync/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Using asyncpg
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Protobuf API
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Protobuf API
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Page contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Page contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    Table of Contents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#servicesproto" class="md-nav__link">
+    services.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="services.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notification" class="md-nav__link">
+    notification
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tmrequest" class="md-nav__link">
+    tmrequest
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tmresponse" class="md-nav__link">
+    tmresponse
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tmresponsedataentry" class="md-nav__link">
+    tmresponse.DataEntry
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tmadmin" class="md-nav__link">
+    TMAdmin
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#types_tmproto" class="md-nav__link">
+    types_tm.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="types_tm.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bannertype" class="md-nav__link">
+    Bannertype
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command" class="md-nav__link">
+    Command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#editors" class="md-nav__link">
+    Editors
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encouragingemailtype" class="md-nav__link">
+    Encouragingemailtype
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mappinglevel" class="md-nav__link">
+    Mappinglevel
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mappingnotallowed" class="md-nav__link">
+    Mappingnotallowed
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mappingtypes" class="md-nav__link">
+    Mappingtypes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notification_1" class="md-nav__link">
+    Notification
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationtype" class="md-nav__link">
+    Organizationtype
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permissions" class="md-nav__link">
+    Permissions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectdifficulty" class="md-nav__link">
+    Projectdifficulty
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectpriority" class="md-nav__link">
+    Projectpriority
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectstatus" class="md-nav__link">
+    Projectstatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#taskaction" class="md-nav__link">
+    Taskaction
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#taskcreationmode" class="md-nav__link">
+    Taskcreationmode
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#taskstatus" class="md-nav__link">
+    Taskstatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teamjoinmethod" class="md-nav__link">
+    Teamjoinmethod
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teammemberfunctions" class="md-nav__link">
+    Teammemberfunctions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teamroles" class="md-nav__link">
+    Teamroles
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teamvisibility" class="md-nav__link">
+    Teamvisibility
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usergender" class="md-nav__link">
+    Usergender
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#userrole" class="md-nav__link">
+    Userrole
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validatingnotallowed" class="md-nav__link">
+    Validatingnotallowed
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#organizationsorganizationsproto" class="md-nav__link">
+    organizations/organizations.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="organizations/organizations.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#organizations" class="md-nav__link">
+    organizations
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#projectsprojectsproto" class="md-nav__link">
+    projects/projects.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="projects/projects.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#projects" class="md-nav__link">
+    projects
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#taskstasksproto" class="md-nav__link">
+    tasks/tasks.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="tasks/tasks.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    tasks
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teamsteamsproto" class="md-nav__link">
+    teams/teams.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="teams/teams.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#teams" class="md-nav__link">
+    teams
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usersusersproto" class="md-nav__link">
+    users/users.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="users/users.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#users" class="md-nav__link">
+    users
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scalar-value-types" class="md-nav__link">
+    Scalar Value Types
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apidocs/html/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Class Hierarchy
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://docs.hotosm.org/dev-guide/version-control/#creating-releases" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Versioning
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LICENSE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    License
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CHANGELOG/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://docs.hotosm.org/code-of-conduct" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Code of Conduct
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Page contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Page contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    Table of Contents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#servicesproto" class="md-nav__link">
+    services.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="services.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notification" class="md-nav__link">
+    notification
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tmrequest" class="md-nav__link">
+    tmrequest
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tmresponse" class="md-nav__link">
+    tmresponse
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tmresponsedataentry" class="md-nav__link">
+    tmresponse.DataEntry
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tmadmin" class="md-nav__link">
+    TMAdmin
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#types_tmproto" class="md-nav__link">
+    types_tm.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="types_tm.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bannertype" class="md-nav__link">
+    Bannertype
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command" class="md-nav__link">
+    Command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#editors" class="md-nav__link">
+    Editors
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encouragingemailtype" class="md-nav__link">
+    Encouragingemailtype
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mappinglevel" class="md-nav__link">
+    Mappinglevel
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mappingnotallowed" class="md-nav__link">
+    Mappingnotallowed
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mappingtypes" class="md-nav__link">
+    Mappingtypes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notification_1" class="md-nav__link">
+    Notification
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationtype" class="md-nav__link">
+    Organizationtype
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permissions" class="md-nav__link">
+    Permissions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectdifficulty" class="md-nav__link">
+    Projectdifficulty
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectpriority" class="md-nav__link">
+    Projectpriority
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectstatus" class="md-nav__link">
+    Projectstatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#taskaction" class="md-nav__link">
+    Taskaction
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#taskcreationmode" class="md-nav__link">
+    Taskcreationmode
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#taskstatus" class="md-nav__link">
+    Taskstatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teamjoinmethod" class="md-nav__link">
+    Teamjoinmethod
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teammemberfunctions" class="md-nav__link">
+    Teammemberfunctions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teamroles" class="md-nav__link">
+    Teamroles
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teamvisibility" class="md-nav__link">
+    Teamvisibility
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usergender" class="md-nav__link">
+    Usergender
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#userrole" class="md-nav__link">
+    Userrole
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validatingnotallowed" class="md-nav__link">
+    Validatingnotallowed
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#organizationsorganizationsproto" class="md-nav__link">
+    organizations/organizations.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="organizations/organizations.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#organizations" class="md-nav__link">
+    organizations
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#projectsprojectsproto" class="md-nav__link">
+    projects/projects.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="projects/projects.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#projects" class="md-nav__link">
+    projects
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#taskstasksproto" class="md-nav__link">
+    tasks/tasks.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="tasks/tasks.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    tasks
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teamsteamsproto" class="md-nav__link">
+    teams/teams.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="teams/teams.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#teams" class="md-nav__link">
+    teams
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usersusersproto" class="md-nav__link">
+    users/users.proto
+  </a>
+  
+    <nav class="md-nav" aria-label="users/users.proto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#users" class="md-nav__link">
+    users
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scalar-value-types" class="md-nav__link">
+    Scalar Value Types
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="protocol-documentation">Protocol Documentation<a class="headerlink" href="#protocol-documentation" title="Permanent link">&para;</a></h1>
+<p><a name="top"></a></p>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><a href="#services-proto">services.proto</a></p>
+<ul>
+<li><a href="#tmadmin-notification">notification</a></li>
+<li><a href="#tmadmin-tmrequest">tmrequest</a></li>
+<li><a href="#tmadmin-tmresponse">tmresponse</a></li>
+<li>
+<p><a href="#tmadmin-tmresponse-DataEntry">tmresponse.DataEntry</a></p>
+</li>
+<li>
+<p><a href="#tmadmin-TMAdmin">TMAdmin</a></p>
+</li>
+</ul>
+</li>
+<li>
+<p><a href="#types_tm-proto">types_tm.proto</a></p>
+<ul>
+<li><a href="#-Bannertype">Bannertype</a></li>
+<li><a href="#-Command">Command</a></li>
+<li><a href="#-Editors">Editors</a></li>
+<li><a href="#-Encouragingemailtype">Encouragingemailtype</a></li>
+<li><a href="#-Mappinglevel">Mappinglevel</a></li>
+<li><a href="#-Mappingnotallowed">Mappingnotallowed</a></li>
+<li><a href="#-Mappingtypes">Mappingtypes</a></li>
+<li><a href="#-Notification">Notification</a></li>
+<li><a href="#-Organizationtype">Organizationtype</a></li>
+<li><a href="#-Permissions">Permissions</a></li>
+<li><a href="#-Projectdifficulty">Projectdifficulty</a></li>
+<li><a href="#-Projectpriority">Projectpriority</a></li>
+<li><a href="#-Projectstatus">Projectstatus</a></li>
+<li><a href="#-Taskaction">Taskaction</a></li>
+<li><a href="#-Taskcreationmode">Taskcreationmode</a></li>
+<li><a href="#-Taskstatus">Taskstatus</a></li>
+<li><a href="#-Teamjoinmethod">Teamjoinmethod</a></li>
+<li><a href="#-Teammemberfunctions">Teammemberfunctions</a></li>
+<li><a href="#-Teamroles">Teamroles</a></li>
+<li><a href="#-Teamvisibility">Teamvisibility</a></li>
+<li><a href="#-Usergender">Usergender</a></li>
+<li><a href="#-Userrole">Userrole</a></li>
+<li><a href="#-Validatingnotallowed">Validatingnotallowed</a></li>
+</ul>
+</li>
+<li>
+<p><a href="#organizations_organizations-proto">organizations/organizations.proto</a></p>
+<ul>
+<li><a href="#tmadmin-organizations">organizations</a></li>
+</ul>
+</li>
+<li>
+<p><a href="#projects_projects-proto">projects/projects.proto</a></p>
+<ul>
+<li><a href="#tmadmin-projects">projects</a></li>
+</ul>
+</li>
+<li>
+<p><a href="#tasks_tasks-proto">tasks/tasks.proto</a></p>
+<ul>
+<li><a href="#tmadmin-tasks">tasks</a></li>
+</ul>
+</li>
+<li>
+<p><a href="#teams_teams-proto">teams/teams.proto</a></p>
+<ul>
+<li><a href="#tmadmin-teams">teams</a></li>
+</ul>
+</li>
+<li>
+<p><a href="#users_users-proto">users/users.proto</a></p>
+<ul>
+<li><a href="#tmadmin-users">users</a></li>
+</ul>
+</li>
+<li>
+<p><a href="#scalar-value-types">Scalar Value Types</a></p>
+</li>
+</ul>
+<p><a name="services-proto"></a></p>
+<p align="right"><a href="#top">Top</a></p>
+
+<h2 id="servicesproto">services.proto<a class="headerlink" href="#servicesproto" title="Permanent link">&para;</a></h2>
+<p><a name="tmadmin-notification"></a></p>
+<h3 id="notification">notification<a class="headerlink" href="#notification" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Label</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>note</td>
+<td><a href="#Notification">Notification</a></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="tmadmin-tmrequest"></a></p>
+<h3 id="tmrequest">tmrequest<a class="headerlink" href="#tmrequest" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Label</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cmd</td>
+<td><a href="#Command">Command</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>name</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="tmadmin-tmresponse"></a></p>
+<h3 id="tmresponse">tmresponse<a class="headerlink" href="#tmresponse" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Label</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>error_code</td>
+<td><a href="#int32">int32</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>error_msg</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>data</td>
+<td><a href="#tmadmin-tmresponse-DataEntry">tmresponse.DataEntry</a></td>
+<td>repeated</td>
+<td>message Data {   map&lt;string, string&gt; pairs = 3;    } repeated Data data = 4;</td>
+</tr>
+</tbody>
+</table>
+<p><a name="tmadmin-tmresponse-DataEntry"></a></p>
+<h3 id="tmresponsedataentry">tmresponse.DataEntry<a class="headerlink" href="#tmresponsedataentry" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Label</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>key</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>value</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="tmadmin-TMAdmin"></a></p>
+<h3 id="tmadmin">TMAdmin<a class="headerlink" href="#tmadmin" title="Permanent link">&para;</a></h3>
+<p>The greeting service definition.</p>
+<table>
+<thead>
+<tr>
+<th>Method Name</th>
+<th>Request Type</th>
+<th>Response Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>doRequest</td>
+<td><a href="#tmadmin-tmrequest">tmrequest</a></td>
+<td><a href="#tmadmin-tmresponse">tmresponse</a></td>
+<td>These are for handling tmrequest for profile data from the database</td>
+</tr>
+<tr>
+<td>doNotification</td>
+<td><a href="#tmadmin-notification">notification</a></td>
+<td><a href="#tmadmin-tmresponse">tmresponse</a></td>
+<td></td>
+</tr>
+<tr>
+<td>updateUserProfile</td>
+<td><a href="#tmadmin-users">users</a></td>
+<td><a href="#tmadmin-users">users</a></td>
+<td></td>
+</tr>
+<tr>
+<td>updateProjectProfile</td>
+<td><a href="#tmadmin-projects">projects</a></td>
+<td><a href="#tmadmin-projects">projects</a></td>
+<td></td>
+</tr>
+<tr>
+<td>updateTeamProfile</td>
+<td><a href="#tmadmin-teams">teams</a></td>
+<td><a href="#tmadmin-teams">teams</a></td>
+<td></td>
+</tr>
+<tr>
+<td>updateTask</td>
+<td><a href="#tmadmin-tasks">tasks</a></td>
+<td><a href="#tmadmin-tasks">tasks</a></td>
+<td></td>
+</tr>
+<tr>
+<td>updateOrganizationProfile</td>
+<td><a href="#tmadmin-organizations">organizations</a></td>
+<td><a href="#tmadmin-organizations">organizations</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="types_tm-proto"></a></p>
+<p align="right"><a href="#top">Top</a></p>
+
+<h2 id="types_tmproto">types_tm.proto<a class="headerlink" href="#types_tmproto" title="Permanent link">&para;</a></h2>
+<p><a name="-Bannertype"></a></p>
+<h3 id="bannertype">Bannertype<a class="headerlink" href="#bannertype" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INFO</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>WARNING</td>
+<td>1</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Command"></a></p>
+<h3 id="command">Command<a class="headerlink" href="#command" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET_USER</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>GET_ORG</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>GET_PROJECT</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>GET_TEAM</td>
+<td>3</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Editors"></a></p>
+<h3 id="editors">Editors<a class="headerlink" href="#editors" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ID</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>JOSM</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>POTLATCH_2</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>FIELD_PAPERS</td>
+<td>3</td>
+<td></td>
+</tr>
+<tr>
+<td>CUSTOM</td>
+<td>4</td>
+<td></td>
+</tr>
+<tr>
+<td>RAPID</td>
+<td>5</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Encouragingemailtype"></a></p>
+<h3 id="encouragingemailtype">Encouragingemailtype<a class="headerlink" href="#encouragingemailtype" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PROJECT_PROGRESS</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>PROJECT_COMPLETE</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>BEEN_SOME_TIME</td>
+<td>2</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Mappinglevel"></a></p>
+<h3 id="mappinglevel">Mappinglevel<a class="headerlink" href="#mappinglevel" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BEGINNER</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>INTERMEDIATE</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>ADVANCED</td>
+<td>2</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Mappingnotallowed"></a></p>
+<h3 id="mappingnotallowed">Mappingnotallowed<a class="headerlink" href="#mappingnotallowed" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>USER_ALREADY_HAS_TASK_LOCKED</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>USER_NOT_CORRECT_MAPPING_LEVEL</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>USER_NOT_ACCEPTED_LICENSE</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>USER_NOT_ALLOWED</td>
+<td>3</td>
+<td></td>
+</tr>
+<tr>
+<td>PROJECT_NOT_PUBLISHED</td>
+<td>4</td>
+<td></td>
+</tr>
+<tr>
+<td>USER_NOT_TEAM_MEMBER</td>
+<td>5</td>
+<td></td>
+</tr>
+<tr>
+<td>PROJECT_HAS_NO_OSM_TEAM</td>
+<td>6</td>
+<td></td>
+</tr>
+<tr>
+<td>NOT_A_MAPPING_TEAM</td>
+<td>7</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Mappingtypes"></a></p>
+<h3 id="mappingtypes">Mappingtypes<a class="headerlink" href="#mappingtypes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ROADS</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>BUILDINGS</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>WATERWAYS</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>LAND_USE</td>
+<td>3</td>
+<td></td>
+</tr>
+<tr>
+<td>OTHER</td>
+<td>4</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Notification"></a></p>
+<h3 id="notification_1">Notification<a class="headerlink" href="#notification_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BAD_DATA</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>BLOCKED_USER</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>PROJECT_FINISHED</td>
+<td>2</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Organizationtype"></a></p>
+<h3 id="organizationtype">Organizationtype<a class="headerlink" href="#organizationtype" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FREE</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>DISCOUNTED</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>FULL_FEE</td>
+<td>2</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Permissions"></a></p>
+<h3 id="permissions">Permissions<a class="headerlink" href="#permissions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ANY_PERMISSIONS</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>LEVEL</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>TEAMS</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>TEAMS_LEVEL</td>
+<td>3</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Projectdifficulty"></a></p>
+<h3 id="projectdifficulty">Projectdifficulty<a class="headerlink" href="#projectdifficulty" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EASY</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>MODERATE</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>CHALLENGING</td>
+<td>2</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Projectpriority"></a></p>
+<h3 id="projectpriority">Projectpriority<a class="headerlink" href="#projectpriority" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>URGENT</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>HIGH</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>MEDIUM</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>LOW</td>
+<td>3</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Projectstatus"></a></p>
+<h3 id="projectstatus">Projectstatus<a class="headerlink" href="#projectstatus" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ARCHIVED</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>PUBLISHED</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>DRAFT</td>
+<td>2</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Taskaction"></a></p>
+<h3 id="taskaction">Taskaction<a class="headerlink" href="#taskaction" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RELEASED_FOR_MAPPING</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>LOCKED_FOR_MAPPING</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>MARKED_MAPPED</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>LOCKED_FOR_VALIDATION</td>
+<td>3</td>
+<td></td>
+</tr>
+<tr>
+<td>VALIDATED</td>
+<td>4</td>
+<td></td>
+</tr>
+<tr>
+<td>MARKED_INVALID</td>
+<td>5</td>
+<td></td>
+</tr>
+<tr>
+<td>MARKED_BAD</td>
+<td>6</td>
+<td></td>
+</tr>
+<tr>
+<td>SPLIT_NEEDED</td>
+<td>7</td>
+<td></td>
+</tr>
+<tr>
+<td>RECREATED</td>
+<td>8</td>
+<td></td>
+</tr>
+<tr>
+<td>COMMENT</td>
+<td>9</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Taskcreationmode"></a></p>
+<h3 id="taskcreationmode">Taskcreationmode<a class="headerlink" href="#taskcreationmode" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GRID</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>CREATE_ROADS</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>UPLOAD</td>
+<td>2</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Taskstatus"></a></p>
+<h3 id="taskstatus">Taskstatus<a class="headerlink" href="#taskstatus" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>READY</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>TASK_LOCKED_FOR_MAPPING</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>TASK_STATUS_MAPPED</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>TASK_LOCKED_FOR_VALIDATION</td>
+<td>3</td>
+<td></td>
+</tr>
+<tr>
+<td>TASK_VALIDATED</td>
+<td>4</td>
+<td></td>
+</tr>
+<tr>
+<td>TASK_INVALIDATED</td>
+<td>5</td>
+<td></td>
+</tr>
+<tr>
+<td>BAD</td>
+<td>6</td>
+<td></td>
+</tr>
+<tr>
+<td>SPLIT</td>
+<td>7</td>
+<td></td>
+</tr>
+<tr>
+<td>TASK_ARCHIVED</td>
+<td>8</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Teamjoinmethod"></a></p>
+<h3 id="teamjoinmethod">Teamjoinmethod<a class="headerlink" href="#teamjoinmethod" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ANY_METHOD</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>BY_REQUEST</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>BY_INVITE</td>
+<td>2</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Teammemberfunctions"></a></p>
+<h3 id="teammemberfunctions">Teammemberfunctions<a class="headerlink" href="#teammemberfunctions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MANAGER</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>MEMBER</td>
+<td>1</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Teamroles"></a></p>
+<h3 id="teamroles">Teamroles<a class="headerlink" href="#teamroles" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TEAM_READ_ONLY</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>TEAM_MAPPER</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>VALIDATOR</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>PROJECT_MANAGER</td>
+<td>3</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Teamvisibility"></a></p>
+<h3 id="teamvisibility">Teamvisibility<a class="headerlink" href="#teamvisibility" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PUBLIC</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>PRIVATE</td>
+<td>1</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Usergender"></a></p>
+<h3 id="usergender">Usergender<a class="headerlink" href="#usergender" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MALE</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>FEMALE</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>SELF_DESCRIBE</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>PREFER_NOT</td>
+<td>3</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Userrole"></a></p>
+<h3 id="userrole">Userrole<a class="headerlink" href="#userrole" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>USER_READ_ONLY</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>USER_MAPPER</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>ADMIN</td>
+<td>2</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="-Validatingnotallowed"></a></p>
+<h3 id="validatingnotallowed">Validatingnotallowed<a class="headerlink" href="#validatingnotallowed" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Number</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>USER_NOT_VALIDATOR</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>USER_LICENSE_NOT_ACCEPTED</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>USER_NOT_ON_ALLOWED_LIST</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>PROJECT_NOT_YET_PUBLISHED</td>
+<td>3</td>
+<td></td>
+</tr>
+<tr>
+<td>USER_IS_BEGINNER</td>
+<td>4</td>
+<td></td>
+</tr>
+<tr>
+<td>NOT_A_VALIDATION_TEAM</td>
+<td>5</td>
+<td></td>
+</tr>
+<tr>
+<td>USER_NOT_IN_TEAM</td>
+<td>6</td>
+<td></td>
+</tr>
+<tr>
+<td>PROJECT_HAS_NO_TEAM</td>
+<td>7</td>
+<td></td>
+</tr>
+<tr>
+<td>USER_ALREADY_LOCKED_TASK</td>
+<td>8</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="organizations_organizations-proto"></a></p>
+<p align="right"><a href="#top">Top</a></p>
+
+<h2 id="organizationsorganizationsproto">organizations/organizations.proto<a class="headerlink" href="#organizationsorganizationsproto" title="Permanent link">&para;</a></h2>
+<p><a name="tmadmin-organizations"></a></p>
+<h3 id="organizations">organizations<a class="headerlink" href="#organizations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Label</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>name</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>slug</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>logo</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>description</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>url</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>orgtype</td>
+<td><a href="#Organizationtype">Organizationtype</a></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="projects_projects-proto"></a></p>
+<p align="right"><a href="#top">Top</a></p>
+
+<h2 id="projectsprojectsproto">projects/projects.proto<a class="headerlink" href="#projectsprojectsproto" title="Permanent link">&para;</a></h2>
+<p><a name="tmadmin-projects"></a></p>
+<h3 id="projects">projects<a class="headerlink" href="#projects" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Label</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>odkid</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>author_id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>created</td>
+<td><a href="#google-protobuf-Timestamp">google.protobuf.Timestamp</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>project_name_prefix</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>task_type_prefix</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>location_str</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>outline</td>
+<td><a href="#bytes">bytes</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>status</td>
+<td><a href="#Projectstatus">Projectstatus</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>private</td>
+<td><a href="#bool">bool</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>mapper_level</td>
+<td><a href="#Mappinglevel">Mappinglevel</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>priority</td>
+<td><a href="#Projectpriority">Projectpriority</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>centroid</td>
+<td><a href="#bytes">bytes</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>hashtags</td>
+<td><a href="#string">string</a></td>
+<td>repeated</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="tasks_tasks-proto"></a></p>
+<p align="right"><a href="#top">Top</a></p>
+
+<h2 id="taskstasksproto">tasks/tasks.proto<a class="headerlink" href="#taskstasksproto" title="Permanent link">&para;</a></h2>
+<p><a name="tmadmin-tasks"></a></p>
+<h3 id="tasks">tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Label</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>project_task_name</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>outline</td>
+<td><a href="#bytes">bytes</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>geometry_geojson</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="teams_teams-proto"></a></p>
+<p align="right"><a href="#top">Top</a></p>
+
+<h2 id="teamsteamsproto">teams/teams.proto<a class="headerlink" href="#teamsteamsproto" title="Permanent link">&para;</a></h2>
+<p><a name="tmadmin-teams"></a></p>
+<h3 id="teams">teams<a class="headerlink" href="#teams" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Label</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>name</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>logo</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>description</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>invite_only</td>
+<td><a href="#bool">bool</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>visibility</td>
+<td><a href="#Teamvisibility">Teamvisibility</a></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a name="users_users-proto"></a></p>
+<p align="right"><a href="#top">Top</a></p>
+
+<h2 id="usersusersproto">users/users.proto<a class="headerlink" href="#usersusersproto" title="Permanent link">&para;</a></h2>
+<p><a name="tmadmin-users"></a></p>
+<h3 id="users">users<a class="headerlink" href="#users" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Label</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>username</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>name</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>city</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>country</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>tasks_mapped</td>
+<td><a href="#int32">int32</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>tasks_invalidated</td>
+<td><a href="#int32">int32</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>projects_mapped</td>
+<td><a href="#int32">int32</a></td>
+<td>repeated</td>
+<td></td>
+</tr>
+<tr>
+<td>date_registered</td>
+<td><a href="#google-protobuf-Timestamp">google.protobuf.Timestamp</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>last_validation_date</td>
+<td><a href="#google-protobuf-Timestamp">google.protobuf.Timestamp</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>password</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>osm_id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>facebook_id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>irc_id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>skype_id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>slack_id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>linkedin_id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>twitter_id</td>
+<td><a href="#int64">int64</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>picture_url</td>
+<td><a href="#string">string</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>gender</td>
+<td><a href="#int32">int32</a></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="scalar-value-types">Scalar Value Types<a class="headerlink" href="#scalar-value-types" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>.proto Type</th>
+<th>Notes</th>
+<th>C++</th>
+<th>Java</th>
+<th>Python</th>
+<th>Go</th>
+<th>C#</th>
+<th>PHP</th>
+<th>Ruby</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a name="double" /> double</td>
+<td></td>
+<td>double</td>
+<td>double</td>
+<td>float</td>
+<td>float64</td>
+<td>double</td>
+<td>float</td>
+<td>Float</td>
+</tr>
+<tr>
+<td><a name="float" /> float</td>
+<td></td>
+<td>float</td>
+<td>float</td>
+<td>float</td>
+<td>float32</td>
+<td>float</td>
+<td>float</td>
+<td>Float</td>
+</tr>
+<tr>
+<td><a name="int32" /> int32</td>
+<td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead.</td>
+<td>int32</td>
+<td>int</td>
+<td>int</td>
+<td>int32</td>
+<td>int</td>
+<td>integer</td>
+<td>Bignum or Fixnum (as required)</td>
+</tr>
+<tr>
+<td><a name="int64" /> int64</td>
+<td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead.</td>
+<td>int64</td>
+<td>long</td>
+<td>int/long</td>
+<td>int64</td>
+<td>long</td>
+<td>integer/string</td>
+<td>Bignum</td>
+</tr>
+<tr>
+<td><a name="uint32" /> uint32</td>
+<td>Uses variable-length encoding.</td>
+<td>uint32</td>
+<td>int</td>
+<td>int/long</td>
+<td>uint32</td>
+<td>uint</td>
+<td>integer</td>
+<td>Bignum or Fixnum (as required)</td>
+</tr>
+<tr>
+<td><a name="uint64" /> uint64</td>
+<td>Uses variable-length encoding.</td>
+<td>uint64</td>
+<td>long</td>
+<td>int/long</td>
+<td>uint64</td>
+<td>ulong</td>
+<td>integer/string</td>
+<td>Bignum or Fixnum (as required)</td>
+</tr>
+<tr>
+<td><a name="sint32" /> sint32</td>
+<td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s.</td>
+<td>int32</td>
+<td>int</td>
+<td>int</td>
+<td>int32</td>
+<td>int</td>
+<td>integer</td>
+<td>Bignum or Fixnum (as required)</td>
+</tr>
+<tr>
+<td><a name="sint64" /> sint64</td>
+<td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s.</td>
+<td>int64</td>
+<td>long</td>
+<td>int/long</td>
+<td>int64</td>
+<td>long</td>
+<td>integer/string</td>
+<td>Bignum</td>
+</tr>
+<tr>
+<td><a name="fixed32" /> fixed32</td>
+<td>Always four bytes. More efficient than uint32 if values are often greater than 2^28.</td>
+<td>uint32</td>
+<td>int</td>
+<td>int</td>
+<td>uint32</td>
+<td>uint</td>
+<td>integer</td>
+<td>Bignum or Fixnum (as required)</td>
+</tr>
+<tr>
+<td><a name="fixed64" /> fixed64</td>
+<td>Always eight bytes. More efficient than uint64 if values are often greater than 2^56.</td>
+<td>uint64</td>
+<td>long</td>
+<td>int/long</td>
+<td>uint64</td>
+<td>ulong</td>
+<td>integer/string</td>
+<td>Bignum</td>
+</tr>
+<tr>
+<td><a name="sfixed32" /> sfixed32</td>
+<td>Always four bytes.</td>
+<td>int32</td>
+<td>int</td>
+<td>int</td>
+<td>int32</td>
+<td>int</td>
+<td>integer</td>
+<td>Bignum or Fixnum (as required)</td>
+</tr>
+<tr>
+<td><a name="sfixed64" /> sfixed64</td>
+<td>Always eight bytes.</td>
+<td>int64</td>
+<td>long</td>
+<td>int/long</td>
+<td>int64</td>
+<td>long</td>
+<td>integer/string</td>
+<td>Bignum</td>
+</tr>
+<tr>
+<td><a name="bool" /> bool</td>
+<td></td>
+<td>bool</td>
+<td>boolean</td>
+<td>boolean</td>
+<td>bool</td>
+<td>bool</td>
+<td>boolean</td>
+<td>TrueClass/FalseClass</td>
+</tr>
+<tr>
+<td><a name="string" /> string</td>
+<td>A string must always contain UTF-8 encoded or 7-bit ASCII text.</td>
+<td>string</td>
+<td>String</td>
+<td>str/unicode</td>
+<td>string</td>
+<td>string</td>
+<td>string</td>
+<td>String (UTF-8)</td>
+</tr>
+<tr>
+<td><a name="bytes" /> bytes</td>
+<td>May contain any arbitrary sequence of bytes.</td>
+<td>string</td>
+<td>ByteString</td>
+<td>str</td>
+<td>[]byte</td>
+<td>ByteString</td>
+<td>string</td>
+<td>String (ASCII-8BIT)</td>
+</tr>
+</tbody>
+</table>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      Last update:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 6, 2024</span>
+      
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/hotosm/" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/hotosm" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.hotosm.org" target="_blank" rel="noopener" title="www.hotosm.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M352 256c0 22.2-1.2 43.6-3.3 64H163.3c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64h185.4c2.2 20.4 3.3 41.8 3.3 64zm28.8-64h123.1c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64H380.8c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32H376.7c-10-63.9-29.8-117.4-55.3-151.6 78.3 20.7 142 77.5 171.9 151.6zm-149.1 0H167.7c6.1-36.4 15.5-68.6 27-94.7 10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5 11.6 26 20.9 58.2 27 94.7zm-209 0H18.6c30-74.1 93.6-130.9 172-151.6-25.5 34.2-45.3 87.7-55.3 151.6zM8.1 192h123.1c-2.1 20.6-3.2 42-3.2 64s1.1 43.4 3.2 64H8.1C2.8 299.5 0 278.1 0 256s2.8-43.5 8.1-64zm186.6 254.6c-11.6-26-20.9-58.2-27-94.6h176.6c-6.1 36.4-15.5 68.6-27 94.6-10.5 23.6-22.2 40.7-33.5 51.5-11.2 10.7-20.5 13.9-27.8 13.9s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6-78.4-20.7-142-77.5-172-151.6h116.7zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6 25.5-34.2 45.2-87.7 55.3-151.6h116.6z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.aecac24b.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,10 @@
+digraph "tmadmin_manage.TmAdminManage.readDiff"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="tmadmin_manage.TmAdminManage.readDiff",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="tmadmin_manage.TmAdminManage.applyDiff",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtmadmin__manage_1_1TmAdminManage.html#ab48561726ee5abc6f0ad12c2c6e418cf",tooltip=" "];
+}

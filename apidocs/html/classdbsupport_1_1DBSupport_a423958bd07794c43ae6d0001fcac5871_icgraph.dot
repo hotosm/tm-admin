@@ -1,0 +1,28 @@
+digraph "dbsupport.DBSupport.connect"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="dbsupport.DBSupport.connect",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="api.CampaignsAPI.initialize",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1CampaignsAPI.html#a1627c55a16dd8c960912d3e513387edf",tooltip=" "];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="api.MessagesAPI.initialize",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1MessagesAPI.html#a650ace1f75b942437821ee4481fbd8a1",tooltip=" "];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="api.OrganizationsAPI.initialize",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1OrganizationsAPI.html#a39bbae7db4c459585d78c5a4a6a08040",tooltip=" "];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="api.ProjectsAPI.initialize",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1ProjectsAPI.html#a2ea91dc28c372aca70d905309a88bb0a",tooltip=" "];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="api.TasksAPI.initialize",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1TasksAPI.html#a07df5a630c058279f70c0bcf685b8c0b",tooltip=" "];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="api.TeamsAPI.initialize",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1TeamsAPI.html#aa9ae42cd5ff6e8f6c422bff8666b962f",tooltip=" "];
+  Node1 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="api.UsersAPI.initialize",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classapi_1_1UsersAPI.html#ab5030f393b6795bbc37b5e3548f5c9f8",tooltip=" "];
+  Node1 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="projects.ProjectsDB.merge\lAuxTables",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classprojects_1_1ProjectsDB.html#afd4ca8b98d80895a97ea866ee3422d27",tooltip=" "];
+  Node1 -> Node10 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="tasks.TasksDB.mergeAuxTables",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtasks_1_1TasksDB.html#af050eece1125f4d07359c66461b08d3b",tooltip=" "];
+  Node1 -> Node11 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="users.UsersDB.mergeAuxTables",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classusers_1_1UsersDB.html#a211a51d70fea3b4a3691a6ddc7e24b84",tooltip=" "];
+}
