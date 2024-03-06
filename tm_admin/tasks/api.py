@@ -68,7 +68,7 @@ class TasksAPI(PGSupport):
         super().__init__("tasks")
 
     async def initialize(self,
-                      uri: str,
+                      inuri: str,
                       ):
         """
         Connect to all tables for API endpoints that require
@@ -77,7 +77,7 @@ class TasksAPI(PGSupport):
         Args:
             inuri (str): The URI for the TM Admin output database
         """
-        await self.connect(uri)
+        await self.connect(inuri)
         await self.getTypes("tasks")
 
     async def getStatus(self,

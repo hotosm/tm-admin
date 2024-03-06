@@ -74,7 +74,7 @@ class CampaignsAPI(PGSupport):
         super().__init__("campaigns")
 
     async def initialize(self,
-                      uri: str,
+                      inuri: str,
                       ):
         """
         Connect to all tables for API endpoints that require
@@ -89,19 +89,19 @@ class CampaignsAPI(PGSupport):
         #await self.teamsdb.connect(uri)
 
     async def getByID(self,
-                     org_id: int,
+                     campaign_id: int,
                     ):
         """
         Get all the information for an campaign using it's ID
 
         Args:
-            project_id (int): The campaign to get the data for
+            campaign_id (int): The campaign to get the data for
 
         Returns:
             (dict): the campaign information
         """
         # log.debug(f"--- getByID() ---")
-        sql = f"SELECT * FROM campaigns WHERE id={org_id}"
+        sql = f"SELECT * FROM campaigns WHERE id={campaign_id}"
         results = await self.execute(sql)
         return results
 

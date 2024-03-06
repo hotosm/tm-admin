@@ -73,7 +73,7 @@ class MessagesAPI(PGSupport):
         super().__init__("campaigns")
 
     async def initialize(self,
-                      uri: str,
+                      inuri: str,
                       ):
         """
         Connect to all tables for API endpoints that require
@@ -82,19 +82,19 @@ class MessagesAPI(PGSupport):
         Args:
             inuri (str): The URI for the TM Admin output database
         """
-        await self.connect(uri)
+        await self.connect(inuri)
         await self.getTypes("messages")
         #await self.usersdb.connect(uri)
         #await self.teamsdb.connect(uri)
 
     async def getByID(self,
-                     org_id: int,
+                     message_id: int,
                     ):
         """
         Get all the information for an message using it's ID
 
         Args:
-            project_id (int): The message to get the data for
+            message_id (int): The message to get the data for
 
         Returns:
             (dict): the message information
@@ -166,7 +166,7 @@ class MessagesAPI(PGSupport):
         Delete messages from the database.
 
         Args:
-            message_id (list): The messages
+            message_ids (list): The messages
 
         Returns:
             (bool): Whether the messages got deleted

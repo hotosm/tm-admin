@@ -68,7 +68,7 @@ class UsersAPI(PGSupport):
         super().__init__("users")
 
     async def initialize(self,
-                      uri: str,
+                      inuri: str,
                       ):
         """
         Connect to all tables for API endpoints that require
@@ -77,7 +77,7 @@ class UsersAPI(PGSupport):
         Args:
             inuri (str): The URI for the TM Admin output database
         """
-        await self.connect(uri)
+        await self.connect(inuri)
         await self.getTypes("users")
         #await self.messagesdb.connect(uri)
         #await self.usersdb.connect(uri)
@@ -105,7 +105,7 @@ class UsersAPI(PGSupport):
         return False
 
     async def update(self,
-                     org: UsersTable,
+                     user: UsersTable,
                      ):
         """
         Update a user that is already in the database.
@@ -125,7 +125,7 @@ class UsersAPI(PGSupport):
         Delete a user from the database.
 
         Args:
-            user_id (int): The user's ID
+            user_ids (int): The user's ID
 
         Returns:
             (bool): Whether the user got deleted
@@ -201,20 +201,6 @@ class UsersAPI(PGSupport):
             return True
         else:
             return False
-
-    async def updateRole(self,
-                   id: int,
-#                   role: Userrole,
-                   ):
-        """
-        Update the role for a user.
-
-        Args:
-            id (int): The users ID
-            role (Userrole): The new role.
-        """
- #       role = Userrole(role)
- #       return self.updateColumn(id, {'role': role.name})
 
     async def updateMappingLevel(self,
                    id: int,

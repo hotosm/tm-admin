@@ -62,7 +62,7 @@ class OrganizationsAPI(PGSupport):
         super().__init__("organizations")
 
     async def initialize(self,
-                      uri: str,
+                      inuri: str,
                       ):
         """
         Connect to all tables for API endpoints that require
@@ -84,7 +84,7 @@ class OrganizationsAPI(PGSupport):
         Get all the information for an organization using it's ID
 
         Args:
-            project_id (int): The organization to get the data for
+            org_id (int): The organization to get the data for
 
         Returns:
             (dict): the organization information
@@ -133,7 +133,7 @@ class OrganizationsAPI(PGSupport):
         return False
 
     async def update(self,
-                     org: OrganizationsTable,
+                     organization: OrganizationsTable,
                      ):
         """
         Update a organization that is already in the database.

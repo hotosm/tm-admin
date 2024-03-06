@@ -78,7 +78,7 @@ class ProjectsAPI(PGSupport):
         super().__init__("projects")
 
     async def initialize(self,
-                      uri: str,
+                      inuri: str,
                       ):
         """
         Connect to all tables for API endpoints that require accessing multiple tables.
@@ -86,7 +86,7 @@ class ProjectsAPI(PGSupport):
         Args:
             inuri (str): The URI for the TM Admin output database
         """
-        await self.connect(uri)
+        await self.connect(inuri)
         await self.getTypes("projects")
 
     async def create(self,

@@ -65,7 +65,7 @@ async def interestsThread(
     """Thread to handle importing
 
     Args:
-        data (list): The list of records to import
+        interests (list): The list of records to import
         db (PostgresClient): A database connection
     """
     pbar = tqdm.tqdm(interests)
@@ -84,7 +84,7 @@ async def favoritesThread(
     """Thread to handle importing favorites
 
     Args:
-        data (list): The list of records to import
+        favorites (list): The list of records to import
         db (PostgresClient): A database connection
     """
     data = dict()
@@ -184,7 +184,7 @@ class UsersDB(DBSupport):
         into a new temporary table and then renaming it.
 
         Args:
-            inturi (str): The input database
+            inpg (PostgresClient): The input database
         """
         table = 'user_licenses'
         # log.info(f"Merging licenses table...")
