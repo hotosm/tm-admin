@@ -84,7 +84,14 @@ nav:
   - For Developers:
       - Code Structure: structure.md
       - Database Support: pgsupport.md
-      - Code API: api.md
+      - Code API:
+          - Top Level APIs: api.md
+          - Projects Table: api/projects.md
+          - Tasks Table: api/tasks.md
+          - Users Table: api/users.md
+          - Campaigns Table: api/campaigns.md
+          - Messages Table: api/messages.md
+          - Organizations Table: api/organizations.md
       - Using asyncpg: pgasync.md
       - Protobuf API: protos-api.md
       - Class Hierarchy: apidocs/html/index.html
