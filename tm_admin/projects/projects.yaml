@@ -5,14 +5,10 @@
 - projects:
     - id:
         - int64
-        - required: true
         - share: true
         - sequence: true
         - unique: true
         - primary: true
-    - odkid:
-        - int64
-        - share: true
     - author_id:
         - int64
         - required: true
@@ -61,16 +57,12 @@
     - country:
         - string
         - array: true
-    - mapping_permission:
-        - public.permissions
     - rapid_power_user:
         - bool
     - progress_email_sent:
         - bool
     - tasks_bad_imagery:
         - int32
-    - odk_central_src:
-        - string
     - xform_title:
         - string
     - private:
@@ -85,6 +77,8 @@
         - share: true
     - featured:
         - bool
+    - mapping_permission:
+        - public.permissions
     - mapping_permissions:
         - public.permissions
     - validation_permission:
@@ -121,12 +115,19 @@
     - centroid:
         - point
         - share: true
-    - odk_central_url:
-        - string
-    - odk_central_user:
-        - string
-    - odk_central_password:
-        - string
+    - odk:
+        - jsonb
+#    - odkid:
+#        - int64
+#        - share: true
+#    - odk_central_src:
+#        - string
+#    - odk_central_url:
+#        - string
+#   - odk_central_user:
+#       - string
+#   - odk_central_password:
+#       - string
     - extract_completed_count:
         - int32
     - form_xls:

@@ -5,7 +5,6 @@
 - campaigns:
     - id:
         - int32
-        - required: true
         - sequence: true
         - unique: true
         - primary: true

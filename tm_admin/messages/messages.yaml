@@ -5,7 +5,6 @@
 - messages:
     - id:
         - int32
-        - required: true
         - share: true
         - sequence: true
         - unique: true
