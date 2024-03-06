@@ -49,11 +49,27 @@ async def create_organisation():
     # new_organisation_dto: NewOrganisationDTO) -> int:
     log.debug(f"create_organisation() unimplemented!")
     # returns True or False
-    ot = OrganizationsTable(name='test org', slug="slug",
+    ot = OrganizationsTable(id = 1, name='test org', slug="slug",
                     subscription_tier=1,
                     type=1)
                     # type=Organizationtype.FREE)
     result = await organizations.create(ot)
+
+    ot = OrganizationsTable(id = 2, name='test org2', slug="slug",
+                    subscription_tier=2,
+                            type=2)
+                    # type=Organizationtype.FREE)
+    result = await organizations.create(ot)
+
+    manager_id = 1
+    organization_id = 1
+    result = await organizations.updateColumns({'managers': manager_id}, {"id": organization_id})
+    # Add a 2nd manager
+    result = await organizations.updateColumns({'managers': 3}, {"id": organization_id})
+    manager_id = 2
+    organization_id = 2
+    result = await organizations.updateColumns({'managers': manager_id}, {"id": organization_id})
+
     # FIXME: This is supposed to return the id, and does for other tables,
     # but for some reason we get no result, but it appears to work
     # assert result
@@ -84,13 +100,6 @@ async def get_organisations():
     log.debug(f"--- get_organisations() ---")
     # result = await organization.getAll()
     # assert len(result) > 0
-
-async def delete_organisation():
-    # organisation_id: int):
-    log.debug(f"delete_organisation() unimplemented!")
-    id = 1
-    #result = await organization.deleteByID(id)
-    #assert len(result) > 0
 
 async def update_organisation():
     # organisation_dto: UpdateOrganisationDTO) -> Organisation:
@@ -149,17 +158,13 @@ def upload_image():
     # db: Session, file: UploadFile(None)):
     log.debug(f"--- upload_image() unimplemented!")
 
-async def create_organization():
-    log.debug(f"--- create_organization() unimplemented!")
-    # get_organisation_by_id(db: Session, id: int):
-
 def update_organization_info():
     log.debug(f"--- update_organization_info() unimplemented!")
 
 async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
-    parser.add_argument("-u", "--uri", default='localhost/tm_admin', help="Database URI")
+    parser.add_argument("-u", "--uri", default='localhost/testdata', help="Database URI")
     args = parser.parse_args()
     # if verbose, dump to the terminal.
     log_level = os.getenv("LOG_LEVEL", default="INFO")
@@ -174,13 +179,14 @@ async def main():
     )
 
     await organizations.initialize(args.uri)
+    await organizations.delete([1, 2])
+    await organizations.resetSequence()
+    await create_organisation()
     
     await get_organisation_by_id()
     await get_organisation_by_name()
     await get_organisation_name_by_id()
-    await create_organisation()
     await update_organisation()
-    await delete_organisation()
     await get_organisations()
     await get_organisations_managed_by_user()
     await get_projects_by_organisation_id()
@@ -200,7 +206,6 @@ async def main():
     await generate_slug()
     await get_organisation_by_name()
     # await upload_image()
-    await create_organization()
     # await update_organization_info()
     
 if __name__ == "__main__":
