@@ -45,7 +45,7 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed.
 
 users = UsersAPI()
-# project = ProjectsAPI()
+projects = ProjectsDB()
 
 async def create_users():
     user = UsersTable(id = 1, username = "foobar", name = "foo",
@@ -68,8 +68,8 @@ async def create_users():
     user = UsersTable(id = 2, username = "barfoo", name = "foobar",
                   city = "Someplace", email_address = "barfood@gmail.com",
                   is_email_verified = False, is_expert = False,
-                  tasks_notifications = True, role = "USER_READ_ONLY",
-                  mapping_level = "BEGINNER", tasks_mapped = 0,
+                  tasks_notifications = True, role = "PROJECT_MANAGER",
+                  mapping_level = "ADVANCED", tasks_mapped = 0,
                   tasks_validated = 0, tasks_invalidated = 0,
                   date_registered = "2024-01-29T22:19:35.587016",
                   last_validation_date = "2024-01-29T22:19:35.587018",
@@ -85,8 +85,8 @@ async def create_users():
     user = UsersTable(id = 3, username = "barfood", name = "bar",
                   city = "Someplace", email_address = "oops@gmail.com",
                   is_email_verified = False, is_expert = False,
-                  tasks_notifications = True, role = "USER_READ_ONLY",
-                  mapping_level = "BEGINNER", tasks_mapped = 0,
+                  tasks_notifications = True, role = "MAPPER",
+                  mapping_level = "INTERMEDIATE", tasks_mapped = 0,
                   tasks_validated = 0, tasks_invalidated = 0,
                   date_registered = "2024-01-29T22:19:35.587016",
                   last_validation_date = "2024-01-29T22:19:35.587018",
@@ -99,17 +99,50 @@ async def create_users():
                   )
     result = await users.create(user)
 
+    user = UsersTable(id = 4, username = "test", name = "tester",
+                  city = "Someplace", email_address = "nogood@gmail.com",
+                  is_email_verified = False, is_expert = False,
+                  tasks_notifications = True, role = "VALIDATOR",
+                  mapping_level = "ADVANCED", tasks_mapped = 0,
+                  tasks_validated = 0, tasks_invalidated = 0,
+                  date_registered = "2024-01-29T22:19:35.587016",
+                  last_validation_date = "2024-01-29T22:19:35.587018",
+                  default_editor = "ID", gender = 1,
+                  mentions_notifications = True,
+                  projects_notifications = True,
+                  projects_comments_notifications = False,
+                  tasks_comments_notifications = False,
+                  teams_announcement_notifications = True,
+                  )
+    result = await users.create(user)
+
+    user = UsersTable(id = 5, username = "superbeing", name = "god",
+                  city = "Someplace", email_address = "nogood@gmail.com",
+                  is_email_verified = False, is_expert = False,
+                  tasks_notifications = True, role = "SUPER_ADMIN",
+                  mapping_level = "ADVANCED", tasks_mapped = 0,
+                  tasks_validated = 0, tasks_invalidated = 0,
+                  date_registered = "2024-01-29T22:19:35.587016",
+                  last_validation_date = "2024-01-29T22:19:35.587018",
+                  default_editor = "ID", gender = 1,
+                  mentions_notifications = True,
+                  projects_notifications = True,
+                  projects_comments_notifications = False,
+                  tasks_comments_notifications = False,
+                  teams_announcement_notifications = True,
+                  )
+    result = await users.create(user)
+
 # def get_all_users(query: UserSearchQuery):
 async def test_all():
     log.debug("--- test_all() ---")
-    # result = await users.getAll()
-    # assert len(result) > 0
+    result = await users.getColumns(['*'])
+    assert len(result) > 0
     
 #def get_user_by_id(user_id: int):
 async def test_by_id():
     log.debug("--- test_by_id() ---")
     user_id = 1
-    # all = users.getByID(id)
     result = await users.getByID(user_id)
     assert len(result) > 0
     
@@ -119,14 +152,6 @@ async def test_by_name():
     name = 'foobar'
     result = await users.getByName(name)
     assert len(result) > 0
-
-# def add_role_to_user(admin_user_id: int, username: str, role: str):
-async def test_role():
-    log.debug("--- test_role() ---")
-    user_id = 2
-    role = Userrole(Userrole.USER_READ_ONLY)
-    result = await users.updateColumns({'role': role}, {"id": user_id})
-    assert result
 
 async def get_mapping_level():
     log.debug("--- get_mapping_level() ---")
@@ -142,117 +167,94 @@ async def set_user_mapping_level():
     result = await users.updateColumns({'mapping_level': level}, {"id": user_id})
     assert result
 
-async def check_and_update_mapper_level():
-    id = 2
-    result = await users.getByID(id)
-    index = 0
-    level = 0
-    # for entry in Mappinglevel._member_names_:
-    #     if entry == result['mapping_level']:
-    #         level = index + 1
-    #     else:
-    #         index += 1
-
-    # newlevel = Mappinglevel(level + 1)
-    # result = await users.updateColumn(id, {'mapping_level': newlevel.name})
-    # result = await users.getByID(id)
-    # # CHeck to make sure it actually incremented
-    # assert len(result) > 0 and result['mapping_level'] == Mappinglevel.INTERMEDIATE.name
-
 # def set_user_is_expert(user_id: int, is_expert: bool):
 async def test_expert():
     log.debug("--- test_expert() ---")
     user_id = 3
-    mode = True
-    # result = await users.updateColumns({'is_expert': mode}, {"id": user_id})
-    # assert result
-    
-async def test_registered():
-    log.debug("--- test_registered() ---")
-    start = '2015-11-20 08:36:55'
-    stime = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
-    end = '2023-02-07 12:28:30'
-    etime =  datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
-    result = await users.getRegistered(stime, etime)
-    # assert result
+    result = await users.getColumns(['is_expert'], {"id": user_id})
+    assert len(result) > 0
     
 async def get_project_managers():
     log.debug("--- get_project_managers() ---")
     role = Userrole(Userrole.PROJECT_MANAGER)
-    # result = await users.getByWhere(f" role='{role.name}'")
-    # assert len(result) == 1
+    result = await users.getColumns(['id'], {"role": role})
+    assert len(result) > 0
 
 async def is_user_an_admin():
-    log.debug("--- get_project_managers() ---")
-    id = 1
-    # Get the entire user record
-    result = await users.getByID(id)
-    hits = 0
-    # if result['role'] == Userrole.SUPER_ADMIN or result['role'] == Userrole.ORGANIZATION_ADMIN :
-    #     hits += 1
-    # assert hits == 0
-    # assert len(result) == 1 # FIXME: There are ADMIN in the test data yet
+    log.debug("--- is_user_an_admin() ---")
+    # first user is not an admin
+    user_id = 1
+    noresult = await users.getRole(user_id)
+    user_id = 5
+    result = await users.getRole(user_id)
+    assert noresult == Userrole.USER_READ_ONLY and result == Userrole.SUPER_ADMIN
         
 async def is_user_validator():
     log.debug("--- is_user_validator() ---")
-    id = 2
-    role = Userrole(Userrole.VALIDATOR)
-    # result = await users.getByWhere(f" role='{role.name}' AND id={id}")
-    #assert len(result) == 1 # FIXME: There are VALIDATORS in the test data yet
-    # assert len(result) == 0
-
-async def get_projects_mapped():
-    log.debug("--- get_projects_mapped() ---")
-    id = 3
-    result = await users.getByID(id)
-    # mapped = result['projects_mapped']
-    # hits = 0
-    # if type(mapped) == int:
-    #     hits += 1
-    # elif type(mapped) == list:
-    #     hits += 1
-    # assert hits == 1
+    # first user is not a validator
+    user_id = 2
+    noresult = await users.getRole(user_id)
+    user_id = 4
+    # but this user is a validator
+    result = await users.getRole(user_id)
+    assert noresult == Userrole.PROJECT_MANAGER and result == Userrole.VALIDATOR
 
 async def is_user_blocked():
     log.debug("--- is_user_blocked() ---")
-    id = 1
-    result = await users.getByID(id)
-    # assert result['role'] != Userrole.USER_READ_ONLY
+    user_id = 1
+    result = await users.getBlocked(user_id)
+    assert result
         
+async def get_interests():
+    log.debug(f"--- get_interests() ---")
+    user_id = 2
+    result = await users.getColumns({"interests"}, {"id": user_id})
+    assert len(result) > 0
+
+async def get_projects_favorited():
+    # user_id: int
+    log.debug(f"--- get_projects_favorited() ---")
+    user_id = 3
+    result = await users.getColumns({"favorite_projects"}, {"id": user_id})
+    assert len(result) > 0
+
+async def get_projects_mapped():
+    log.debug("--- get_projects_mapped() ---")
+    user_id = 3
+    result = await users.getColumns({"projects_mapped"}, {"id": user_id})
+    assert len(result) > 0
+
 async def get_mapped_projects():
     """Gets all projects a user has mapped or validated on"""
     log.debug("--- get_mapped_projects() ---")
     # user_name: str, preferred_locale: str
-    id = 2
-    result = await users.getByID(id)
-    # mapped = result['projects_mapped']
-    mapped = [1090, 173]
-    data = list()
-    # for proj in mapped:
-    #     record = await project.getByID(proj)
-    #     data.append(record)
+    # FIXME: this appears to be the same as get_projects_mapped(). The current
+    # TM code doesn't check validation, which can be done by quering the
+    # validated_by column in the tasks table.
 
-    # assert len(data) == 2
-        
+async def get_recommended_projects():
+    """Gets all projects a user has mapped or validated on"""
+    log.debug(f"get_recommended_projects() unimplemented!")
+    # FIXME: this appears to be the same as get_projects_mapped(). The current
+    # TM code doesn't check validation, which can be done by quering the
+    # validated_by column in the tasks table.
+
 async def update_user():
-    log.debug("--- update_user() ---")
+    log.debug("--- update_user() unimplemented")
     # user_id: int, osm_username: str, picture_url: str):
     id = 3
-    # await users.updateColumn(id, {'username': 'osmfoo'})
-    # await users.updateColumn(id, {'picture_url': 'no pic'})
-    result = await users.getByID(id)
-    # assert result['picture_url'] == 'no pic'
 
 # FIXME: I'm not really sure of the difference of these two internal API functions.
 async def register_user():
     """Creates user in DB"""
     log.debug("--- update_user() ---")
+    user_id = 1
     # osm_id, username, changeset_count, picture_url, email
     # The id is generated by postgres, so we don't supply it.    
     ut = UsersTable(username='foobar', name='barfoo', picture_url='URI', email_address="bar@foo.com", mapping_level='INTERMEDIATE', role='VALIDATOR')
-    # new = users.createTable(ut)
-    entry = await users.getByName(ut.data['name'])
-    # assert entry['id'] > 0
+    #await users.updateColumns(ut, {"id": user_id})
+    result = await users.getByName('foobar')
+    print(result)
 
 async def register_user_with_email():
     """Validate that user is not within the general users table."""
@@ -264,33 +266,31 @@ async def register_user_with_email():
     # entry = await users.getByName(ut.data['name'])
     # assert entry['id'] > 0
 
+async def test_registered():
+    log.debug("--- test_registered() ---")
+    start = '2015-11-20 08:36:55'
+    stime = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
+    end = '2023-02-07 12:28:30'
+    etime =  datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
+    result = await users.getRegistered(stime, etime)
+    # assert result
+
 async def has_user_accepted_license():
     """Checks if user has accepted specified license"""
     # user_id: int, license_id: int
     log.debug("--- has_user_accepted_license() ---")
-    id = 1
-    # result = await users.getByID(id)
-    # assert result['id'] == id
-        
-async def get_interests():
-    log.debug(f"--- get_interests() ---")
-    id = 2
-    # result = await users.getColumn(id, 'interests')
-    # assert len(result) > 0
-
-async def get_projects_favorited():
-    # user_id: int
-    log.debug(f"--- get_projects_favorited() ---")
-    id = 3
-    # result = await users.getColumn(id, 'favorite_projects')
-    # assert len(result) > 0
+    user_id = 1
+    license_id = 1
+    result = await users.getColumns({"licenses"}, {"id": user_id})
+    assert license_id in result[0]['licenses']
         
 async def accept_license_terms():
     """Saves the fact user has accepted license terms"""
     # user_id: int, license_id: int
     log.debug(f"--- accept_license_terms() ---")
     user_id = 1
-    result = await users.updateColumns({'licenses': 1}, {"id": user_id})
+    license_id = 1
+    result = await users.updateColumns({'licenses': license_id}, {"id": user_id})
     assert result
 
 async def get_general_admins():
@@ -319,6 +319,9 @@ async def upsert_mapped_projects():
     # result = await users.appendColumn(uid, {'projects_mapped': pid})
     # assert result
 
+async def check_and_update_mapper_level():
+    log.debug(f"check_and_update_mapper_level() unimplemented!")
+
 async def update_user_details():
     # user_id: int, db: UsersDB
     log.debug(f"update_user_details() unimplemented!")
@@ -344,15 +347,6 @@ async def get_contributions_by_day():
     # FIXME: this uses task history
     # user_id: int
     log.debug(f"get_contributions_by_day() unimplemented!")
-
-async def get_recommended_projects():
-    """Gets all projects a user has mapped or validated on"""
-    # user_name: str, preferred_locale: str
-    # Get all projects that the user has contributed
-    # Get all campaigns for all contributed projects.
-    # Get projects with given campaign tags but without user contributions.
-    # Get only user mapping level projects.
-    log.debug(f"get_recommended_projects() unimplemented!")
 
 # This one seems silly, and needs no database access
 # def is_user_the_project_author(user_id: int, author_id: int)
@@ -418,15 +412,13 @@ async def main():
     )
 
     await users.initialize(args.uri)
+    await users.delete([1, 2, 3, 4, 5])
     await create_users()
-    # project.connect("localhost/tm_admin")
+    projects.connect(args.uri)
 
     # Test TM API
     # get_user_dto_by_username()
     # get_user_dto_by_id()
-    await test_by_id()
-    await test_by_name()
-    await test_role()
     await set_user_mapping_level()
     await test_expert()
     await test_registered()
@@ -469,8 +461,6 @@ async def main():
     await get_user_role_by_user_id()
     await create_user_roles()
     await get_user_by_id()
-
-    await users.delete([1, 2, 3])
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""

@@ -49,30 +49,42 @@ rootdir = tma.__path__[0]
 messages = MessagesAPI()
 
 async def create_message():
-    project_id = 1
-    # log.debug(f"--- create_message() unimplemented!")
-    msg = MessagesTable(message="Hello World!",
-                        subject="test",
-                        project_id=project_id,
-                        from_user_id=0,
-                        to_user_id=1
+    # log.debug(f--- create_message() unimplemented!)
+    msg = MessagesTable(id = 197862, message="Hi has just been validated",
+                        from_user_id = 7775678, to_user_id = 6643593,
+                        date = '2018-06-04T04:49:02.614348',
+                        read = False,message_type=4,
+                        project_id = 3213, task_id = 777,
                         )
+    result = await messages.create(msg)
+
+    msg = MessagesTable(id=272032,message="Hi has just been validated",
+                        from_user_id = 7775590, to_user_id = 8405478,
+                        date = '2018-07-19T03:17:42.122209',
+                        read = False, message_type = 4,
+                        project_id = 4231, task_id = 90,
+                        )
+    result = await messages.create(msg)
+
+    msg = MessagesTable(id=89136,message="Hi has just been validated",
+                         from_user_id = 5484336, to_user_id = 3043750,
+                         date = '2018-02-07T13:32:47.56986',
+                         read = False, message_type = 4,
+                         project_id = 4091, task_id = 55
+                         )
     result = await messages.create(msg)
 
 async def get_all_messages():
     log.debug(f"--- get_all_messages() unimplemented!")
-    # user_id: int,
-    # result = await msg.getByWhere()
-    # assert len(result) > 0
 
 async def get_message():
     """Gets the specified message to a user"""
     log.debug(f"--- get_message() ---")
     # message_id: int, to_ser_id: int) -> Message:
-    mid = 599781
-    uid = 8576693
-    # result = await msg.getByWhere(f" id={mid} AND to_user_id={uid}")
-    # assert len(result) > 0
+    message_id = 197862
+    user_id = 6643593
+    data = await messages.getColumns(['*'], {"id": message_id, "to_user_id": user_id})
+    assert len(data) > 0
 
 async def send_welcome_message():
     """Sends welcome message to new user at Sign up"""
@@ -165,16 +177,6 @@ async def get_message_as_dto():
     # message_id: int, user_id: int):
     log.debug(f"--- get_message_as_dto() unimplemented!")
 
-async def delete_message():
-    """Deletes the specified message"""
-    # message_id: int, user_id: int):
-    log.debug(f"--- delete_message() unimplemented!")
-
-async def delete_multiple_messages():
-    """Deletes the specified messages to the user"""
-    # message_ids: list, user_id: int):
-    log.debug(f"--- delete_multiple_messages() unimplemented!")
-
 async def delete_all_messages():
     """Deletes all messages to the user"""
     # user_id: int, message_type: str = None):
@@ -205,7 +207,7 @@ async def get_organisation_link():
 async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
-    parser.add_argument("-u", "--uri", default='localhost/tm_admin', help="Database URI")
+    parser.add_argument("-u", "--uri", default='localhost/testdata', help="Database URI")
     args = parser.parse_args()
     # if verbose, dump to the terminal.
     log_level = os.getenv("LOG_LEVEL", default="INFO")
@@ -247,14 +249,17 @@ async def main():
     await mark_all_messages_read()
     await mark_multiple_messages_read()
     await get_message_as_dto()
-    await delete_message()
-    await delete_multiple_messages()
+    # await delete_message()
+    # await delete_multiple_messages()
     await delete_all_messages()
     await get_task_link()
     await get_project_link()
     await get_user_profile_link()
     await get_user_settings_link()
     await get_organisation_link()
+
+    # Cleanup the records this test added
+    await messages.delete([197862, 272032, 89136])
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
