@@ -211,9 +211,6 @@ class PGSupport(PostgresClient):
         if where:
             check = " WHERE "
             for k, v in where.items():
-                # if k in self.types:
-                #     if self.types[k] == 'jsonb':
-                #         breakpoint()
                 if v == 'null':
                     check += f"{k} IS NOT NULL OR "
                 else:
@@ -227,11 +224,25 @@ class PGSupport(PostgresClient):
                 tmtype = val[7:].capitalize()
                 obj = eval(f"tm_admin.types_tm.{tmtype}({value})")
                 sql += f" {key} = '{obj.name}', "
-            elif val[-2:] == "[]" or val == "jsonb":
-                sql += f" {key} = {key}||{value}, "
+            elif val[-2:] == "[]":
+                sql += f" {key} = {key}||'{value}', "
+            elif val == "jsonb":
+                # A jsonb column may contain enums
+                data = dict()
+                for k, v in value.items():
+                    if str(type(v))[:5] == "<enum":
+                        data[k] = v.name
+                    else:
+                        data[k] = v
+                # data += "}"
+                values = str(data).replace("'", '"')
+                sql += "%s = '{" % key
+                sql += f"\"{key}\": [{values}]"
+                breakpoint()
+                sql += "}'"
             else:
                 sql += f" {key} = {value}, "
-        query = sql[:-2] + f" {check[:-3]} RETURNING id"
+        query = sql + f" {check[:-3]} RETURNING id"
         # print(query)
         result = await self.execute(query)
         if len(result) > 0:
@@ -304,7 +315,7 @@ class PGSupport(PostgresClient):
             sql = f"SELECT {get} FROM {self.table} WHERE {check}"
         else:
             sql = f"SELECT {get} FROM {self.table}"
-        # print(sql)
+        print(sql)
         results = await self.execute(sql)
 
         data = list()
