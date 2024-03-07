@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['sendinvite_242',['sendInvite',['../classapi_1_1TeamsAPI.html#aedd65ac4d582c3ff6a563b8f4cf2af80',1,'api::TeamsAPI']]],
-  ['senduserprofile_243',['sendUserProfile',['../classtmclient_1_1TMClient.html#a44545e4e55936004d33b85753ac8b4e0',1,'tmclient::TMClient']]]
+  ['sendinvite_0',['sendInvite',['../classapi_1_1TeamsAPI.html#a79495f2d5f9733a7592cbbeb91dfa33b',1,'api::TeamsAPI']]],
+  ['senduserprofile_1',['sendUserProfile',['../classtmclient_1_1TMClient.html#a3db2aaeea8a2cd983a284679ca709f03',1,'tmclient::TMClient']]]
 ];

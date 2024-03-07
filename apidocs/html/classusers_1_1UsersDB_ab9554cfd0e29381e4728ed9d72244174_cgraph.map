@@ -1,0 +1,13 @@
+<map id="users.UsersDB.mergeLicenses" name="users.UsersDB.mergeLicenses">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,84,224,112"/>
+<area shape="rect" id="Node000002" href="$classtmdb_1_1TMImport.html#a32e2b78c178f6bd53952b054c2f28d98" title=" " alt="" coords="298,5,476,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,81,271,43,304,34,306,40,272,48,157,86"/>
+<area shape="rect" id="Node000004" href="$classusers_1_1UsersDB.html#af2dc874b5c32d0e88ebfcd5e0fa5e742" title=" " alt="" coords="301,57,473,85"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="224,84,285,78,286,84,224,90"/>
+<area shape="rect" id="Node000005" href="$classtasks-changes_1_1TasksDB.html#a855d1bcaf4cec23993dd22244d7bcb02" title=" " alt="" coords="272,109,502,137"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="224,105,257,108,257,114,224,111"/>
+<area shape="rect" id="Node000006" href="$classtasks_1_1TasksDB.html#a35df1bec6a80285ef69dc4ae29a01a63" title=" " alt="" coords="301,161,473,189"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="157,110,272,146,306,155,305,160,271,151,156,115"/>
+<area shape="rect" id="Node000003" href="$classtmdb_1_1TMImport.html#a48dc256a06d6b4bed3e879a4129ab794" title=" " alt="" coords="550,5,754,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="476,17,535,17,535,22,476,22"/>
+</map>

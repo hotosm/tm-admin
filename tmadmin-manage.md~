@@ -1,0 +1,17 @@
+# TM Manager
+
+# tmadmin-manage
+
+This utility program is the standalone interface to the tm-admin
+project. It is responsible for creating the database and the tables,
+and processing SQL and protobuf files for gRPC.
+
+	usage: config [-h] [-v [VERBOSE]] [-i INFILE] [-d DIFF] [-p PROTO] [-u URI] [-c {create,migrate}]
+	options:
+	-h, --help            show this help message and exit
+	-v [VERBOSE], --verbose [VERBOSE] verbose output
+	-i INFILE, --infile INFILE Input SQL file
+	-d DIFF, --diff DIFF  SQL file diff for migrations
+	-p PROTO, --proto PROTO Generate the ._py2.py file from the .proto file
+	-u URI, --uri URI     Database URI
+	-c {create,migrate}, --cmd {create,migrate} Command

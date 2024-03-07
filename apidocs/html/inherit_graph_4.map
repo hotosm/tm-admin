@@ -1,0 +1,13 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,109,121,137"/>
+<area shape="rect" id="Node000001" href="$classapi_1_1CampaignsAPI.html" title=" " alt="" coords="178,5,318,33"/>
+<area shape="poly" id="edge78_Node000000_Node000001" title=" " alt="" coords="89,98,125,70,167,43,196,31,198,36,170,48,128,74,93,102"/>
+<area shape="rect" id="Node000002" href="$classapi_1_1MessagesAPI.html" title=" " alt="" coords="182,57,314,85"/>
+<area shape="poly" id="edge79_Node000000_Node000002" title=" " alt="" coords="128,102,195,83,197,88,130,107"/>
+<area shape="rect" id="Node000003" href="$classapi_1_1OrganizationsAPI.html" title=" " alt="" coords="170,109,326,137"/>
+<area shape="poly" id="edge80_Node000000_Node000003" title=" " alt="" coords="135,121,169,121,169,126,135,126"/>
+<area shape="rect" id="Node000004" href="$classapi_1_1TasksAPI.html" title=" " alt="" coords="197,161,299,189"/>
+<area shape="poly" id="edge81_Node000000_Node000004" title=" " alt="" coords="130,139,197,158,195,163,128,144"/>
+<area shape="rect" id="Node000005" href="$classpgsupport_1_1PGSupport.html" title=" " alt="" coords="169,213,327,241"/>
+<area shape="poly" id="edge82_Node000000_Node000005" title=" " alt="" coords="93,145,128,172,170,198,198,210,196,215,167,203,125,176,89,149"/>
+</map>

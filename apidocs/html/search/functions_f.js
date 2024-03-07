@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['validatemembers_256',['validateMembers',['../classapi_1_1TeamsAPI.html#a8a0af7d736270d81966f8f804910a21a',1,'api::TeamsAPI']]],
-  ['validatename_257',['validateName',['../classapi_1_1OrganizationsAPI.html#ae8cf0e33fa706a2a750bb897bd094711',1,'api::OrganizationsAPI']]],
-  ['validateuser_258',['validateUser',['../classapi_1_1OrganizationsAPI.html#a194e3ba867cfe9556f20d966d7e703c3',1,'api::OrganizationsAPI']]]
+  ['validatemembers_0',['validateMembers',['../classapi_1_1TeamsAPI.html#a42ac8d60ae4e4bfe65b228d5b483971b',1,'api::TeamsAPI']]],
+  ['validatename_1',['validateName',['../classapi_1_1OrganizationsAPI.html#a0f6dbaee721bbfa3196c40bca0720b6a',1,'api::OrganizationsAPI']]],
+  ['validateuser_2',['validateUser',['../classapi_1_1OrganizationsAPI.html#a03cf84f015e13f642b3dc7d78739f62f',1,'api::OrganizationsAPI']]]
 ];

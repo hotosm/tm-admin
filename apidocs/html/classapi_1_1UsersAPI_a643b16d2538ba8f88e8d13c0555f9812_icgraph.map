@@ -1,0 +1,9 @@
+<map id="api.UsersAPI.connect" name="api.UsersAPI.connect">
+<area shape="rect" id="Node000001" title=" " alt="" coords="282,74,440,102"/>
+<area shape="rect" id="Node000002" href="$classprojects_1_1ProjectsDB.html#a2a6e22d705bffdf5894d6b06e9dcdbab" title=" " alt="" coords="22,5,217,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="288,72,211,53,213,48,289,67"/>
+<area shape="rect" id="Node000003" href="$classtasks_1_1TasksDB.html#a919835fa4b638a4b0d677d1d97561df1" title=" " alt="" coords="6,74,233,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="267,90,234,90,234,85,267,85"/>
+<area shape="rect" id="Node000004" href="$classusers_1_1UsersDB.html#a8c798a4506a7ab8e208169e91d4826f0" title=" " alt="" coords="5,126,234,154"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="279,108,188,128,187,123,278,103"/>
+</map>

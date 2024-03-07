@@ -1,0 +1,31 @@
+# TM <-> FMT Communication
+
+## TM sends user profile to FMTM
+
+## FMTM gets user profile from TM
+
+* id
+* username
+* city
+* country
+* is_email_verified
+* is_expert
+* mapping_level 
+* password
+
+### FMTM decides, update or create ?
+### FMTM sends success/failure reponse
+
+## TM sends project profile
+
+* id
+* name
+* outline
+* location_str
+* organisation_id (*spelling depends on country*)
+* priority
+* centroid
+
+
+FMTM has no project manager, so these are initially only an AOI and
+draft project description.

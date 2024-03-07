@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.6">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.8">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.35e1ed30.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.4b4a2bd9.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.356b1318.min.css">
@@ -677,16 +677,180 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../api/" class="md-nav__link">
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_3" id="__nav_7_3_label" tabindex="0">
+            
   
   <span class="md-ellipsis">
     Code API
   </span>
   
 
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_3">
+            <span class="md-nav__icon md-icon"></span>
+            Code API
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Top Level APIs
+  </span>
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/projects/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Projects Table
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/tasks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tasks Table
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/users/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Users Table
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/campaigns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Campaigns Table
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/messages/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Messages Table
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/organizations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Organizations Table
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -887,21 +1051,40 @@ used to generate all the protobuf files that define each gRPC message,
 and the python wrappers.</p>
 <p>Once the SQL files have been generated, this program imports them into
 the database. It can also handle database schema migrations.</p>
-<div class="highlight"><pre><span></span><code>usage: config [-h] -v -d DIFF -u URI YAML files
-options:
--h, --help            show this help message and exit
--v [VERBOSE], --verbose [VERBOSE] verbose output
--d DIFF, --diff DIFF  SQL file diff for migrations
--u URI, --uri URI     Database URI
-</code></pre></div>
 <p>The Database URI defaults to <em>localhost/tm_admin</em>.</p>
+<div class="highlight"><pre><span></span><code>options:
+-h, --help                  show this help message and exit
+-v, --verbose               verbose output
+-i INURI, --inuri INURI     Input Database URI
+-o OUTURI, --outuri OUTURI  Output Database URI
+-c {generate,create,import,merge,update,migrate}, --cmd {COMMAND}
+
+cmd=&quot;generate,create,import,merge,update,migrate&quot;
+
+   An example data flow is:
+
+    # Generate all language binding files
+    tmadmin_manage.py -v -c generate */*.yaml
+
+    # Create the database tables
+    tmadmin_manage.py -v -c create */*.sql
+
+    # Import the data for the all primary tables.
+    tmadmin_manage.py -v -c import
+
+    # Import the data for just the users table
+    tmadmin_manage.py -v -c import users
+    &quot;&quot;&quot;,
+)
+choices = [&#39;generate&#39;, &#39;create&#39;, &#39;import&#39;, &#39;merge&#39;, &#39;updat
+</code></pre></div>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 6, 2024</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 16, 2023</span>
       
     
   </small>
@@ -979,7 +1162,7 @@ options:
     <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.aecac24b.min.js"></script>
+      <script src="../assets/javascripts/bundle.81fa17fe.min.js"></script>
       
     
   </body>

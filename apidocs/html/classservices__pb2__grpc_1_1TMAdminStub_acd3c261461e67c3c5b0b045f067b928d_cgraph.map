@@ -1,0 +1,13 @@
+<map id="services_pb2_grpc.TMAdminStub.__init__" name="services_pb2_grpc.TMAdminStub.__init__">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,144,213,189"/>
+<area shape="rect" id="Node000002" href="$classservices__pb2__grpc_1_1TMAdmin.html#a662d24f4ce9fcae810333e71d69d393b" title=" " alt="" coords="261,5,488,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,142,191,101,259,60,274,53,276,58,262,65,194,105,139,146"/>
+<area shape="rect" id="Node000003" href="$classservices__pb2__grpc_1_1TMAdminServicer.html#ac2ce57b5b046179c2f183c36c023ecb0" title=" " alt="" coords="271,75,478,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,141,272,121,273,126,198,146"/>
+<area shape="rect" id="Node000004" href="$classservices__pb2__grpc_1_1TMAdmin.html#a4f028939b31f3df51ed92cefaf99b9b5" title=" " alt="" coords="261,144,488,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="213,164,246,164,246,169,213,169"/>
+<area shape="rect" id="Node000005" href="$classservices__pb2__grpc_1_1TMAdminServicer.html#a0925cd6ec74859e365a8c9e4d157cbf1" title=" " alt="" coords="271,213,478,258"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="198,187,273,206,272,212,197,192"/>
+<area shape="rect" id="Node000006" href="$classtmserver_1_1RequestServicer.html#a021f3198508a8fbc3970670bd4ca5e62" title=" " alt="" coords="270,283,479,327"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="139,187,194,228,262,268,276,274,274,279,259,273,191,232,136,191"/>
+</map>

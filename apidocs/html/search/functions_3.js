@@ -1,9 +1,11 @@
 var searchData=
 [
-  ['delete_181',['delete',['../classapi_1_1CampaignsAPI.html#ab406bd08261021bf437d0fb938af9aba',1,'api.CampaignsAPI.delete()'],['../classapi_1_1MessagesAPI.html#a7b713f61b5fe4aa58224296a1b9c5591',1,'api.MessagesAPI.delete()'],['../classapi_1_1OrganizationsAPI.html#ac5547155984d200c0266a757f68a5df2',1,'api.OrganizationsAPI.delete()'],['../classapi_1_1ProjectsAPI.html#a60d8fc0035f1c473be369001471764a3',1,'api.ProjectsAPI.delete()'],['../classapi_1_1TasksAPI.html#a7381007e71349c35d2bf41034c3be323',1,'api.TasksAPI.delete()'],['../classapi_1_1TeamsAPI.html#aa97f42dc955f87ece875d3863344a676',1,'api.TeamsAPI.delete()'],['../classapi_1_1UsersAPI.html#a8056b984c57f9ab7516bdf9b5867e84a',1,'api.UsersAPI.delete()']]],
-  ['deletebyid_182',['deleteByID',['../classdbsupport_1_1DBSupport.html#a4ab5dce255421e9545c79f9e8bce0ecc',1,'dbsupport::DBSupport']]],
-  ['deleteinvite_183',['DeleteInvite',['../classapi_1_1TeamsAPI.html#ab5961d3cc554703fbd335078d93db6ac',1,'api::TeamsAPI']]],
-  ['deleterecords_184',['deleteRecords',['../classpgsupport_1_1PGSupport.html#aef58c8f68927d4aaff73b5428bf76924',1,'pgsupport::PGSupport']]],
-  ['deletetasks_185',['deleteTasks',['../classapi_1_1ProjectsAPI.html#a49ae74865f6e0e7963ac8310f848e3db',1,'api::ProjectsAPI']]],
-  ['dump_186',['dump',['../classtmadmin__manage_1_1TmAdminManage.html#aaac79acb7c2768ef91345b46ed1cc965',1,'tmadmin_manage.TmAdminManage.dump()'],['../classyamlfile_1_1YamlFile.html#aa18d761290f3a5aa5640626e18d5ad9c',1,'yamlfile.YamlFile.dump()']]]
+  ['delete_0',['delete',['../classapi_1_1CampaignsAPI.html#a8adac2df67043b5a70ec8abb9eaa9a04',1,'api.CampaignsAPI.delete()'],['../classapi_1_1MessagesAPI.html#adb6d056404d0067d38d8fe371b561b67',1,'api.MessagesAPI.delete()'],['../classapi_1_1OrganizationsAPI.html#a755368b2271da0762eb8fe1dc49c0675',1,'api.OrganizationsAPI.delete()'],['../classapi_1_1ProjectsAPI.html#a6582c160506586d3d02bd551530d6bea',1,'api.ProjectsAPI.delete()'],['../classapi_1_1TasksAPI.html#a31b571e13b7edaa0b3d9a56713a7cba2',1,'api.TasksAPI.delete()'],['../classapi_1_1TeamsAPI.html#a6b5d91b86cc0eed9797a0b410bac1655',1,'api.TeamsAPI.delete()'],['../classapi_1_1UsersAPI.html#a41517b9cb80494dda68d0560e0878475',1,'api.UsersAPI.delete()']]],
+  ['deletebyid_1',['deleteByID',['../classdbsupport_1_1DBSupport.html#aa7f747184064a0a5bbdc9747dbc7f855',1,'dbsupport::DBSupport']]],
+  ['deleteinvite_2',['DeleteInvite',['../classapi_1_1TeamsAPI.html#a2babe92e4de02cc022d97ee7514e2dc3',1,'api::TeamsAPI']]],
+  ['deleterecords_3',['deleteRecords',['../classpgsupport_1_1PGSupport.html#a8d22edf9f5a0ca2b0352624ff9b4a5e2',1,'pgsupport::PGSupport']]],
+  ['deletetasks_4',['deleteTasks',['../classapi_1_1ProjectsAPI.html#afa1deddeb2c72d19ff70d2c21e3598eb',1,'api::ProjectsAPI']]],
+  ['donotification_5',['doNotification',['../classservices__pb2__grpc_1_1TMAdminServicer.html#ac2ce57b5b046179c2f183c36c023ecb0',1,'services_pb2_grpc::TMAdminServicer']]],
+  ['dorequest_6',['doRequest',['../classservices__pb2__grpc_1_1TMAdminServicer.html#a0925cd6ec74859e365a8c9e4d157cbf1',1,'services_pb2_grpc::TMAdminServicer']]],
+  ['dump_7',['dump',['../classtmadmin__manage_1_1TmAdminManage.html#a8d16876a5f5679c766c37650ac910a5f',1,'tmadmin_manage.TmAdminManage.dump()'],['../classyamlfile_1_1YamlFile.html#aa438e5973fe7d241550777d0171399f2',1,'yamlfile.YamlFile.dump()']]]
 ];

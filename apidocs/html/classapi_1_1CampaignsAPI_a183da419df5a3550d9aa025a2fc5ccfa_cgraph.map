@@ -1,0 +1,15 @@
+<map id="api.CampaignsAPI.connectDBs" name="api.CampaignsAPI.connectDBs">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,144,226,172"/>
+<area shape="rect" id="Node000002" href="$classdbsupport_1_1DBSupport.html#a6089870b1c6f9238a28a2886642ec27e" title=" " alt="" coords="324,29,538,57"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,141,195,104,233,84,273,67,308,57,310,62,275,72,235,89,198,109,138,146"/>
+<area shape="rect" id="Node000003" href="$classtmadmin__manage_1_1TmAdminManage.html#a0e4a98f0af730939c08d10966a66ea5a" title=" " alt="" coords="274,105,588,133"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="226,142,298,133,299,138,227,147"/>
+<area shape="rect" id="Node000004" href="$classtmdb_1_1TMImport.html#a4fe8c1f6942fe50346c9e5172f7f09ad" title=" " alt="" coords="342,181,520,209"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="227,168,328,180,327,186,226,174"/>
+<area shape="rect" id="Node000005" href="$classapi_1_1TeamsAPI.html#add16c24c6fd08d5e35113e7fe082431b" title=" " alt="" coords="349,257,513,285"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="152,170,275,218,369,250,368,255,273,223,150,175"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="378,31,369,20,376,11,397,5,431,3,471,6,489,13,487,18,469,11,431,8,398,10,379,15,374,20,382,27"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="378,107,369,96,376,87,397,81,431,79,471,82,489,89,487,94,469,87,431,84,398,86,379,91,374,96,382,103"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="378,183,369,172,376,163,397,157,431,155,471,158,489,165,487,170,469,163,431,160,398,162,379,167,374,172,382,179"/>
+<area shape="poly" id="edge8_Node000005_Node000005" title=" " alt="" coords="378,259,369,248,376,239,397,233,431,231,471,234,489,241,487,246,469,239,431,236,398,238,379,243,374,248,382,255"/>
+</map>
