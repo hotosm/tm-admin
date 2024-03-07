@@ -40,6 +40,8 @@ from tm_admin.teams.api import TeamsAPI
 from tm_admin.tasks.api import TasksAPI
 from tm_admin.users.api import UsersAPI
 from tm_admin.projects.api import ProjectsAPI
+
+import create
 # from tm_admin.users.api import UsersAPI
 from shapely.geometry import Polygon, Point, shape
 
@@ -56,24 +58,6 @@ users = UsersAPI()
 projects = ProjectsAPI()
 tasks = TasksAPI()
 teams = TeamsAPI()
-
-# These tests are for the API endpoints
-async def create_project():
-    """
-    Create a project. We don't need any valid geometries for this test.
-
-    The id column defaults to auto-increment. TM doesn't have any ids below
-    100, so we can use the 0-100 range for testing on a live database.
-    """
-    geom = Polygon()
-    center = Point()
-    pt = ProjectsTable(id=0, author_id=1, geometry=geom, centroid=center,
-                        created='2021-12-15 09:58:02.672236',
-                        task_creation_mode='GRID', status='DRAFT',
-                        mapping_level='BEGINNER')
-    # returns True or False
-    result = await projects.create(pt)
-    assert result
 
 # These tests are for basic table management
 async def delete_project():
@@ -101,17 +85,17 @@ async def update_project():
 
 async def get_team_role():
     log.debug(f"--- get_team_role() ---")
-    project_id = 13299
+    project_id = 1
     team_id = 1
     result = await projects.getTeamRole(project_id, team_id)
     # print(result)
-    assert result == Teamroles.TEAM_READ_ONLY
+    assert result == Teamroles.TEAM_MAPPER
 
 # These endpoint tests come from the TM backend
 async def get_project_by_id():
     # project_id: int) -> Project:
     log.debug(f"--- get_project_by_id() ---")
-    id = 135
+    id = 1
     # all = user.getByID(id)
     result = await projects.getByID(id)
     # print(result)
@@ -120,7 +104,7 @@ async def get_project_by_id():
 async def exists():
     # project_id: int) -> bool:
     log.debug(f"--- exists() ---")
-    id = 1000
+    id = 2
     # all = user.getByID(id)
     result = await projects.getByID(id)
     assert len(result) > 0
@@ -128,14 +112,14 @@ async def exists():
 async def get_project_by_name():
     # project_id: int) -> Project:
     log.debug(f"--- get_project_by_name() ---")
-    name = 'Kigoma_13'
+    name = 'Hello'
     result = await projects.getByName(name)
     assert len(result) > 0
 
 async def get_project_priority_areas():
     # project_id):
     log.debug(f"--- get_project_priority_areas() ---")
-    project_id = 3595
+    project_id = 1
     # result = await projects.getPriorityAreas(project_id)
     data = await projects.getColumns(['priority_areas'], {"id": project_id})
     areas =  data[0]['priority_areas']
@@ -145,7 +129,7 @@ async def get_project_priority_areas():
 async def get_project_organisation():
     # project_id: int) -> Organisation:
     log.debug(f"--- get_project_organisation() ---")
-    project_id = 3595
+    project_id = 1
     # result = await projects.getOrganization(project_id)
     data = await projects.getColumns(['organisation_id'], {"id": project_id})
     org_id =  data[0]['organisation_id']
@@ -155,7 +139,7 @@ async def get_project_organisation():
 async def get_project_aoi():
     # project_id):
     log.debug(f"--- get_project_aoi() ---")
-    project_id = 3595
+    project_id = 1
     result = await projects.getAOI(project_id)
     # print(result)
     assert type(result) == Polygon
@@ -163,7 +147,7 @@ async def get_project_aoi():
 async def get_project_title():
     # project_id: int, preferred_locale: str = "en") -> str:
     log.debug(f"--- get_project_title() ---")
-    project_id = 14672
+    project_id = 2
     data = await projects.getColumns(['name'],  {"id": project_id})
     name = data[0]['name']
     # result = await projects.getName(project_id)
@@ -181,9 +165,9 @@ async def get_featured_projects():
 async def get_project_teams():
     # project_id: int):
     log.debug(f"--- get_project_teams() ---")
-    project_id = 15173
-    data = await projects.getColumns(['teams'], {"id": project_id})
-    teams = data[0]['teams']
+    project_id = 1
+    teams = await projects.getColumns(['teams'], {"id": project_id})
+    #teams = data[0]['teams']
     assert len(teams) > 0
 
 async def unset_project_as_featured():
@@ -205,14 +189,14 @@ async def set_project_as_featured():
 async def get_project_tasks():
     # project_id):
     log.debug(f"--- get_project_tasks() ---")
-    pid = 150
+    pid = 1
     # result = await tasks.getByWhere(f" project_id={pid}")
     # assert len(result) > 0
 
 async def is_user_permitted_to_validate():
     # project_id, user_id):
     log.debug(f"-- is_user_permitted_to_validate() ---")
-    id = 4606673
+    id = 1
     # result = await users.getColumn(id, 'role')
     # FIXME: This only works if the user has the right role
     # assert len(result) > 0 and result[0][0] == Userrole.VALIDATOR
@@ -221,7 +205,7 @@ async def is_user_permitted_to_validate():
 async def is_user_permitted_to_map():
     # project_id, user_id):
     log.debug(f"--- is_user_permitted_to_map() ---")
-    id = 4606673
+    id = 1
     # result = await user.getColumn(id, 'role')
     # FIXME: This only works if the user has the right role
     # assert len(result) > 0 and result[0][0] != Userrole.USER_READ_ONLY
@@ -230,7 +214,7 @@ async def is_user_permitted_to_map():
 async def is_favorited():
     # project_id: int, user_id: int) -> bool:
     log.debug(f"--- is_favorited() ---")
-    uid = 4606673               # My TM account ID
+    uid = 1               # My TM account ID
     pid = 5
     # result = await user.getColumn(uid, 'favorite_projects')
     # FIXME: this only works with our manually inserted
@@ -241,7 +225,7 @@ async def is_favorited():
 async def favorite():
     # project_id: int, user_id: int):
     log.debug(f"--- favorite() ---")
-    uid = 4606673               # My TM account ID
+    uid = 1               # My TM account ID
     pid = 5
     # result = await user.appendColumn(uid, {'favorite_projects': pid})
     # assert len(result) > 0
@@ -249,7 +233,7 @@ async def favorite():
 async def unfavorite():
     # project_id: int, user_id: int):
     log.debug(f"--- unfavorite() ---")
-    uid = 4606673               # My TM account ID
+    uid = 1               # My TM account ID
     pid = 1
     # result = await user.removeColumn(uid, {'favorite_projects': pid})
     # assert result
@@ -265,8 +249,8 @@ async def evaluate_mapping_permission():
     # project_id: int, user_id: int, mapping_permission: int
     log.debug(f"evaluate_mapping_permission()")
     breakpoint()
-    uid = 4606673               # My TM account ID
-    pid = 16
+    uid = 1
+    pid = 2
     perm = Permissions.ANY
     # userrole = user.getColumn(uid, 'teams')
     # team = await user.getColumn(uid, 'team_members')
@@ -475,7 +459,7 @@ async def main():
     """This is just a hook so this file can be run standalone during development."""
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
-    parser.add_argument("-u", "--uri", default='localhost/tm_admin', help="Database URI")
+    parser.add_argument("-u", "--uri", default='localhost/testdata', help="Database URI")
     args = parser.parse_args()
     # if verbose, dump to the terminal.
     log_level = os.getenv("LOG_LEVEL", default="INFO")
@@ -498,9 +482,12 @@ async def main():
     # await tasks.connectDBs(args.uri)
     # await tasks.getTypes("tasks")
     await projects.initialize(args.uri)
+    await projects.deleteRecords([1, 2])
+    await projects.resetSequence()
 
     # These tests are for added endpoints
-    await create_project()
+    await create.create_projects(projects)
+
     await get_team_role()
 
     # These endpoint tests come from the TM backend
