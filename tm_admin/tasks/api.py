@@ -41,6 +41,7 @@ from tm_admin.teams.teams import TeamsDB
 from shapely import wkb, get_coordinates
 from tm_admin.dbsupport import DBSupport
 from tm_admin.generator import Generator
+from tm_admin.tasks.task_history_class import Task_historyTable
 import re
 # from progress import Bar, PixelBar
 from tqdm import tqdm
@@ -159,6 +160,64 @@ class TasksAPI(PGSupport):
             (bool): Whether locking/unlocking the task was sucessful
         """
         log.warning(f"changeStatus(): unimplemented!")
+
+    async def updateHistory(self,
+                            history: list,
+                            task_id: int,
+                            project_id: int,
+                            ):
+        """
+        Update the task history column.
+
+        Args:
+            history (list): The task history to update
+            task_id (int): The task to update
+            project_id (int): The project this task is in
+
+        Returns:
+            (bool): If it worked
+        """
+        # log.warning(f"updateHistory(): unimplemented!")
+
+        data = str()
+        for entry in history:
+            for k, v in entry.items():
+                if str(type(v))[:5] == "<enum":
+                    data += f'" {v.name}", '
+                else:
+                    data += f'" {v}", '
+                #asc = str(entry).replace("'", '"').replace("\\'", "'")
+            sql = "UPDATE tasks SET history = '{\"history\": [%s]}' WHERE id=%d AND project_id=%d" % (data[:-2], task_id, project_id)
+            print(sql)
+            result = await self.execute(sql)
+
+    async def appendHistory(self,
+                            history: list,
+                            task_id: int,
+                            project_id: int,
+                            ):
+        """
+        Update the task history column.
+
+        Args:
+            history (list): The task history to update
+            task_id (int): The task to update
+            project_id (int): The project this task is in
+
+        Returns:
+            (bool): If it worked
+        """
+        # log.warning(f"updateHistory(): unimplemented!")
+
+        data = dict()
+        data['history'] = list()
+        for entry in history:
+            # SQL wants the string value
+            entry['action'] = entry['action'].name
+            asc = str(entry).replace("'", '"').replace("\\'", "'")
+            sql = "UPDATE tasks SET history = history||'[%s]'::jsonb WHERE id=%d AND project_id=%d" % (asc, task_id, project_id)
+            # print(sql)
+            result = await self.execute(sql)
 
     async def markAllMapped(self):
         """
