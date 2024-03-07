@@ -148,16 +148,25 @@ class PGSupport(PostgresClient):
         data = dict()
         for entry in records:
             for key, value in entry.data.items():
+                val = self.types[key]
                 if not value:
                     continue
-                if type(value) == dict:
+                if type(value) == list:
+                    fo = str(value)
+                    data[key] = f"XARRAY{str(value)}X"
+                elif type(value) == dict:
                     # It's for a jsonb column
                     # a dict uses single quotes, postgres wants double quotes.
                     newval = str(value).replace("'", '"')
                     data[key] = f"{newval}"
                     continue
-                val = self.types[key]
-                if val[:7] == "public.":
+                # This is a bit ugly. When passing a geometry we need to get rid of the
+                # double quote around this value.
+                elif val == "Polygon":
+                    data[key] = f"XST_GeomFromText('{value}')X"
+                elif val == "Point":
+                    data[key] = f"XST_GeomFromText('{value}')X"
+                elif val[:7] == "public.":
                     # FIXME: unfortunately, the supposed enums are a mix of
                     # the string value or the integer value. Ideally this should
                     # all get cleaned up, but till then handle both.
@@ -178,9 +187,16 @@ class PGSupport(PostgresClient):
                     data[key] = value
 
         keys = str(list(data.keys())).replace("'", "")[1:-1]
+        # This is a bit ugly. When passing a geometry we need to get rid of the
+        # double quote around this value.
         values = str(list(data.values()))[1:-1]
-        sql = f"INSERT INTO {self.table}({keys}) VALUES({values}) RETURNING id"
-        # print(sql)
+        # FIXME: dealing with quoting between python and postgres is a hassle
+        foo = values.replace('"X', "").replace('X"', "")
+        # print(f"1: {foo}")
+        foo = foo.replace("'X", "").replace("X'", "")
+        # print(f"2: {foo}")
+        sql = f"INSERT INTO {self.table}({keys}) VALUES({foo}) RETURNING id"
+        print(sql)
         result = await self.execute(sql)
         # print(result)
         if len(result) > 0:
@@ -238,7 +254,6 @@ class PGSupport(PostgresClient):
                 values = str(data).replace("'", '"')
                 sql += "%s = '{" % key
                 sql += f"\"{key}\": [{values}]"
-                breakpoint()
                 sql += "}'"
             else:
                 sql += f" {key} = {value}, "
