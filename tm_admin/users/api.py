@@ -83,56 +83,6 @@ class UsersAPI(PGSupport):
         #await self.usersdb.connect(uri)
         #await self.teamsdb.connect(uri)
 
-    async def create(self,
-                     user: UsersTable,
-                     ):
-        """
-        Create a user and add them to the database.
-
-        Args:
-            user (UsersTable): The user's data
-
-        Returns:
-            (bool): Whether the user got created
-        """
-        # log.warning(f"create(): unimplemented!")
-        result = await self.insertRecords([user])
-
-        # The ID of the record that just got inserted is returned
-        if result:
-            return True
-
-        return False
-
-    async def update(self,
-                     user: UsersTable,
-                     ):
-        """
-        Update a user that is already in the database.
-
-        Args:
-            user (UsersTable): The user's data
-
-        Returns:
-            (bool): Whether the user got updated
-        """
-        log.warning(f"update(): unimplemented!")
-
-    async def delete(self,
-                    user_ids: list,
-                     ):
-        """
-        Delete a user from the database.
-
-        Args:
-            user_ids (int): The user's ID
-
-        Returns:
-            (bool): Whether the user got deleted
-        """
-        #log.warning(f"delete(): unimplemented!")
-        await self.deleteRecords(user_ids)
-
     async def getByID(self,
                      user_id: int,
                     ):

@@ -71,7 +71,7 @@ class OrganizationsAPI(PGSupport):
         Args:
             inuri (str): The URI for the TM Admin output database
         """
-        await self.connect(uri)
+        await self.connect(inuri)
         await self.getTypes("organizations")
         #await self.messagesdb.connect(uri)
         #await self.usersdb.connect(uri)
@@ -111,57 +111,6 @@ class OrganizationsAPI(PGSupport):
         results = await self.execute(sql)
         return results
 
-    async def create(self,
-                     org: OrganizationsTable,
-                     ):
-        """
-        Create a project and add it to the database.
-
-        Args:
-            org (OrganizationsTable): The organization data
-
-        Returns:
-            (bool): Whether the organization got created
-        """
-        # log.warning(f"create(): unimplemented!")
-        result = await self.insertRecords([org])
-
-        # The ID of the record that just got inserted is returned
-        if result:
-            return True
-
-        return False
-
-    async def update(self,
-                     organization: OrganizationsTable,
-                     ):
-        """
-        Update a organization that is already in the database.
-
-        Args:
-            organization (OrganizationsTable): The organization data
-
-        Returns:
-            (bool): Whether the organization got updated
-        """
-        log.warning(f"update(): unimplemented!")
-        
-        return False
-
-    async def delete(self,
-                    org_id: int,
-                     ):
-        """
-        Delete an organization from the database.
-
-        Args:
-            org_id (id): The organization ID
-
-        Returns:
-            (bool): Whether the organization  got deleted
-        """
-        log.warning(f"delete(): unimplemented!")
-
     async def getStats(self,
                        org_id: int,
                        ):
@@ -174,19 +123,6 @@ class OrganizationsAPI(PGSupport):
             
         """
         log.warning(f"getStats(): unimplemented!")
-
-    async def isManager(self,
-                        user_id: int,
-                        ):
-        """
-
-        Args:
-            
-
-        Returns:
-            
-        """
-        log.warning(f"isManager(): unimplemented!")
 
     async def validateName(self,
                            name: str,
@@ -219,7 +155,7 @@ async def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
-    parser.add_argument("-u", "--uri", default='localhost/tm_admin', help="Database URI")
+    parser.add_argument("-u", "--uri", default='localhost/testdata', help="Database URI")
 
     args = parser.parse_args()
 

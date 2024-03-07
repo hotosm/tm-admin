@@ -89,60 +89,6 @@ class ProjectsAPI(PGSupport):
         await self.connect(inuri)
         await self.getTypes("projects")
 
-    async def create(self,
-                     project: ProjectsTable,
-                     ):
-        """
-        Create a project and add it to the database.
-
-        Args:
-            project (ProjectsTable): The team data
-
-        Returns:
-            (bool): Whether the project got created
-        """
-        # log.warning(f"--- create() ---")
-        result = await self.insertRecords([project])
-
-        # The ID of the record that just got inserted is returned
-        if result > 0:
-            return True
-
-        return False
-
-    async def update(self,
-                     project: ProjectsTable,
-                     ):
-        """
-        Update a project that is already in the database.
-
-        Args:
-            project (ProjectsTable): The project data
-
-        Returns:
-            (bool): Whether the project got updated
-        """
-        log.warning(f"update(): unimplemented!")
-
-        return False
-
-    async def delete(self,
-                    project_ids: int,
-                    ):
-        """
-        Delete a project from the database.
-
-        Args:
-            project_ids (id): The project to delete
-
-        Returns:
-            (bool): Whether the project got deleted
-        """
-        # log.warning(f"delete(): unimplemented!")
-        await self.deleteRecords([project_ids])
-
-        return False
-
     async def evaluateMappingPermissions(self,
                                    uid: int,
                                    pid: int,
@@ -208,13 +154,14 @@ class ProjectsAPI(PGSupport):
         # There should only be one item in the results. Since it's a jsonb column
         # the data is returned as a string. In the string is an enum value, which
         # gets converted to the actual enum for Teamroles.
-        if results[0]['results'][0] == '{':
-            tmp1 = eval(results[0]['results'])
-            tmp2 = f"Teamroles.{tmp1['role']}"
-            role = eval(tmp2)
-            return role
-        else:
-            # we should never get here, but you never know...
+        if len(results) > 0:
+            if results[0]['results'][0] == '{':
+                tmp1 = eval(results[0]['results'])
+                tmp2 = f"Teamroles.{tmp1['role']}"
+                role = eval(tmp2)
+                return role
+
+        # we should never get here, but you never know...
             return None
 
     async def getByName(self,
@@ -249,7 +196,7 @@ class ProjectsAPI(PGSupport):
         Returns:
             (bool): Whether locking/unlocking the task was sucessful
         """
-        log.warning(f"delete(): unimplemented!")
+        log.warning(f"changeStatus(): unimplemented!")
 
         return False
 
@@ -324,34 +271,6 @@ class ProjectsAPI(PGSupport):
             
         """
         log.warning(f"getProjectStats(): Unimplemented!")
-
-        return False
-
-    async def deleteTasks(self,
-                              project_id: int,
-                             ):
-        """
-
-        Args:
-            
-
-        Returns:
-            
-        """
-        log.warning(f"deleteTasks(): Unimplemented!")
-
-        return False
-
-    async def getTasks(self):
-        """
-
-        Args:
-            
-
-        Returns:
-            
-        """
-        log.warning(f"getTasks(): Unimplemented!")
 
         return False
 

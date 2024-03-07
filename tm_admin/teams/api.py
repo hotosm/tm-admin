@@ -113,60 +113,6 @@ class TeamsAPI(PGSupport):
         sql = f"SELECT * FROM teams WHERE name='{name}'"
         results = await self.execute(sql)
         return results
-
-    async def create(self,
-            team: TeamsTable,
-        ):
-        """
-        Create a team and add it to the database.
-
-        Args:
-            team (TeamsTable): The team data
-
-        Returns:
-            (bool): Whether the team got created
-        """
-        # log.warning(f"create(): unimplemented!")
-        result = await self.insertRecords([team])
-
-        # The ID of the record that just got inserted is returned
-        if result:
-            return True
-
-        return False
-        
-    async def update(self,
-                     team: Team_membersTable,
-                     ):
-        """
-        Update a team that is already in the database.
-
-        Args:
-            team (TeamsTable): The team data
-
-        Returns:
-            (bool): Whether the team got updated
-        """
-        log.warning(f"update(): unimplemented!")
-
-        return False
-        
-    async def delete(self,
-                     team_ids: int,
-                     ):
-        """
-        Delete a team from the database.
-
-        Args:
-            team_ids (int): The team ID
-
-        Returns:
-            (bool): Whether the team got deleted
-        """
-        # log.warning(f"delete(): unimplemented!")
-        await self.deleteRecords(team_ids)
-
-        return True
         
     async def addMember(self,
                         member: Team_membersTable,

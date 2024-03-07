@@ -121,61 +121,6 @@ class MessagesAPI(PGSupport):
         results = await self.execute(sql)
         return results
 
-    async def create(self,
-                     message: MessagesTable,
-                     ):
-        """
-        Create a message and add it to the database.
-
-        Args:
-            message (MessagesTable): The team data
-
-        Returns:
-            (bool): Whether the message got created
-        """
-        # log.warning(f"create(): unimplemented!")
-
-        result = await self.insertRecords([message])
-
-        # The ID of the record that just got inserted is returned
-        if result:
-            return True
-
-        return False
-
-    async def update(self,
-                     message: MessagesTable,
-                     ):
-        """
-        Update a message that is already in the database.
-
-        Args:
-            message (MessagesTable): The message data
-
-        Returns:
-            (bool): Whether the message got updated
-        """
-        log.warning(f"update(): unimplemented!")
-
-        return False
-
-    async def delete(self,
-                    message_ids: list,
-                    ):
-        """
-        Delete messages from the database.
-
-        Args:
-            message_ids (list): The messages
-
-        Returns:
-            (bool): Whether the messages got deleted
-        """
-        # log.warning(f"delete(): unimplemented!")
-        await self.deleteRecords(message_ids)
-
-        return False
-
 async def main():
     """This main function lets this class be run standalone by a bash script."""
     parser = argparse.ArgumentParser()

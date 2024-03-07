@@ -83,7 +83,7 @@ class CampaignsAPI(PGSupport):
         Args:
             inuri (str): The URI for the TM Admin output database
         """
-        await self.connect(uri)
+        await self.connect(inuri)
         await self.getTypes("campaigns")
         #await self.usersdb.connect(uri)
         #await self.teamsdb.connect(uri)
@@ -156,22 +156,6 @@ class CampaignsAPI(PGSupport):
             (bool): Whether the campaign got updated
         """
         log.warning(f"update(): unimplemented!")
-
-        return False
-
-    async def delete(self,
-                    campaign_id: int,
-                    ):
-        """
-        Delete a campaign from the database.
-
-        Args:
-            campaign_id (id): The campaign data
-
-        Returns:
-            (bool): Whether the campaign got deleted
-        """
-        log.warning(f"delete(): unimplemented!")
 
         return False
 
