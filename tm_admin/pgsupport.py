@@ -175,7 +175,7 @@ class PGSupport(PostgresClient):
                     if type(value) == str:
                         data[key] = value
                     elif type(value) == int:
-                        # All we have is the value, so instantiate the Enum
+                        # All we have is the value,             so instantiate the Enum
                         # to get the name. Also check if it's an array.
                         if tmtype[-2:] == "[]":
                             obj = eval("tm_admin.types_tm.%s(%s)" % (tmtype[:-2], value))
@@ -196,7 +196,7 @@ class PGSupport(PostgresClient):
         foo = foo.replace("'X", "").replace("X'", "")
         # print(f"2: {foo}")
         sql = f"INSERT INTO {self.table}({keys}) VALUES({foo}) RETURNING id"
-        print(sql)
+        # print(sql)
         result = await self.execute(sql)
         # print(result)
         if len(result) > 0:
@@ -225,7 +225,7 @@ class PGSupport(PostgresClient):
 
         check = str()
         if where:
-            check = " WHERE "
+            check = "WHERE "
             for k, v in where.items():
                 if v == 'null':
                     check += f"{k} IS NOT NULL OR "
@@ -239,9 +239,9 @@ class PGSupport(PostgresClient):
                 # It's an enum
                 tmtype = val[7:].capitalize()
                 obj = eval(f"tm_admin.types_tm.{tmtype}({value})")
-                sql += f" {key} = '{obj.name}', "
+                sql += f"{key} = '{obj.name}', "
             elif val[-2:] == "[]":
-                sql += f" {key} = {key}||'{value}', "
+                sql += f"{key} = {key}||'{value}', "
             elif val == "jsonb":
                 # A jsonb column may contain enums
                 data = dict()
@@ -256,10 +256,10 @@ class PGSupport(PostgresClient):
                 sql += f"\"{key}\": [{values}]"
                 sql += "}'"
             else:
-                sql += f" {key} = {value}, "
-        query = sql + f" {check[:-3]} RETURNING id"
+                sql += f"{key} = {value}, "
+        query = sql + f"{check[:-3]} RETURNING id"
         # print(query)
-        result = await self.execute(query)
+        result = await self.execute(query.replace(", WHERE", " WHERE"))
         if len(result) > 0:
             return result[0]['id']
         else:
@@ -330,7 +330,7 @@ class PGSupport(PostgresClient):
             sql = f"SELECT {get} FROM {self.table} WHERE {check}"
         else:
             sql = f"SELECT {get} FROM {self.table}"
-        print(sql)
+        # print(sql)
         results = await self.execute(sql)
 
         data = list()
