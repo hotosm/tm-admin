@@ -241,7 +241,7 @@ class PGSupport(PostgresClient):
                 obj = eval(f"tm_admin.types_tm.{tmtype}({value})")
                 sql += f"{key} = '{obj.name}', "
             elif val[-2:] == "[]":
-                sql += f"{key} = {key}||'{value}', "
+                sql += "%s = %s||ARRAY%s, " % (key, key, str(value))
             elif val == "jsonb":
                 # A jsonb column may contain enums
                 data = dict()
