@@ -45,9 +45,11 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed.
 
 users = UsersAPI()
-projects = ProjectsDB()
+projects = ProjectsAPI()
 
 async def create_users():
+    await users.deleteRecords([1, 2, 3, 4, 5])
+    await users.resetSequence()
     user = UsersTable(id = 1, username = "foobar", name = "foo",
                   city = "Someplace", email_address = "fubr@gmail.com",
                   is_email_verified = False, is_expert = False,
@@ -63,7 +65,7 @@ async def create_users():
                   tasks_comments_notifications = False,
                   teams_announcement_notifications = True,
                   )
-    result = await users.create(user)
+    result = await users.insertRecords([user])
 
     user = UsersTable(id = 2, username = "barfoo", name = "foobar",
                   city = "Someplace", email_address = "barfood@gmail.com",
@@ -80,7 +82,7 @@ async def create_users():
                   tasks_comments_notifications = False,
                   teams_announcement_notifications = True,
                   )
-    result = await users.create(user)
+    result = await users.insertRecords([user])
 
     user = UsersTable(id = 3, username = "barfood", name = "bar",
                   city = "Someplace", email_address = "oops@gmail.com",
@@ -97,7 +99,7 @@ async def create_users():
                   tasks_comments_notifications = False,
                   teams_announcement_notifications = True,
                   )
-    result = await users.create(user)
+    result = await users.insertRecords([user])
 
     user = UsersTable(id = 4, username = "test", name = "tester",
                   city = "Someplace", email_address = "nogood@gmail.com",
@@ -114,7 +116,7 @@ async def create_users():
                   tasks_comments_notifications = False,
                   teams_announcement_notifications = True,
                   )
-    result = await users.create(user)
+    result = await users.insertRecords([user])
 
     user = UsersTable(id = 5, username = "superbeing", name = "god",
                   city = "Someplace", email_address = "nogood@gmail.com",
@@ -131,7 +133,7 @@ async def create_users():
                   tasks_comments_notifications = False,
                   teams_announcement_notifications = True,
                   )
-    result = await users.create(user)
+    result = await users.insertRecords([user])
 
 # def get_all_users(query: UserSearchQuery):
 async def test_all():
@@ -254,7 +256,7 @@ async def register_user():
     ut = UsersTable(username='foobar', name='barfoo', picture_url='URI', email_address="bar@foo.com", mapping_level='INTERMEDIATE', role='VALIDATOR')
     #await users.updateColumns(ut, {"id": user_id})
     result = await users.getByName('foobar')
-    print(result)
+    # print(result)
 
 async def register_user_with_email():
     """Validate that user is not within the general users table."""
@@ -290,7 +292,7 @@ async def accept_license_terms():
     log.debug(f"--- accept_license_terms() ---")
     user_id = 1
     license_id = 1
-    result = await users.updateColumns({'licenses': license_id}, {"id": user_id})
+    result = await users.updateColumns({'licenses': [license_id]}, {"id": user_id})
     assert result
 
 async def get_general_admins():
@@ -412,9 +414,7 @@ async def main():
     )
 
     await users.initialize(args.uri)
-    await users.delete([1, 2, 3, 4, 5])
-    await create_users()
-    projects.connect(args.uri)
+    await projects.initialize(args.uri)
 
     # Test TM API
     # get_user_dto_by_username()

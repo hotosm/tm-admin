@@ -49,9 +49,11 @@ organizations = OrganizationsAPI()
 users = UsersAPI()
 projects = ProjectsAPI()
 
-async def create_organisation():
+async def create_organisations():
     # new_organisation_dto: NewOrganisationDTO) -> int:
-    log.debug(f"create_organisation() unimplemented!")
+    await organizations.deleteRecords([1, 2])
+    await organizations.resetSequence()
+
     # returns True or False
     ot = OrganizationsTable(id = 1, name='test org', slug="slug",
                     subscription_tier=1,
@@ -65,15 +67,10 @@ async def create_organisation():
                     # type=Organizationtype.FREE)
     result = await organizations.create(ot)
 
-    manager_id = 1
+    manager_ids = [1, 2, 3]
     organization_id = 1
-    result = await organizations.updateColumns({'managers': manager_id}, {"id": organization_id})
+    result = await organizations.updateColumns({'managers': manager_ids}, {"id": organization_id})
     # Add a 2nd manager
-    result = await organizations.updateColumns({'managers': 3}, {"id": organization_id})
-    manager_id = 2
-    organization_id = 2
-    result = await organizations.updateColumns({'managers': manager_id}, {"id": organization_id})
-
     # FIXME: This is supposed to return the id, and does for other tables,
     # but for some reason we get no result, but it appears to work
     # assert result
@@ -196,9 +193,7 @@ async def main():
     await projects.initialize(args.uri)
 
     await organizations.initialize(args.uri)
-    await organizations.delete([1, 2])
-    await organizations.resetSequence()
-    await create_organisation()
+    await create_organisations()
     
     await get_organisation_by_id()
     await get_organisation_by_name()

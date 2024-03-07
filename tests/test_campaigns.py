@@ -48,13 +48,18 @@ rootdir = tma.__path__[0]
 
 campaigns = CampaignsAPI()
 
-async def create_campaign():
+async def create_campaigns():
     """Creates a new campaign"""
     # campaign_dto: NewCampaignDTO):
-    log.debug(f"--- create_campaign() unimplemented!")
-    camp = CampaignsTable(name='test campaign', logo='foo.png',
+    await campaigns.deleteRecords([1, 2])
+    await campaigns.resetSequence()
+    camp1 = CampaignsTable(id = 1, name='test campaign', logo='foo.png',
                           description="test")
-    result = await campaigns.create(camp)
+    result = await campaigns.insertRecords([camp1])
+
+    camp2 = CampaignsTable(id = 2, name='campaign 2', logo='foo.png',
+                          description="another test")
+    result = await campaigns.insertRecords([camp2])
 
 async def get_all_campaigns():
     """Returns a list of all campaigns"""
@@ -66,12 +71,12 @@ async def get_all_campaigns():
 async def get_campaign():
     """Gets the specified campaign"""
     log.debug(f"--- get_campaign() ---")
-    id = 4
+    id = 2
     result = await campaigns.getByID(id)
     assert len(result) > 0
 
 async def get_campaign_by_name():
-    name = 'Mbomou'
+    name = 'test campaign'
     log.debug(f"--- get_campaign_by_name() ---")
     result = await campaigns.getByName(name)
     assert len(result) > 0
@@ -133,7 +138,7 @@ async def update_campaign():
 async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
-    parser.add_argument("-u", "--uri", default='localhost/tm_admin', help="Database URI")
+    parser.add_argument("-u", "--uri", default='localhost/testdata', help="Database URI")
     args = parser.parse_args()
     # if verbose, dump to the terminal.
     log_level = os.getenv("LOG_LEVEL", default="INFO")
@@ -150,13 +155,13 @@ async def main():
 
     # await user.connect(args.uri)
     await campaigns.initialize(args.uri)
+    await create_campaigns()
 
     await get_campaign()
     await get_campaign_by_name()
     await delete_campaign()
     await delete_project_campaign()
     await get_all_campaigns()
-    await create_campaign()
     await create_campaign_project()
     await create_campaign_organisation()
     await campaign_organisation_exists()

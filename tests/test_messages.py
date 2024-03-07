@@ -48,15 +48,17 @@ rootdir = tma.__path__[0]
 # user = UsersDB()
 messages = MessagesAPI()
 
-async def create_message():
+async def create_messages():
     # log.debug(f--- create_message() unimplemented!)
+    await messages.deleteRecords([1, 2, 3])
+    await messages.resetSequence()
     msg = MessagesTable(id = 197862, message="Hi has just been validated",
                         from_user_id = 7775678, to_user_id = 6643593,
                         date = '2018-06-04T04:49:02.614348',
                         read = False,message_type=4,
                         project_id = 3213, task_id = 777,
                         )
-    result = await messages.create(msg)
+    result = await messages.insertRecords([msg])
 
     msg = MessagesTable(id=272032,message="Hi has just been validated",
                         from_user_id = 7775590, to_user_id = 8405478,
@@ -64,7 +66,7 @@ async def create_message():
                         read = False, message_type = 4,
                         project_id = 4231, task_id = 90,
                         )
-    result = await messages.create(msg)
+    result = await messages.insertRecords([msg])
 
     msg = MessagesTable(id=89136,message="Hi has just been validated",
                          from_user_id = 5484336, to_user_id = 3043750,
@@ -72,7 +74,7 @@ async def create_message():
                          read = False, message_type = 4,
                          project_id = 4091, task_id = 55
                          )
-    result = await messages.create(msg)
+    result = await messages.insertRecords([msg])
 
 async def get_all_messages():
     log.debug(f"--- get_all_messages() unimplemented!")
@@ -224,7 +226,7 @@ async def main():
 
     # await user.connect(args.uri)
     await messages.initialize(args.uri)
-    await create_message()
+    await create_messages()
 
     await send_welcome_message()
     await send_message_after_validation()
@@ -257,9 +259,6 @@ async def main():
     await get_user_profile_link()
     await get_user_settings_link()
     await get_organisation_link()
-
-    # Cleanup the records this test added
-    await messages.delete([197862, 272032, 89136])
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""

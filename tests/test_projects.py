@@ -41,7 +41,6 @@ from tm_admin.tasks.api import TasksAPI
 from tm_admin.users.api import UsersAPI
 from tm_admin.projects.api import ProjectsAPI
 
-import create
 # from tm_admin.users.api import UsersAPI
 from shapely.geometry import Polygon, Point, shape
 
@@ -58,6 +57,39 @@ users = UsersAPI()
 projects = ProjectsAPI()
 tasks = TasksAPI()
 teams = TeamsAPI()
+
+# These tests are for the API endpoints
+async def create_projects(api):
+    """
+    Create a project. We don't need any valid geometries for this test.
+
+    The id column defaults to auto-increment. TM doesn't have any ids below
+    100, so we can use the 0-100 range for testing on a live database.
+    """
+    await projects.deleteRecords([1, 2])
+    await projects.resetSequence()
+    coords = ((0., 0.), (0., 1.), (1., 1.), (1., 0.), (0., 0.))
+    geom = Polygon(coords)
+    center = Point(1.0, -1.0)
+    pt = ProjectsTable(id = 1, name = "Hello", author_id = 1, geometry = geom, centroid = center,
+                        created = '2021-12-15 09:58:02.672236', organisation_id = 1,
+                        task_creation_mode = 'GRID', status = 'DRAFT', featured = "false",
+                        mapping_level = 'BEGINNER', priority_areas = [1, 2, 3])
+    # returns True or False
+    result = await api.create(pt)
+
+    pt = ProjectsTable(id=2, name="World!", author_id = 1, geometry = geom, centroid = center,
+                        created = '2022-12-15 09:58:02.672236', featured = "true",
+                        task_creation_mode = 'CREATE_ROADS', status = 'PUBLISHED',
+                        mapping_level = 'ADVANCED', priority_areas = [1],
+                        organisation_id = 1)
+    # returns True or False
+    result = await api.create(pt)
+
+    role =  Teamroles(Teamroles.TEAM_MAPPER)
+    teams = {"team_id": 1, "role": role}
+    project_id = 1
+    result = await api.updateColumns({"teams": teams}, {"id": project_id})
 
 # These tests are for basic table management
 async def delete_project():
@@ -482,11 +514,7 @@ async def main():
     # await tasks.connectDBs(args.uri)
     # await tasks.getTypes("tasks")
     await projects.initialize(args.uri)
-    await projects.deleteRecords([1, 2])
-    await projects.resetSequence()
-
-    # These tests are for added endpoints
-    await create.create_projects(projects)
+    await create_projects(projects)
 
     await get_team_role()
 

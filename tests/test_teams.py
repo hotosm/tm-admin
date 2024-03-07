@@ -47,7 +47,9 @@ rootdir = tma.__path__[0]
 
 teams = TeamsAPI()
 
-async def create_team():
+async def create_teams():
+    await teams.deleteRecords([1, 2])
+    await teams.resetSequence()
     team = TeamsTable(id = 1, organisation_id = 56, name = "HOT Practice Team",
                       description = "For fun", visibility = "PUBLIC",
                       join_method = 1, team_members = {"members":
@@ -66,7 +68,7 @@ async def get_team_by_id():
     log.debug(f"get_team_by_id() unimplemented!")
     team_id = 1
     result = await teams.getByID(team_id)
-    print(result)
+    # print(result)
     assert len(result) > 0
 
 async def update_team():
@@ -74,12 +76,6 @@ async def update_team():
     team = Team_membersTable()
     # FIXME: add data!
     # results = await teams.update(team)
-
-# async def delete_team():
-#     log.debug(f"delete_team() unimplemented!")
-#     team_id = 1
-#     results = await teams.delete(team_id)
-#     # team_id: int
 
 async def get_team_by_name():
     log.debug(f"get_team_by_name() unimplemented!")
@@ -117,7 +113,7 @@ async def send_invite():
     team_id = 1
     user_id = 17255752
     results = await teams.sendInvite(team_id, user_id)
-    print(results)
+    # print(results)
     # team_id, from_user_id, username
     
 async def accept_reject_join_request():
@@ -242,9 +238,7 @@ async def main():
     )
 
     await teams.initialize(args.uri)
-    await teams.delete([1, 2])
-    await teams.resetSequence()
-    await create_team()
+    await create_teams()
 
     await request_to_join_team()
     await add_team_member()
