@@ -28,9 +28,11 @@ from sys import argv
 #from tm_admin.yamlfile import YamlFile
 # from tm_admin.users.users import UsersDB
 # from tm_admin.projects.projects import ProjectsDB
-from tm_admin.types_tm import Userrole, Mappinglevel, Taskstatus
+from tm_admin.types_tm import Taskstatus, Taskaction
 from datetime import datetime
 from tm_admin.tasks.tasks_class import TasksTable
+from tm_admin.tasks.task_history_class import Task_historyTable
+from tm_admin.tasks.task_invalidation_history_class import Task_invalidation_historyTable
 from tm_admin.tasks.api import TasksAPI
 import asyncio
 from codetiming import Timer
@@ -38,29 +40,62 @@ from codetiming import Timer
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-import tm_admin as tma
-rootdir = tma.__path__[0]
-
 tasks = TasksAPI()
 
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
-async def create_task():
+async def create_tasks():
+    await tasks.deleteRecords([1, 2, 3])
+    await tasks.resetSequence()
     project_id = 1
-    log.debug(f"--- create_task() unimplemented!")
-    task = TasksTable(project_id=1,
-                      project_task_name="testing, 1,2,3",
-                      is_square="false",
-                      task_status=Taskstatus.READY,
-                    )
-    result = await tasks.create(task)
+    user_id = 1
+    tl = list()
+    tl.append(TasksTable(id = 1, project_id = 1,
+                        project_task_name = "testing, 1,2,3",
+                        is_square = False,
+                        task_status = Taskstatus.READY))
+    tl.append(TasksTable(id = 2, project_id = 1,
+                        project_task_name = "testing, 1,2,3",
+                        is_square = True,
+                        task_status = Taskstatus.READY))
+
+    result = await tasks.insertRecords(tl)
+
+    task_id = 1
+    project_id = 1
+    history = list()
+    history.append({"action": Taskaction.RELEASED_FOR_MAPPING,
+                   "action_text": "validated task",
+                   "action_date": "2024-01-25 10:50:56.140958",
+                   "user_id": user_id})
+
+    await tasks.updateHistory(history, task_id, project_id)
+
+    task_id = 1
+    project_id = 1
+    history = list()
+    history.append({"action": Taskaction.LOCKED_FOR_MAPPING,
+                "action_text": "locked for mapping",
+                "action_date": "2024-01-23 10:50:56.140958",
+                "user_id": user_id})
+
+    history.append({"action": Taskaction.LOCKED_FOR_VALIDATION,
+                "action_text": "marked mapped",
+                "action_date": "2024-01-24 10:50:56.140958",
+                "user_id": user_id})
+
+    history.append({"action": Taskaction.VALIDATED,
+                "action_text": "marked mapped",
+                "action_date": "2024-01-25 10:50:56.140958",
+                "user_id": user_id})
+    await tasks.appendHistory(history, task_id, project_id)
 
 async def get_task():
     log.debug(f"--- get_task() unimplemented!")
     task_id = 1
     result = await tasks.getByID(task_id)
-    print(result)
+    # print(result)
     # task_id: int, project_id: int) -> Task:
 
 async def _is_task_undoable():
@@ -132,19 +167,16 @@ async def reset_all_badimagery():
     # project_id: int, user_id: int):
 
     """Marks all bad imagery tasks ready for mapping"""
+
 async def lock_time_can_be_extended():
     log.debug(f"--- lock_time_can_be_extended() unimplemented!")
     # project_id, task_id, user_id):
-    
+
     # task = Task.get(task_id, project_id)
 async def extend_task_lock_time():
     log.debug(f"--- extend_task_lock_time() unimplemented!")
     #extend_dto: ExtendLockTimeDTO):
 
-# async def get_task_as_dto():
-#    log.debug(f"--- get_task_as_dto( unimplemented!")
-#    # task_id: int,
-    
 # FMTM API tests
 async def get_task_count_in_project():
     # db: Session, project_id: int):
@@ -201,7 +233,7 @@ async def edit_task_boundary():
 async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", nargs="?", const="0", help="verbose output")
-    parser.add_argument("-u", "--uri", default='localhost/tm_admin', help="Database URI")
+    parser.add_argument("-u", "--uri", default='localhost/testdata', help="Database URI")
     args = parser.parse_args()
     # if verbose, dump to the terminal.
     log_level = os.getenv("LOG_LEVEL", default="INFO")
@@ -219,10 +251,10 @@ async def main():
     # user = UsersDB(args.uri)
     # task = TasksDB(args.uri)
     await tasks.initialize(args.uri)
-    await create_task()
+    await create_tasks()
     # project = ProjectsDB(args.uri)
     
-    await get_task()
+    await get_tasks()
     # await get_task_as_dto()
     await _is_task_undoable()
     await lock_task_for_mapping()
