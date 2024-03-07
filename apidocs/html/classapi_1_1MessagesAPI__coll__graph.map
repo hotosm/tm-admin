@@ -1,5 +1,5 @@
 <map id="api.MessagesAPI" name="api.MessagesAPI">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,123,128,341"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="13,5,120,75"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,123,128,256"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="26,5,107,75"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="69,89,69,123,64,123,64,89"/>
 </map>

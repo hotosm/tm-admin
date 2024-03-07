@@ -1,7 +1,13 @@
 <map id="tmdb.TMImport.getColumns" name="tmdb.TMImport.getColumns">
-<area shape="rect" id="Node000001" title=" " alt="" coords="249,32,453,60"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="249,109,453,137"/>
 <area shape="rect" id="Node000002" href="$classtmdb_1_1TMImport.html#af9c3db323e192b1b1c7d5c4a5fb2e640" title=" " alt="" coords="5,5,201,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,36,201,32,201,27,234,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="312,104,259,76,200,48,163,36,165,31,202,43,262,71,314,99"/>
 <area shape="rect" id="Node000003" href="$classapi_1_1ProjectsAPI.html#af325db8c2ed60b9ba6fca3b96f7e0365" title=" " alt="" coords="20,57,186,85"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,60,187,65,186,60,233,55"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="266,108,172,88,173,83,268,103"/>
+<area shape="rect" id="Node000004" href="$classapi_1_1UsersAPI.html#a641c1190111ddccf3cbc642deaf51462" title=" " alt="" coords="13,109,193,137"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="233,126,193,126,193,121,233,121"/>
+<area shape="rect" id="Node000005" href="$classapi_1_1UsersAPI.html#ac6963d891064ed259b56163e841721f9" title=" " alt="" coords="23,161,183,189"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="268,143,173,163,172,158,266,138"/>
+<area shape="rect" id="Node000006" href="$classapi_1_1UsersAPI.html#a927283b4c1f928fb727f204f1e81bef1" title=" " alt="" coords="24,213,182,241"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="314,147,262,176,202,203,165,215,163,210,200,198,259,171,312,143"/>
 </map>

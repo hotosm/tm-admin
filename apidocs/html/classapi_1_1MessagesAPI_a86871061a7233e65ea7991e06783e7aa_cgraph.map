@@ -1,0 +1,14 @@
+<map id="api.MessagesAPI.initialize" name="api.MessagesAPI.initialize">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,144,197,172"/>
+<area shape="rect" id="Node000002" href="$classdbsupport_1_1DBSupport.html#a6089870b1c6f9238a28a2886642ec27e" title=" " alt="" coords="295,29,509,57"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,141,173,104,207,84,244,67,279,56,281,62,246,72,210,89,176,108,122,146"/>
+<area shape="rect" id="Node000003" href="$classtmadmin__manage_1_1TmAdminManage.html#a0e4a98f0af730939c08d10966a66ea5a" title=" " alt="" coords="245,105,559,133"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="197,143,274,133,275,138,197,148"/>
+<area shape="rect" id="Node000004" href="$classtmdb_1_1TMImport.html#a4fe8c1f6942fe50346c9e5172f7f09ad" title=" " alt="" coords="313,181,491,209"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="197,167,299,180,298,185,197,172"/>
+<area shape="rect" id="Node000005" href="$classpgsupport_1_1PGSupport.html#ad26d7eeabf5bb1e772f3e7382ebe598f" title=" " alt="" coords="292,233,512,261"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="131,170,183,195,245,218,281,227,280,232,244,223,181,199,128,175"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="351,31,343,20,349,11,369,5,402,3,440,6,458,13,456,18,439,11,402,8,370,10,352,15,348,20,355,27"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="351,107,343,96,349,87,369,81,402,79,440,82,458,89,456,94,439,87,402,84,370,86,352,91,348,96,355,103"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="351,183,343,172,349,163,369,157,402,155,440,158,458,165,456,170,439,163,402,160,370,162,352,167,348,172,355,179"/>
+</map>

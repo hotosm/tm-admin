@@ -1,7 +1,17 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" title=" " alt="" coords="5,32,95,60"/>
-<area shape="rect" id="Node000001" href="$classapi_1_1ProjectsAPI.html" title=" " alt="" coords="143,5,261,33"/>
-<area shape="poly" id="edge76_Node000000_Node000001" title=" " alt="" coords="109,33,142,27,143,32,110,38"/>
-<area shape="rect" id="Node000002" href="$classapi_1_1UsersAPI.html" title=" " alt="" coords="150,57,254,85"/>
-<area shape="poly" id="edge77_Node000000_Node000002" title=" " alt="" coords="110,53,150,60,149,65,109,58"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,161,95,189"/>
+<area shape="rect" id="Node000001" href="$classapi_1_1CampaignsAPI.html" title=" " alt="" coords="151,5,291,33"/>
+<area shape="poly" id="edge75_Node000000_Node000001" title=" " alt="" coords="62,147,93,95,115,67,141,44,163,31,166,36,144,48,119,71,98,98,66,149"/>
+<area shape="rect" id="Node000002" href="$classapi_1_1MessagesAPI.html" title=" " alt="" coords="155,57,287,85"/>
+<area shape="poly" id="edge76_Node000000_Node000002" title=" " alt="" coords="73,149,104,121,141,96,168,83,170,88,144,100,108,125,77,153"/>
+<area shape="rect" id="Node000003" href="$classapi_1_1OrganizationsAPI.html" title=" " alt="" coords="143,109,299,137"/>
+<area shape="poly" id="edge77_Node000000_Node000003" title=" " alt="" coords="108,155,172,135,174,140,110,160"/>
+<area shape="rect" id="Node000004" href="$classapi_1_1ProjectsAPI.html" title=" " alt="" coords="162,161,280,189"/>
+<area shape="poly" id="edge78_Node000000_Node000004" title=" " alt="" coords="109,173,161,173,161,178,109,178"/>
+<area shape="rect" id="Node000005" href="$classapi_1_1TasksAPI.html" title=" " alt="" coords="170,213,272,241"/>
+<area shape="poly" id="edge79_Node000000_Node000005" title=" " alt="" coords="110,190,174,210,172,215,108,196"/>
+<area shape="rect" id="Node000006" href="$classapi_1_1TeamsAPI.html" title=" " alt="" coords="167,265,275,293"/>
+<area shape="poly" id="edge80_Node000000_Node000006" title=" " alt="" coords="77,198,108,225,144,250,170,262,168,267,141,255,104,229,73,202"/>
+<area shape="rect" id="Node000007" href="$classapi_1_1UsersAPI.html" title=" " alt="" coords="169,317,273,345"/>
+<area shape="poly" id="edge81_Node000000_Node000007" title=" " alt="" coords="66,201,98,253,119,279,144,302,170,316,168,321,141,307,115,283,93,256,62,204"/>
 </map>

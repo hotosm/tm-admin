@@ -118,8 +118,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:abf3b40d3bd1e5507999778a317c94ad3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e87fb9250ba354de1f89d6c1e413ae6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpgsupport_1_1PGSupport.html#a3e87fb9250ba354de1f89d6c1e413ae6">appendColumns</a> (self, str where, dict column)</td></tr>
 <tr class="separator:a3e87fb9250ba354de1f89d6c1e413ae6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7f47a9c2e110f8eea2f1d57dbcdbff1b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpgsupport_1_1PGSupport.html#a7f47a9c2e110f8eea2f1d57dbcdbff1b">getColumns</a> (self, list columns, list where=list())</td></tr>
-<tr class="separator:a7f47a9c2e110f8eea2f1d57dbcdbff1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa697b537a0d1d97655949ba0308cef36"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpgsupport_1_1PGSupport.html#aa697b537a0d1d97655949ba0308cef36">getColumns</a> (self, list columns, dict where=None)</td></tr>
+<tr class="separator:aa697b537a0d1d97655949ba0308cef36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -207,7 +207,7 @@ Args:
 Returns:
     (bool): Whether the column got updated.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="pgsupport_8py_source.html#l00246">246</a> of file <a class="el" href="pgsupport_8py_source.html">pgsupport.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pgsupport_8py_source.html#l00275">275</a> of file <a class="el" href="pgsupport_8py_source.html">pgsupport.py</a>.</p>
 
 </div>
 </div>
@@ -248,8 +248,8 @@ Returns:
 
 </div>
 </div>
-<a id="a7f47a9c2e110f8eea2f1d57dbcdbff1b" name="a7f47a9c2e110f8eea2f1d57dbcdbff1b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7f47a9c2e110f8eea2f1d57dbcdbff1b">&#9670;&#160;</a></span>getColumns()</h2>
+<a id="aa697b537a0d1d97655949ba0308cef36" name="aa697b537a0d1d97655949ba0308cef36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa697b537a0d1d97655949ba0308cef36">&#9670;&#160;</a></span>getColumns()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -269,8 +269,8 @@ Returns:
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">list &#160;</td>
-          <td class="paramname"><em>where</em> = <code>list()</code>&#160;</td>
+          <td class="paramtype">dict &#160;</td>
+          <td class="paramname"><em>where</em> = <code>None</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -290,17 +290,23 @@ Args:
 Returns:
     (list): The data for this column
 </pre> 
-<p class="definition">Definition at line <a class="el" href="pgsupport_8py_source.html#l00267">267</a> of file <a class="el" href="pgsupport_8py_source.html">pgsupport.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pgsupport_8py_source.html#l00296">296</a> of file <a class="el" href="pgsupport_8py_source.html">pgsupport.py</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="classpgsupport_1_1PGSupport_a7f47a9c2e110f8eea2f1d57dbcdbff1b_icgraph.png" border="0" usemap="#aclasspgsupport_1_1PGSupport_a7f47a9c2e110f8eea2f1d57dbcdbff1b_icgraph" alt=""/></div>
-<map name="aclasspgsupport_1_1PGSupport_a7f47a9c2e110f8eea2f1d57dbcdbff1b_icgraph" id="aclasspgsupport_1_1PGSupport_a7f47a9c2e110f8eea2f1d57dbcdbff1b_icgraph">
-<area shape="rect" title=" " alt="" coords="249,32,489,60"/>
+<div class="center"><img src="classpgsupport_1_1PGSupport_aa697b537a0d1d97655949ba0308cef36_icgraph.png" border="0" usemap="#aclasspgsupport_1_1PGSupport_aa697b537a0d1d97655949ba0308cef36_icgraph" alt=""/></div>
+<map name="aclasspgsupport_1_1PGSupport_aa697b537a0d1d97655949ba0308cef36_icgraph" id="aclasspgsupport_1_1PGSupport_aa697b537a0d1d97655949ba0308cef36_icgraph">
+<area shape="rect" title=" " alt="" coords="249,109,489,137"/>
 <area shape="rect" href="classtmdb_1_1TMImport.html#af9c3db323e192b1b1c7d5c4a5fb2e640" title=" " alt="" coords="5,5,201,33"/>
-<area shape="poly" title=" " alt="" coords="234,35,201,32,201,26,234,30"/>
+<area shape="poly" title=" " alt="" coords="326,105,267,76,200,48,162,36,163,31,202,43,269,72,329,100"/>
 <area shape="rect" href="classapi_1_1ProjectsAPI.html#af325db8c2ed60b9ba6fca3b96f7e0365" title=" " alt="" coords="20,57,186,85"/>
-<area shape="poly" title=" " alt="" coords="234,61,187,66,186,61,234,56"/>
+<area shape="poly" title=" " alt="" coords="280,109,177,88,178,83,281,103"/>
+<area shape="rect" href="classapi_1_1UsersAPI.html#a641c1190111ddccf3cbc642deaf51462" title=" " alt="" coords="13,109,193,137"/>
+<area shape="poly" title=" " alt="" coords="234,126,193,126,193,121,234,121"/>
+<area shape="rect" href="classapi_1_1UsersAPI.html#ac6963d891064ed259b56163e841721f9" title=" " alt="" coords="23,161,183,189"/>
+<area shape="poly" title=" " alt="" coords="281,143,178,163,177,158,280,138"/>
+<area shape="rect" href="classapi_1_1UsersAPI.html#a927283b4c1f928fb727f204f1e81bef1" title=" " alt="" coords="24,213,182,241"/>
+<area shape="poly" title=" " alt="" coords="329,146,269,175,202,203,163,215,162,210,200,198,267,170,326,142"/>
 </map>
 </div>
 
@@ -343,11 +349,21 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classpgsupport_1_1PGSupport_ad26d7eeabf5bb1e772f3e7382ebe598f_icgraph.png" border="0" usemap="#aclasspgsupport_1_1PGSupport_ad26d7eeabf5bb1e772f3e7382ebe598f_icgraph" alt=""/></div>
 <map name="aclasspgsupport_1_1PGSupport_ad26d7eeabf5bb1e772f3e7382ebe598f_icgraph" id="aclasspgsupport_1_1PGSupport_ad26d7eeabf5bb1e772f3e7382ebe598f_icgraph">
-<area shape="rect" title=" " alt="" coords="232,32,452,60"/>
-<area shape="rect" href="classapi_1_1ProjectsAPI.html#a85cd5d68622151c112a0fefe728ae8e0" title=" " alt="" coords="5,5,184,33"/>
-<area shape="poly" title=" " alt="" coords="216,35,184,31,185,26,217,30"/>
-<area shape="rect" href="classapi_1_1UsersAPI.html#a4958e43a8d4daf361c5a082f29ad08f5" title=" " alt="" coords="13,57,176,85"/>
-<area shape="poly" title=" " alt="" coords="217,61,177,65,176,60,217,56"/>
+<area shape="rect" title=" " alt="" coords="270,161,490,189"/>
+<area shape="rect" href="classapi_1_1CampaignsAPI.html#a40227a76daf6935ee53c2a01f4e61659" title=" " alt="" coords="14,5,213,33"/>
+<area shape="poly" title=" " alt="" coords="354,152,296,99,260,72,220,48,190,36,191,31,223,43,263,67,300,95,357,149"/>
+<area shape="rect" href="classapi_1_1MessagesAPI.html#a86871061a7233e65ea7991e06783e7aa" title=" " alt="" coords="18,57,209,85"/>
+<area shape="poly" title=" " alt="" coords="340,156,284,128,221,100,181,88,183,83,223,95,287,123,342,151"/>
+<area shape="rect" href="classapi_1_1OrganizationsAPI.html#ad26e822db6838efa56e430d3b3959de0" title=" " alt="" coords="5,109,222,137"/>
+<area shape="poly" title=" " alt="" coords="291,161,188,140,189,135,292,155"/>
+<area shape="rect" href="classapi_1_1ProjectsAPI.html#acd697aaa02c681fdf905908ade45f83c" title=" " alt="" coords="24,161,203,189"/>
+<area shape="poly" title=" " alt="" coords="255,178,203,178,203,173,255,173"/>
+<area shape="rect" href="classapi_1_1TasksAPI.html#a30f676796f827badcb3ae86ca1fa8195" title=" " alt="" coords="32,213,195,241"/>
+<area shape="poly" title=" " alt="" coords="292,195,189,215,188,210,291,190"/>
+<area shape="rect" href="classapi_1_1UsersAPI.html#a2eaeaa84abce213ac54b1d5a0dbf00c2" title=" " alt="" coords="32,265,195,293"/>
+<area shape="poly" title=" " alt="" coords="342,199,287,228,223,255,183,267,181,262,221,250,284,223,340,194"/>
+<area shape="rect" href="classapi_1_1TeamsAPI.html#aa8a2e25d321340b5d7bce6be046e9d70" title=" " alt="" coords="29,317,198,345"/>
+<area shape="poly" title=" " alt="" coords="357,202,300,255,263,283,223,307,191,319,190,314,220,302,260,279,296,251,354,198"/>
 </map>
 </div>
 
@@ -394,9 +410,9 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classpgsupport_1_1PGSupport_a9291e36e5c66bd1e5c60bfe6f3ad46fd_icgraph.png" border="0" usemap="#aclasspgsupport_1_1PGSupport_a9291e36e5c66bd1e5c60bfe6f3ad46fd_icgraph" alt=""/></div>
 <map name="aclasspgsupport_1_1PGSupport_a9291e36e5c66bd1e5c60bfe6f3ad46fd_icgraph" id="aclasspgsupport_1_1PGSupport_a9291e36e5c66bd1e5c60bfe6f3ad46fd_icgraph">
-<area shape="rect" title=" " alt="" coords="217,5,416,50"/>
-<area shape="rect" href="classapi_1_1ProjectsAPI.html#aec0b4cd729a8304238093975f7a54849" title=" " alt="" coords="5,14,169,42"/>
-<area shape="poly" title=" " alt="" coords="202,30,169,30,169,25,202,25"/>
+<area shape="rect" title=" " alt="" coords="238,5,437,50"/>
+<area shape="rect" href="classapi_1_1CampaignsAPI.html#a716c0dde7941214977bbd7f10d84f379" title=" " alt="" coords="5,14,190,42"/>
+<area shape="poly" title=" " alt="" coords="222,30,190,30,190,25,222,25"/>
 </map>
 </div>
 
@@ -419,7 +435,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <pre class="fragment">Reset the ID column sequence to zero.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="pgsupport_8py_source.html#l00239">239</a> of file <a class="el" href="pgsupport_8py_source.html">pgsupport.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pgsupport_8py_source.html#l00268">268</a> of file <a class="el" href="pgsupport_8py_source.html">pgsupport.py</a>.</p>
 
 </div>
 </div>
@@ -463,7 +479,7 @@ Args:
 Returns:
     (bool): Whether the column got updated.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="pgsupport_8py_source.html#l00188">188</a> of file <a class="el" href="pgsupport_8py_source.html">pgsupport.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pgsupport_8py_source.html#l00207">207</a> of file <a class="el" href="pgsupport_8py_source.html">pgsupport.py</a>.</p>
 
 </div>
 </div>
