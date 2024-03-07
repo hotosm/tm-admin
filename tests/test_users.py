@@ -85,7 +85,7 @@ async def create_users():
     user = UsersTable(id = 3, username = "barfood", name = "bar",
                   city = "Someplace", email_address = "oops@gmail.com",
                   is_email_verified = False, is_expert = False,
-                  tasks_notifications = True, role = "MAPPER",
+                  tasks_notifications = True, role = "ORGANIZATION_ADMIN",
                   mapping_level = "INTERMEDIATE", tasks_mapped = 0,
                   tasks_validated = 0, tasks_invalidated = 0,
                   date_registered = "2024-01-29T22:19:35.587016",
