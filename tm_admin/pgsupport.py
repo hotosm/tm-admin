@@ -186,19 +186,20 @@ class PGSupport(PostgresClient):
                 else:
                     data[key] = value
 
-        keys = str(list(data.keys())).replace("'", "")[1:-1]
-        # This is a bit ugly. When passing a geometry we need to get rid of the
-        # double quote around this value.
-        values = str(list(data.values()))[1:-1]
-        # FIXME: dealing with quoting between python and postgres is a hassle
-        foo = values.replace('"X', "").replace('X"', "")
-        # print(f"1: {foo}")
-        foo = foo.replace("'X", "").replace("X'", "")
-        # print(f"2: {foo}")
-        sql = f"INSERT INTO {self.table}({keys}) VALUES({foo}) RETURNING id"
-        # print(sql)
-        result = await self.execute(sql)
-        # print(result)
+            keys = str(list(data.keys())).replace("'", "")[1:-1]
+            # This is a bit ugly. When passing a geometry we need to get rid of the
+            # double quote around this value.
+            values = str(list(data.values()))[1:-1]
+            # FIXME: dealing with quoting between python and postgres is a hassle
+            foo = values.replace('"X', "").replace('X"', "")
+            # print(f"1: {foo}")
+            foo = foo.replace("'X", "").replace("X'", "")
+            # print(f"2: {foo}")
+            sql = f"INSERT INTO {self.table}({keys}) VALUES({foo}) RETURNING id"
+            # print(sql)
+            result = await self.execute(sql)
+            # print(result)
+
         if len(result) > 0:
             return result[0]['id']
         else:
