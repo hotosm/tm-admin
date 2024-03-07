@@ -29,7 +29,9 @@ from sys import argv
 from tm_admin.organizations.organizations import OrganizationsDB
 from tm_admin.organizations.organizations_class import OrganizationsTable
 from tm_admin.organizations.api import OrganizationsAPI
-from tm_admin.types_tm import Organizationtype
+from tm_admin.users.api import UsersAPI
+from tm_admin.projects.api import ProjectsAPI
+from tm_admin.types_tm import Organizationtype, Userrole
 from datetime import datetime
 import asyncio
 from codetiming import Timer
@@ -44,6 +46,8 @@ rootdir = tma.__path__[0]
 # database, the other for tm_admin.
 
 organizations = OrganizationsAPI()
+users = UsersAPI()
+projects = ProjectsAPI()
 
 async def create_organisation():
     # new_organisation_dto: NewOrganisationDTO) -> int:
@@ -55,7 +59,7 @@ async def create_organisation():
                     # type=Organizationtype.FREE)
     result = await organizations.create(ot)
 
-    ot = OrganizationsTable(id = 2, name='test org2', slug="slug",
+    ot = OrganizationsTable(id = 2, name='Other', slug="slug",
                     subscription_tier=2,
                             type=2)
                     # type=Organizationtype.FREE)
@@ -84,7 +88,7 @@ async def get_organisation_by_id():
 async def get_organisation_by_name():
     # organisation_name: str) -> Organisation:
     log.debug(f"--- get_organisation_by_name() ---")
-    name= 'Other'
+    name = 'Other'
     result = await organizations.getByName(name)
     assert len(result) > 0
 
@@ -98,8 +102,26 @@ async def get_organisation_name_by_id():
 async def get_organisations():
     # manager_user_id: int):
     log.debug(f"--- get_organisations() ---")
-    # result = await organization.getAll()
-    # assert len(result) > 0
+    result = await organizations.getColumns(['*'])
+    # print(result)
+    assert len(result) > 0
+
+async def can_user_manage_organisation():
+    # organisation_id: int, user_id: int):
+    log.debug(f"can_user_manage_organisation() unimplemented!")
+    user_id = 3
+    role = await users.getRole(user_id)
+    # print(role)
+    assert role == Userrole.ORGANIZATION_ADMIN
+
+async def is_user_an_org_manager():
+    # organisation_id: int, user_id: int):
+    log.debug(f"--- is_user_an_org_manager() ---")
+    user_id = 3
+    org_id = 1
+    result = await organizations.getColumns({'managers'}, {"id": org_id})
+    # print(result)
+    assert user_id in result[0]['managers']
 
 async def update_organisation():
     # organisation_dto: UpdateOrganisationDTO) -> Organisation:
@@ -125,14 +147,6 @@ async def assert_validate_users():
     # organisation_dto: OrganisationDTO):
     log.debug(f"assert_validate_users() unimplemented!")
 
-async def can_user_manage_organisation():
-    # organisation_id: int, user_id: int):
-    log.debug(f"can_user_manage_organisation() unimplemented!")
-
-async def is_user_an_org_manager():
-    # organisation_id: int, user_id: int):
-    log.debug(f"is_user_an_org_manager() unimplemented!")
-
 # We don't need to test these they are for sqlachemy, which we're not using. Instead
 # we use the UsersTable() to represent the table schema
 # def get_organisation_dto():
@@ -143,9 +157,6 @@ async def is_user_an_org_manager():
 # def get_organisation_by_slug_as_dto():
 
 # FMTM API tests
-async def get_organisations():
-    log.debug(f"--- get_organisations() unimplemented!")
-
 async def generate_slug():
     # text: str) -> str:
     log.debug(f"--- generate_slug() unimplemented!")
@@ -177,6 +188,12 @@ async def main():
         datefmt="%y-%m-%d %H:%M:%S",
         stream=sys.stdout,
     )
+
+    # FIXME: this assumes there is some user data to query
+    await users.initialize(args.uri)
+
+    # FIXME: this assumes there is some project data to query
+    await projects.initialize(args.uri)
 
     await organizations.initialize(args.uri)
     await organizations.delete([1, 2])
