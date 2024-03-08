@@ -52,7 +52,7 @@ async def create_messages():
     # log.debug(f--- create_message() unimplemented!)
     await messages.deleteRecords([1, 2, 3])
     await messages.resetSequence()
-    msg = MessagesTable(id = 197862, message="Hi has just been validated",
+    msg = MessagesTable(id = 1, message = "Hi has just been validated",
                         from_user_id = 7775678, to_user_id = 6643593,
                         date = '2018-06-04T04:49:02.614348',
                         read = False,message_type=4,
@@ -60,7 +60,7 @@ async def create_messages():
                         )
     result = await messages.insertRecords([msg])
 
-    msg = MessagesTable(id=272032,message="Hi has just been validated",
+    msg = MessagesTable(id=2, message = "Hi has just been validated",
                         from_user_id = 7775590, to_user_id = 8405478,
                         date = '2018-07-19T03:17:42.122209',
                         read = False, message_type = 4,
@@ -68,7 +68,7 @@ async def create_messages():
                         )
     result = await messages.insertRecords([msg])
 
-    msg = MessagesTable(id=89136,message="Hi has just been validated",
+    msg = MessagesTable(id = 3, message = "Hi has just been validated",
                          from_user_id = 5484336, to_user_id = 3043750,
                          date = '2018-02-07T13:32:47.56986',
                          read = False, message_type = 4,

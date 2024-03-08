@@ -75,21 +75,19 @@ async def create_projects(api):
                         created = '2021-12-15 09:58:02.672236', organisation_id = 1,
                         task_creation_mode = 'GRID', status = 'DRAFT', featured = "false",
                         mapping_level = 'BEGINNER', priority_areas = [1, 2, 3])
-    # returns True or False
-    result = await api.create(pt)
+    result = await projects.insertRecords([pt])
 
     pt = ProjectsTable(id=2, name="World!", author_id = 1, geometry = geom, centroid = center,
                         created = '2022-12-15 09:58:02.672236', featured = "true",
                         task_creation_mode = 'CREATE_ROADS', status = 'PUBLISHED',
                         mapping_level = 'ADVANCED', priority_areas = [1],
                         organisation_id = 1)
-    # returns True or False
-    result = await api.create(pt)
+    result = await projects.insertRecords([pt])
 
     role =  Teamroles(Teamroles.TEAM_MAPPER)
     teams = {"team_id": 1, "role": role}
     project_id = 1
-    result = await api.updateColumns({"teams": teams}, {"id": project_id})
+    result = await projects.updateColumns({"teams": teams}, {"id": project_id})
 
 # These tests are for basic table management
 async def delete_project():

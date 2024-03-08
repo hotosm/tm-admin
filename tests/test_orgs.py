@@ -55,17 +55,17 @@ async def create_organisations():
     await organizations.resetSequence()
 
     # returns True or False
-    ot = OrganizationsTable(id = 1, name='test org', slug="slug",
+    org = OrganizationsTable(id = 1, name='test org', slug="slug",
                     subscription_tier=1,
                     type=1)
                     # type=Organizationtype.FREE)
-    result = await organizations.create(ot)
+    result = await organizations.insertRecords([org])
 
-    ot = OrganizationsTable(id = 2, name='Other', slug="slug",
+    org = OrganizationsTable(id = 2, name='Other', slug="slug",
                     subscription_tier=2,
                             type=2)
                     # type=Organizationtype.FREE)
-    result = await organizations.create(ot)
+    result = await organizations.insertRecords([org])
 
     manager_ids = [1, 2, 3]
     organization_id = 1

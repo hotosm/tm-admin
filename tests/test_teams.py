@@ -55,14 +55,14 @@ async def create_teams():
                       join_method = 1, team_members = {"members":
                                 [{"active": "false", "user_id": 1, "function": "MEMBER"},
                                  {"active": "true", "user_id": 2, "function": "MANAGER"}]})
-    result = await teams.create(team)
+    result = await teams.insertRecords([team])
 
     team = TeamsTable(id = 2, organisation_id = 56, name = "Not Enough Practice",
                       description = "Hello World!", visibility = "PUBLIC",
                       join_method = 1, team_members = {"members":
                                 [{"active": "false", "user_id": 3, "function": "MEMBER"},
                                  {"active": "true", "user_id": 4, "function": "MEMBER"}]})
-    result = await teams.create(team)
+    result = await teams.insertRecords([team])
 
 async def get_team_by_id():
     log.debug(f"get_team_by_id() unimplemented!")

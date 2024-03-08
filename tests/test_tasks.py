@@ -55,12 +55,44 @@ async def create_tasks():
                         project_task_name = "testing, 1,2,3",
                         is_square = False,
                         task_status = Taskstatus.READY))
+    task_id = 1
+    project_id = 1
+    history = list()
+    history.append({"action": Taskaction.RELEASED_FOR_MAPPING,
+                   "action_text": "validated task",
+                   "action_date": "2024-01-25 10:50:56.140958",
+                   "user_id": user_id})
+    await tasks.updateHistory(history, task_id, project_id)
+
+    task_id = 1
+    history = list()
+    history.append({"action": Taskaction.LOCKED_FOR_MAPPING,
+                "action_text": "locked for mapping",
+                "action_date": "2024-01-23 10:50:56.140958",
+                "user_id": user_id})
+
+    history.append({"action": Taskaction.LOCKED_FOR_VALIDATION,
+                "action_text": "marked mapped",
+                "action_date": "2024-01-24 10:50:56.140958",
+                "user_id": user_id})
+
+    history.append({"action": Taskaction.VALIDATED,
+                "action_text": "marked mapped",
+                "action_date": "2024-01-25 10:50:56.140958",
+                "user_id": user_id})
+    await tasks.appendHistory(history, task_id, project_id)
     tl.append(TasksTable(id = 2, project_id = 1,
                         project_task_name = "testing, 1,2,3",
                         is_square = True,
                         task_status = Taskstatus.READY))
 
     result = await tasks.insertRecords(tl)
+
+    history.append({"action": Taskaction.RELEASED_FOR_MAPPING,
+                   "action_text": "validated task",
+                   "action_date": "2024-01-25 10:50:56.140958",
+                   "user_id": user_id})
+    await tasks.updateHistory(history, task_id, project_id)
 
     task_id = 1
     project_id = 1
@@ -69,7 +101,6 @@ async def create_tasks():
                    "action_text": "validated task",
                    "action_date": "2024-01-25 10:50:56.140958",
                    "user_id": user_id})
-
     await tasks.updateHistory(history, task_id, project_id)
 
     task_id = 1
@@ -92,11 +123,11 @@ async def create_tasks():
     await tasks.appendHistory(history, task_id, project_id)
 
 async def get_task():
+    # task_id: int, project_id: int) -> Task:
     log.debug(f"--- get_task() unimplemented!")
     task_id = 1
-    result = await tasks.getByID(task_id)
+    # result = await tasks.getByID(task_id)
     # print(result)
-    # task_id: int, project_id: int) -> Task:
 
 async def _is_task_undoable():
     """Determines if the current task status can be undone by the logged in user"""
@@ -106,7 +137,7 @@ async def _is_task_undoable():
 async def lock_task_for_mapping():
     log.debug(f"--- lock_task_for_mapping() unimplemented!")
     user_id = 1
-    task_id = 2
+    task_id = 1
     project_id = 3
     status = Taskstatus(Taskstatus.TASK_LOCKED_FOR_MAPPING)
     result = await tasks.changeStatus(user_id, task_id, project_id, status)
@@ -116,7 +147,7 @@ async def unlock_task_after_mapping():
     """Unlocks the task and sets the task history appropriately"""
     log.debug(f"--- unlock_task_after_mapping() unimplemented!")
     user_id = 1
-    task_id = 2
+    task_id = 1
     project_id = 3
     status = Taskstatus(Taskstatus.TASK_LOCKED_FOR_MAPPING)
     result = await tasks.changeStatus(user_id, task_id, project_id, status)
