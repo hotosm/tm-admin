@@ -146,9 +146,11 @@ class PGSupport(PostgresClient):
             return False
 
         data = dict()
+        jcol = dict()
         for entry in records:
             for key, value in entry.data.items():
                 val = self.types[key]
+                # print(type(val), value)
                 if not value:
                     continue
                 if type(value) == list:
@@ -157,11 +159,23 @@ class PGSupport(PostgresClient):
                 elif type(value) == dict:
                     # It's for a jsonb column
                     # a dict uses single quotes, postgres wants double quotes.
-                    newval = str(value).replace("'", '"')
-                    data[key] = f"{newval}"
-                    continue
+                    # newval = str(value).replace("'", '"')
+                    breakpoint()
+                    for entry in value[key]:
+                        for k, v in entry.items():
+                            if str(type(v))[:5] == "<enum":
+                                jcol[k] = v.name
+                            else:
+                                jcol[k] = v
+                    print(jcol)
+                    # continue
                 # This is a bit ugly. When passing a geometry we need to get rid of the
                 # double quote around this value.
+                elif val == "bool":
+                    if value == True:
+                        data[key] = f"true"
+                    else:
+                        data[key] = f"false"
                 elif val == "Polygon":
                     data[key] = f"XST_GeomFromText('{value}')X"
                 elif val == "Point":
@@ -346,6 +360,66 @@ class PGSupport(PostgresClient):
             data.append(entry)
 
         return data
+
+    async def updateJsonb(self,
+                            history: list,
+                            task_id: int,
+                            project_id: int,
+                            columns: str,
+                            ):
+        """
+        FIXME: a work in progress
+        Update a json column. Note that this will replacew any existing data
+        in the columns.
+
+        Args:
+            history (list): The task history to update
+            task_id (int): The task to update
+            project_id (int): The project this task is in
+            column (str): The column to update.
+
+        Returns:
+            (bool): If it worked
+        """
+        # log.warning(f"updateHistory(): unimplemented!")
+
+        data = str()
+        for entry in history:
+            for k, v in entry.items():
+                if str(type(v))[:5] == "<enum":
+                    data += f'" {v.name}", '
+                else:
+                    data += f'" {v}", '
+                #asc = str(entry).replace("'", '"').replace("\\'", "'")
+            sql = "UPDATE %s SET %s = '{\"%s\": [%s]}' WHERE id=%d AND project_id=%d" % (self.table, column, column, data[:-2], task_id, project_id)
+            print(sql)
+            result = await self.execute(sql)
+
+    async def appendJsonb(self,
+                            data: list,
+                            column: str,
+                            where: dict,
+                            ):
+        """
+        FIXME: a work in progress
+        Update the task history column.
+
+        Args:
+            data (list): The data for this column to update
+            column (str): The column to update.
+
+        Returns:
+            (bool): If it worked
+        """
+        # log.warning(f"updateHistory(): unimplemented!")
+
+        for entry in data:
+            # SQL wants the string value
+            entry['action'] = entry['action'].name
+            asc = str(entry).replace("'", '"').replace("\\'", "'").replace('""', '"')
+            sql = "UPDATE tasks SET history = history||'[%s]'::jsonb WHERE id=%d AND project_id=%d" % (asc, task_id, project_id)
+            # print(sql)
+            result = await self.execute(sql)
 
 async def main():
     """This main function lets this class be run standalone by a bash script."""
