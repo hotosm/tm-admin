@@ -214,12 +214,12 @@ class TasksAPI(PGSupport):
         data['history'] = list()
         for entry in history:
             # SQL wants the string value
-            entry['action'] = entry['action'].name
+            if "action" in entry:
+                entry['action'] = entry['action'].name
             asc = str(entry).replace("'", '"').replace("\\'", "'")
             sql = "UPDATE tasks SET history = history||'[%s]'::jsonb WHERE id=%d AND project_id=%d" % (asc, task_id, project_id)
             # print(sql)
             result = await self.execute(sql)
-
 
     async def updateIssues(self,
                             issues: list,
