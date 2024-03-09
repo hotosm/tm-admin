@@ -51,6 +51,18 @@ I'm burying the SQL queries in a python module, but luckily at one
 point implementing new queries is mostly cut & paste with minor
 editing for column names.
 
+## Enum Usage
+
+The current code base for the Tasking Manager defines a bunch of
+enums, which aren't actually used for database access. This makes the
+code harder to read as most of the code and the database only use the
+integer value. This project enforces the use of enums as it makes the
+code more readable, and more secure. Unfortuantely when using the
+existing data in the Tasking Manager database, this requires
+conversion. As a jsonb column may also contain enum values, this
+requires the data being inserted or updated to loop through all the
+values to convert them.
+
 ## The Types files
 
 All of the enums have been extracted from FMTM and TM, and are defined
@@ -312,10 +324,6 @@ project ID need to be used in queries to get the right one.
 
 * task_mapping_issues is now an Enum instead of a table
 
-##### Task Annotations
-
-This table appears not to be used by TM yet.
-
 ##### Task History Table
 
 The *task_history* table is now a jsonb column within the tasks
@@ -323,23 +331,30 @@ table. The *id* column is no longer needed, and the *project_id* and
 *task_id* are already in the tasks table. In TM the action is a
 string, which in TM Admin is a proper Enum, which is used instead. The
 *action_text*, *action_date* and *user_id* are all preserved in the
-jsonb column.
+jsonb column. The action is now using an Enum in the code, and the
+equivalant SQL type everywhere.
 
 ##### Task Mapping Issues
 
 This table in Tasking Manager must be new, as it contains little
 data. It's basically a summary of the issue, like "Missed
 Features(s)", or "Feature Geometry", with a count of how many features
-have this issue.
+have this issue. I'm not sure the category actually needs to be a
+column.
 
 Currently in the Tasking Manager there is an index into the history
 table, which no longer exists. So the details of the issue are merged
-with the task history jsonb column. This way the actual issue data is
-part of the history.
+with the issues jsob column. THe only two columns still in use is
+issue and count
 
 ##### Task Invalidation History Table
 
-This table has been merged into the *tasks* table as a jsonb column.
+This table has been merged into the history as invalidation is an
+update to the history.
+
+##### Task Annotations
+
+This table appears not to be used by TM yet.
 
 ##### Notifications
 
