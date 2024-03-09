@@ -350,7 +350,10 @@ issue and count
 ##### Task Invalidation History Table
 
 This table has been merged into the history as invalidation is an
-update to the history.
+update to the history. Several columns have been dropped as nopw they
+are unnecessary, id, project_id, task_id. Updated_data seemes like a
+duplicate, so using the two validate or invalidate dates, since
+updates change those.
 
 ##### Task Annotations
 
