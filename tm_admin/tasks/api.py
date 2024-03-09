@@ -33,6 +33,7 @@ from shapely.geometry import shape
 from shapely import centroid
 from tm_admin.types_tm import Taskcreationmode, Taskstatus, Teamroles
 from tm_admin.projects.projects_class import ProjectsTable
+from tm_admin.projects.projects_teams_class import Project_teamsTable
 from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.messages.messages import MessagesDB
 from tm_admin.projects.projects import ProjectsDB
@@ -216,6 +217,37 @@ class TasksAPI(PGSupport):
             entry['action'] = entry['action'].name
             asc = str(entry).replace("'", '"').replace("\\'", "'")
             sql = "UPDATE tasks SET history = history||'[%s]'::jsonb WHERE id=%d AND project_id=%d" % (asc, task_id, project_id)
+            # print(sql)
+            result = await self.execute(sql)
+
+
+    async def updateIssues(self,
+                            issues: list,
+                            task_id: int,
+                            project_id: int,
+                            ):
+        """
+        Update the task history column.
+
+        Args:
+            issues (list): The issues for this task
+            task_id (int): The task to update
+            project_id (int): The project this task is in
+
+        Returns:
+            (bool): If it worked
+        """
+        # log.warning(f"updateHistory(): unimplemented!")
+
+        data = str()
+        for entry in issues:
+            for k, v in entry.items():
+                if str(type(v))[:5] == "<enum":
+                    data += f'" {v.name}", '
+                else:
+                    data += f'" {v}", '
+                #asc = str(entry).replace("'", '"').replace("\\'", "'")
+            sql = "UPDATE tasks SET issues = '{\"issues\": [%s]}' WHERE id=%d AND project_id=%d" % (data[:-2], task_id, project_id)
             # print(sql)
             result = await self.execute(sql)
 
