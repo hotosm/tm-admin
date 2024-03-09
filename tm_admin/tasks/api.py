@@ -31,7 +31,7 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Taskcreationmode, Taskstatus, Teamroles
+from tm_admin.types_tm import Taskcreationmode, Taskstatus, Teamroles, Taskaction
 from tm_admin.projects.projects_class import ProjectsTable
 from tm_admin.projects.projects_teams_class import Project_teamsTable
 from tm_admin.tasks.tasks_class import TasksTable
@@ -220,6 +220,20 @@ class TasksAPI(PGSupport):
             sql = "UPDATE tasks SET history = history||'[%s]'::jsonb WHERE id=%d AND project_id=%d" % (asc, task_id, project_id)
             # print(sql)
             result = await self.execute(sql)
+
+            # Update the task status
+            if "action" in entry:
+                status = None
+                if entry['action'] == Taskaction.VALIDATED:
+                    status = Taskstatus.TASK_VALIDATED
+                elif entry['action'] == Taskaction.MARKED_INVALID:
+                    status = Taskstatus.TASK_INVALIDATED
+                elif entry['action'] == Taskaction.MARKED_INVALID:
+                    status = Taskstatus.TASK_VALIDATED
+                if status:
+                    result = await self.updateColumns({"status": status},
+                                                      {"id": task_id,
+                                                      "project_id": project_id})
 
     async def updateIssues(self,
                             issues: list,
