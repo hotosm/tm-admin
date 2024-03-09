@@ -126,11 +126,27 @@ async def create_tasks():
                 "user_id": user_id})
     await tasks.appendHistory(history, task_id, project_id)
 
+    # Add some mapping issues
     issuses = list()
     issuses.append({"issue": Mapping_issue.FEATURE_GEOMETRY, "count": 3})
     issuses.append({"issue": Mapping_issue.MISSED_FEATURE, "count": 10})
-
     await tasks.updateIssues(issuses, task_id, project_id)
+
+    # Add some invalidation entries
+    mapper_id = 1
+    mapped_date = "2024-01-25 10:50:56.140958";
+    invalidator_id = 2
+    invalidated_date = "2024-01-25 10:50:56.140958";
+    validator_id = 3
+    validated_date = "2024-01-25 10:50:56.140958";
+    updated_date = "2024-01-25 10:50:56.140958";
+
+    validation = {"is_closed": False, "mapper_id": mapper_id,
+                "invalidator_id": invalidator_id,
+                "validator_id": validator_id,
+                "updated_date": updated_date,
+                }
+    await tasks.appendHistory([validation], task_id, project_id)
 
 async def get_task():
     # task_id: int, project_id: int) -> Task:
