@@ -3,11 +3,7 @@
 # tables, as well as the protobuf files.
 
 - task_issues:
-    - category:
-# FIXME: should be an Enum, it appears to only be a 1 or a 2 in the
-# database
-        - int32
     - issue:
-        - int32          
+        - public.Mapping_issue          
     - count:
         - int32
