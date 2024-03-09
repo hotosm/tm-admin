@@ -141,11 +141,11 @@ class TasksAPI(PGSupport):
         results = await self.execute(sql)
         return results
 
-    async def changeStatus(self,
+    async def changeAction(self,
                         user_id: int,
                         task_id: int,
                         project_id: int,
-                        status: Taskstatus,
+                        action: Taskaction,
                         ):
         """
         Manage the status of a task. This would be locking or unlocking,
@@ -155,12 +155,55 @@ class TasksAPI(PGSupport):
             user_id (int): The mapper locking the task
             task_id (int): The task to lock
             project_id (int): The project containing the task
-            status (TaskStatus): The status to change to
+            action (Taskaction): The action to change to
 
         Returns:
             (bool): Whether locking/unlocking the task was sucessful
         """
-        log.warning(f"changeStatus(): unimplemented!")
+        # log.warning(f"changeStatus(): unimplemented!")
+
+        # the history
+        history = None
+        status = None
+        now = datetime.now()
+        if action == Taskaction.LOCKED_FOR_MAPPING:
+            Taskstatus(Taskstatus.TASK_LOCKED_FOR_MAPPING)
+            history = {"action": action,
+                "action_text": action.name,
+                "action_date": '{:%Y-%m-%dT%H:%M:%S}'.format(now),
+                "user_id": user_id}
+            status = Taskstatus.TASK_LOCKED_FOR_MAPPING
+        elif action == Taskaction.LOCKED_FOR_VALIDATION:
+            status = Taskstatus.TASK_LOCKED_FOR_VALIDATIONG
+        elif action == Taskaction.STATE_CHANGE:
+            pass
+        elif action == Taskaction.COMMENT:
+            pass
+        elif action == Taskaction.AUTO_UNLOCKED_FOR_MAPPING:
+            status = Taskstatus.READY
+        elif action == Taskaction.AUTO_UNLOCKED_FOR_VALIDATION:
+            status = Taskstatus.TASK_LOCKED_FOR_VALIDATION
+        elif action == Taskaction.EXTENDED_FOR_MAPPING:
+            status = Taskaction.READY # FIXME: Huh ?
+        elif action == Taskaction.EXTENDED_FOR_VALIDATION:
+            status = Taskaction.READY # FIXME: Huh ?
+        elif action == Taskaction.RELEASED_FOR_MAPPING:
+            status = Taskaction.READY # FIXME: Huh ?
+        elif action == Taskaction.MARKED_MAPPED:
+            status = Taskaction.TASK_STATUS_MAPPED
+        elif action == Taskaction.VALIDATED:
+            status = Taskaction.VALIDATED
+        elif action == Taskaction.TASK_MARKED_INVALID:
+            status = Taskaction.TASK_INVALIDATED
+        elif action == Taskaction.MARKED_BAD:
+            # FIXME: this should set the mapping issue
+            status = Taskaction.READY # FIXME: Huh ?
+        elif action == Taskaction.SPLIT_NEEDED:
+            status = Taskaction.SPLIT
+        elif action == Taskaction.RECREATED:
+            status = Taskaction.READY # FIXME: Huh ?
+
+        # await self.appendHistory([history], task_id, project_id)
 
     async def updateHistory(self,
                             history: list,
