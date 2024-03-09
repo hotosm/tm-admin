@@ -165,8 +165,8 @@ async def lock_task_for_mapping():
     user_id = 1
     task_id = 1
     project_id = 3
-    status = Taskstatus(Taskstatus.TASK_LOCKED_FOR_MAPPING)
-    result = await tasks.changeStatus(user_id, task_id, project_id, status)
+    result = await tasks.changeAction(user_id, task_id, project_id,
+                                      Taskaction.LOCKED_FOR_MAPPING)
     # lock_task_dto: LockTaskDTO) -> TaskDTO:
 
 async def unlock_task_after_mapping():
@@ -175,8 +175,8 @@ async def unlock_task_after_mapping():
     user_id = 1
     task_id = 1
     project_id = 3
-    status = Taskstatus(Taskstatus.TASK_LOCKED_FOR_MAPPING)
-    result = await tasks.changeStatus(user_id, task_id, project_id, status)
+    status = Taskaction(Taskaction.AUTO_UNLOCKED_FOR_VALIDATION)
+    result = await tasks.changeAction(user_id, task_id, project_id, status)
     # mapped_task: MappedTaskDTO) -> TaskDTO:
 
 async def stop_mapping_task():
@@ -186,7 +186,7 @@ async def stop_mapping_task():
     task_id = 2
     project_id = 3
     status = Taskstatus(Taskstatus.TASK_LOCKED_FOR_MAPPING)
-    result = await tasks.changeStatus(user_id, task_id, project_id, status)
+    #result = await tasks.changeActioj(user_id, task_id, project_id, status)
     log.debug(f"--- stop_mapping_task() unimplemented!")
 
     """Unlocks the task and revert the task status to the last one"""
