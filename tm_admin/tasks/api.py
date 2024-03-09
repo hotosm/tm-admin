@@ -216,6 +216,8 @@ class TasksAPI(PGSupport):
             # SQL wants the string value
             if "action" in entry:
                 entry['action'] = entry['action'].name
+            if "is_closed" in entry:
+                entry['is_closed'] = str(entry['is_closed']).lower()
             asc = str(entry).replace("'", '"').replace("\\'", "'")
             sql = "UPDATE tasks SET history = history||'[%s]'::jsonb WHERE id=%d AND project_id=%d" % (asc, task_id, project_id)
             # print(sql)
