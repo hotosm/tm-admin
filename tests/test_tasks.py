@@ -28,10 +28,11 @@ from sys import argv
 #from tm_admin.yamlfile import YamlFile
 # from tm_admin.users.users import UsersDB
 # from tm_admin.projects.projects import ProjectsDB
-from tm_admin.types_tm import Taskstatus, Taskaction
+from tm_admin.types_tm import Taskstatus, Taskaction, Mapping_issue
 from datetime import datetime
 from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.tasks.task_history_class import Task_historyTable
+from tm_admin.tasks.task_issues_class import Task_issuesTable
 from tm_admin.tasks.task_invalidation_history_class import Task_invalidation_historyTable
 from tm_admin.tasks.api import TasksAPI
 import asyncio
@@ -81,13 +82,16 @@ async def create_tasks():
                 "action_date": "2024-01-25 10:50:56.140958",
                 "user_id": user_id})
     await tasks.appendHistory(history, task_id, project_id)
+
     tl.append(TasksTable(id = 2, project_id = 1,
                         project_task_name = "testing, 1,2,3",
                         is_square = True,
                         task_status = Taskstatus.READY))
 
+    # Insert all the tables
     result = await tasks.insertRecords(tl)
 
+    # Now add some data to the jsonb columns
     history.append({"action": Taskaction.RELEASED_FOR_MAPPING,
                    "action_text": "validated task",
                    "action_date": "2024-01-25 10:50:56.140958",
@@ -121,6 +125,12 @@ async def create_tasks():
                 "action_date": "2024-01-25 10:50:56.140958",
                 "user_id": user_id})
     await tasks.appendHistory(history, task_id, project_id)
+
+    issuses = list()
+    issuses.append({"issue": Mapping_issue.FEATURE_GEOMETRY, "count": 3})
+    issuses.append({"issue": Mapping_issue.MISSED_FEATURE, "count": 10})
+
+    await tasks.updateIssues(issuses, task_id, project_id)
 
 async def get_task():
     # task_id: int, project_id: int) -> Task:
