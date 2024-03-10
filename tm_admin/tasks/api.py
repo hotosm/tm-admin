@@ -158,7 +158,7 @@ class TasksAPI(PGSupport):
             action (Taskaction): The action to change to
 
         Returns:
-            (bool): Whether locking/unlocking the task was sucessful
+            (bool): Whether the change was sucessful
         """
         # log.warning(f"changeStatus(): unimplemented!")
 
@@ -166,44 +166,48 @@ class TasksAPI(PGSupport):
         history = None
         status = None
         now = datetime.now()
+        # All actions get written to the history
+        history = {"action": action,
+                   "action_text": action.name,
+                   "action_date": '{:%Y-%m-%dT%H:%M:%S}'.format(now),
+                   "user_id": user_id}
+        # Actions change the status
         if action == Taskaction.LOCKED_FOR_MAPPING:
-            Taskstatus(Taskstatus.TASK_LOCKED_FOR_MAPPING)
-            history = {"action": action,
-                "action_text": action.name,
-                "action_date": '{:%Y-%m-%dT%H:%M:%S}'.format(now),
-                "user_id": user_id}
-            status = Taskstatus.TASK_LOCKED_FOR_MAPPING
+            status = Taskstatus(Taskstatus.TASK_LOCKED_FOR_MAPPING)
         elif action == Taskaction.LOCKED_FOR_VALIDATION:
-            status = Taskstatus.TASK_LOCKED_FOR_VALIDATIONG
+            status = Taskstatus(Taskstatus.TASK_LOCKED_FOR_VALIDATIONG)
         elif action == Taskaction.STATE_CHANGE:
             pass
         elif action == Taskaction.COMMENT:
             pass
         elif action == Taskaction.AUTO_UNLOCKED_FOR_MAPPING:
-            status = Taskstatus.READY
+            status = Taskstatus(Taskstatus.READY)
         elif action == Taskaction.AUTO_UNLOCKED_FOR_VALIDATION:
-            status = Taskstatus.TASK_LOCKED_FOR_VALIDATION
+            status = Taskstatus(Taskstatus.TASK_LOCKED_FOR_VALIDATION)
         elif action == Taskaction.EXTENDED_FOR_MAPPING:
-            status = Taskaction.READY # FIXME: Huh ?
+            status = Taskactipon(Taskaction.READY) # FIXME: Huh ?
         elif action == Taskaction.EXTENDED_FOR_VALIDATION:
-            status = Taskaction.READY # FIXME: Huh ?
+            status = Taskaction(Taskaction.READY) # FIXME: Huh ?
         elif action == Taskaction.RELEASED_FOR_MAPPING:
-            status = Taskaction.READY # FIXME: Huh ?
+            status = Taskstatus(Taskaction.READY) # FIXME: Huh ?
         elif action == Taskaction.MARKED_MAPPED:
-            status = Taskaction.TASK_STATUS_MAPPED
+            status = Taskstatus(Taskaction.TASK_STATUS_MAPPED)
         elif action == Taskaction.VALIDATED:
-            status = Taskaction.VALIDATED
+            status = Taskstatus(Taskaction.VALIDATED)
         elif action == Taskaction.TASK_MARKED_INVALID:
-            status = Taskaction.TASK_INVALIDATED
+            status = Taskstatus(Taskaction.TASK_INVALIDATED)
         elif action == Taskaction.MARKED_BAD:
             # FIXME: this should set the mapping issue
-            status = Taskaction.READY # FIXME: Huh ?
+            status = Taskstatus(Taskaction.READY) # FIXME: Huh ?
         elif action == Taskaction.SPLIT_NEEDED:
-            status = Taskaction.SPLIT
+            status = Taskstatus(Taskaction.SPLIT)
         elif action == Taskaction.RECREATED:
-            status = Taskaction.READY # FIXME: Huh ?
+            status = Taskstatus(Taskaction.READY) # FIXME: Huh ?
 
-        # await self.appendHistory([history], task_id, project_id)
+        stats = {"task_status": status}
+        await self.updateColumns(stats,
+                                 {"task_id": task_id,
+                                  "project_id": project_id})
 
     async def updateHistory(self,
                             history: list,
