@@ -181,17 +181,28 @@ class TasksDB(DBSupport):
             entry = {"user_id": record['user_id']}
             # entry['action'] = Taskaction(record['action']).name
             entry['action'] = record['action']
-            entry['action_text'] = record['action_text']
+            # The action_text column often has issues with embedded
+            # quotes.
+            if record['action_text']:
+                fix = record['action_text'].replace('"', '&quot;')
+            entry['action_text'] = fix.replace("'", '&apos;').replace("\xa0", "")
             if record['action_date']:
                 entry['action_date'] = '{:%Y-%m-%dT%H:%M:%S}'.format(record['action_date'])
             # If there is an issue, add it to the record in the jsonb column
             if record['id'] in issues:
+                entry.update(issues[record['id']])
                 entry.update(issues[record['id']])
                 # entry['issue'] = issues['issue']
                 # entry['category'] = issues['category']
                 # entry['count'] = issues['count']
             asc = str(entry).replace("'", '"').replace("\\'", "'")
             sql = "UPDATE tasks SET history = '{\"history\": [%s]}' WHERE id=%d AND project_id=%d" % (asc, record['task_id'], record['project_id'])
+            # print(sql)
+            queries.append(sql)
+
+            # Add a timestamp to the created column so this table can
+            # be partitioned.
+            sql = f"UPDATE tasks SET created = '{entry['action_date']}' WHERE id={record['task_id']} AND project_id={record['project_id']}"
             # print(sql)
             queries.append(sql)
 
@@ -204,6 +215,8 @@ class TasksDB(DBSupport):
                 outpg = PostgresClient()
                 # FIXME: this should not be hard coded
                 await outpg.connect('localhost/tm_admin')
+                # FIXME: this may be removed after testing, but memory
+                # corruption errors fored this workaround.
                 foo = copy.copy(queries[block:block + chunk -1])
                 log.debug(f"Dispatching thread {block}:{block + chunk - 1}")
 #                await updateThread(foo, outpg)
