@@ -31,12 +31,12 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Taskcreationmode, Taskstatus, Teamroles, Taskaction
+from tm_admin.types_tm import Taskcreationmode, Taskstatus, Teamrole, Taskaction
 from tm_admin.projects.projects_class import ProjectsTable
 from tm_admin.projects.projects_teams_class import Project_teamsTable
 from tm_admin.tasks.tasks_class import TasksTable
-from tm_admin.messages.messages import MessagesDB
-from tm_admin.projects.projects import ProjectsDB
+# from tm_admin.messages.messages_class import MessagesAPI
+from tm_admin.projects.api import ProjectsAPI
 from tm_admin.users.users import UsersDB
 from tm_admin.teams.teams import TeamsDB
 from shapely import wkb, get_coordinates
@@ -68,6 +68,7 @@ class TasksAPI(PGSupport):
             (TasksAPI): An instance of this class
         """
         super().__init__("tasks")
+        self.projects = ProjectsAPI()
 
     async def initialize(self,
                       inuri: str,
@@ -81,6 +82,7 @@ class TasksAPI(PGSupport):
         """
         await self.connect(inuri)
         await self.getTypes("tasks")
+        await self.projects.initialize(inuri)
 
     async def getStatus(self,
                       task_id: int,
@@ -162,6 +164,7 @@ class TasksAPI(PGSupport):
         """
         # log.warning(f"changeStatus(): unimplemented!")
 
+        # FIXME: Make sure the user is in the allowed_user in the projects table
         # the history
         history = None
         status = None
@@ -204,10 +207,40 @@ class TasksAPI(PGSupport):
         elif action == Taskaction.RECREATED:
             status = Taskstatus(Taskaction.READY) # FIXME: Huh ?
 
+        # FIXME: For some reason if I try to pass the dict inline,
+        # it gets converted to a set, so then fails.
         stats = {"task_status": status}
         await self.updateColumns(stats,
                                  {"task_id": task_id,
                                   "project_id": project_id})
+
+    async def lockTask(self,
+                       task_id: int,
+                       project_id: int,
+                       user_id: int,
+                       ):
+        """
+        Lock a task to a mapper
+
+        Args:
+            user_id (int): The user ID to lock
+            task_id (int): The task to update
+            project_id (int): The project this task is in
+
+        Returns:
+            (Mappingnotallowed): If locking was sucessful or not
+        """
+
+        # FIXME: First see if a task is in a valid state to map.
+        # Errors from Mappingnotallowed
+
+        result = await projects.permittdUser(user_id, project_id)
+
+        if result == Mappingnotallowed.USER_ALLOWED:
+            result = await tasks.changeAction(user_id, task_id, project_id,
+                                              Taskaction.LOCKED_FOR_MAPPING)
+        else:
+            return result
 
     async def updateHistory(self,
                             history: list,
