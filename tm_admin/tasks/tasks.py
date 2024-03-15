@@ -273,7 +273,7 @@ class TasksDB(DBSupport):
                 entry["is_closed_id"] = "false"
             # entries[record['task_id']].append(entry)
             asc = str(entry).replace("'", '"').replace("\\'", "'")
-            sql = "UPDATE tasks SET invalidation_history = '{\"history\": [%s]}' WHERE id=%d AND project_id=%d" % (asc, record['task_id'], record['project_id'])
+            sql = "UPDATE tasks SET history = '{\"history\": [%s]}' WHERE id=%d AND project_id=%d" % (asc, record['task_id'], record['project_id'])
             # print(sql)
             queries.append(sql)
 
