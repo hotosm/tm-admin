@@ -43,3 +43,13 @@
         - int32
     - date_registered:
         - timestamp
+
+- genderstats:
+    - male:
+        - int32
+    - female:
+        - int32
+    - prefer_not:
+        - int32
+    - self_describe:
+        - int32
