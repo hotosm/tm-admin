@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2022, 2023, 2024 Humanitarian OpenStreetMap Team
+# Copyright (c) 2023, 2024 Humanitarian OpenStreetMap Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -31,9 +31,10 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Editors, Permissions, Userrole, Mappinglevel, Teamroles
+from tm_admin.types_tm import Editors, Permissions, Userrole, Mappinglevel, Teamrole, Taskstatus, Projectstatus
 from tm_admin.projects.projects_class import ProjectsTable
 from tm_admin.users.users_class import UsersTable
+from tm_admin.users.user_stats_class import UserstatsTable
 from tm_admin.messages.messages import MessagesDB
 from tm_admin.projects.projects import ProjectsDB
 from tm_admin.users.users import UsersDB
@@ -59,9 +60,9 @@ log = logging.getLogger(__name__)
 class UsersAPI(PGSupport):
     def __init__(self):
         self.allowed_roles = [
-            Teamroles.TEAM_MAPPER,
-            Teamroles.TEAM_VALIDATOR,
-            Teamroles.TEAM_MANAGER,
+            Teamrole.TEAM_MAPPER,
+            Teamrole.TEAM_VALIDATOR,
+            Teamrole.TEAM_MANAGER,
         ]
         self.messagesdb = MessagesDB()
         self.projectsdb = ProjectsDB()
@@ -199,6 +200,150 @@ class UsersAPI(PGSupport):
         where = f" date_registered > '{start}' and date_registered < '{end}'"
         # result = self.getByWhere(where)
         # return result
+
+    async def getPagedUsers(self,
+                            paged: bool,
+                            count: int,
+                            username: str = None,
+                            user_id: int = None,
+                            role: Userrole = None,
+                            level: Mappinglevel = None,
+                            ):
+        """
+        Get paged list of all usernames using either the
+        user ID or a partial username.
+
+        Args:
+            paged (bool): Whether to page the results
+            count (int): The number of entries in the page
+            username (str): The partial user name
+            user_id (int): The user ID
+            role (Userrole): The user's role
+            level (Mappinglevel): The users mapping level
+
+        Returns:
+             (list): The users matching the query
+        """
+
+    async def getFilterUsers(self,
+                             username: str = None,
+                             user_id: int = None,
+                             project_id: int = None,
+                             ):
+        """"
+        Get paged lists of users matching OpenStreetMap
+        using either the user ID or a partial username.
+
+        Args:
+            username (str): The partial user name
+            project_id (int): Optional project ID
+            user_id (int): The user ID
+
+        Returns:
+             (list): The users matching the query
+        """
+    async def getLockedTasks(self,
+                             username: str = None,
+                             user_id: int = None,
+                             ):
+        """
+        Gets any locked tasks on the project for the logged
+        in user using either the user ID or a partial username.
+
+        Args:
+            username (str): The partial user name
+            user_id (int): The ID of the logged in user
+
+        Returns:
+            (list): The task IDs this user has locked
+        """
+        result = await self.getByID(user_id)
+        # FIXME: incomplete
+
+    async def getStats(self,
+                       username: str = None,
+                       user_id: int = None,
+                       ):
+        """
+        Get detailed statistics about a user using either
+        the user ID or a partial username.
+
+        Args:
+            username (str): The partial user name
+            user_id (int): The ID of the logged in user
+
+        Returns:
+            (UserStats): The statistics for this user
+        """
+        # FIXME: unimplemented
+
+    async def getInterestsStats(self,
+                                username: str = None,
+                                user_id: int = None,
+                                ):
+        """
+        Get rate of contributions from a user given their
+        interests using either the user ID or a partial username.
+
+        Args:
+            username (str): The partial user name
+            user_id (int): The ID of the logged in user
+
+        Returns:
+            (int): The rate of contributions
+        """
+        # FIXME: unimplemented
+
+    async def getAllStats(self,
+                          start: datetime,
+                          end: datetime,
+                          ):
+        """
+        Get rate of contributions from a user given their
+        interests using either the user ID or a partial username.
+
+        Args:
+            start (datetime): The starting timestamp
+            end (datetime): The ending timestamp
+
+        Returns:
+            (list): A list of the stats for the users in this
+                    time frame
+        """
+        # FIXME: unimplemented
+
+    async def getInteracts(self,
+                       tstatus: Taskstatus,
+                       pstatus: Projectstatus,
+                       project_id: int,
+                       start: datetime,
+                       end: datetime,
+                       sort: str,
+                       page: int = 10,
+                       username: str = None,
+                       user_id: int = None,
+                       ):
+        """
+        Get a list of tasks a user has interacted with
+        using either the user ID or a partial username.
+
+        Sort criteria is action_date or project_id.
+
+        Args:
+            username (str): The partial user name
+            user_id (int): The ID of the logged in user
+            tstatus (Taskstatus): The status of the task
+            pstatus (Projectstatus): The status of the project
+            project_id (int): The project ID
+            start (datetime): The starting timestamp
+            end (datetime): The ending timestamp
+            sort (str): The column to use for sorting the results
+            page (int): How many records in each page
+
+        Returns:
+            (list): FIXME! a list of task data ?
+        """
+        # FIXME: unimplemented, currently this is really slow!!
 
 async def main():
     """This main function lets this class be run standalone by a bash script."""
