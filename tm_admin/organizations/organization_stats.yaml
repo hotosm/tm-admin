@@ -1,0 +1,15 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- organizationstats:
+    - draft:
+        - int32
+    - published:
+        - int32
+    - archived:
+        - int32
+    - recent:
+        - int32
+    - stale:
+        - int32
