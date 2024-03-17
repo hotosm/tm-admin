@@ -1,0 +1,45 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- userstats:
+    - total:
+        - int32
+    - beginner:
+        - int32
+    - intermediate:
+        - int32
+    - advanced:
+        - int32
+    - contributed:
+        - int32
+    - email_verified:
+        - bool
+    - genders:
+        - jsonb
+
+- contributions:
+    - username:
+        - string
+    - name:
+        - string
+    - mapping_level:
+        - public.mappinglevel
+    - picture_url:
+        - string
+    - mapped:
+        - int32
+    - validated:
+        - int32
+    - bad_imagery:
+        - int32
+    - total:
+        - int32
+    - mapped_tasks:
+        - int32
+    - validated_tasks:
+        - int32
+    - bad_imagery_tasks:
+        - int32
+    - date_registered:
+        - timestamp
