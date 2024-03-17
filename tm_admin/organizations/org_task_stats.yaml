@@ -1,0 +1,19 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- organizationstats:
+    - ready:
+        - int32
+    - locked_for_mapping:
+        - int32
+    - locked_for_validation:
+        - int32
+    - mapped:
+        - int32
+    - validated:
+        - int32
+    - invalidated:
+        - int32
+    - badimagery:
+        - int32
