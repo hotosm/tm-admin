@@ -19,6 +19,13 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+"""
+Test users API
+"""
+
+import tm_admin as tma
+rootdir = tma.__path__[0]
+
 import argparse
 import logging
 import sys
@@ -38,9 +45,6 @@ from codetiming import Timer
 
 # Instantiate logger
 log = logging.getLogger(__name__)
-
-import tm_admin as tma
-rootdir = tma.__path__[0]
 
 # FIXME: For now these tests assume you have a local postgres installed.
 
@@ -135,19 +139,120 @@ async def create_users():
                   )
     result = await users.insertRecords([user])
 
+#
+# These endpoints are for the REST API
+#
+
+async def UsersRestAPI():
+    "Get user information by id"
+    log.debug("--- UsersRestAPI() ---")
+    user_id = 1
+    result = await users.getByID(user_id)
+    assert len(result) > 0
+
+async def UsersAllAPI():
+    "Get paged list of all usernames"
+    log.debug("--- UsersAllAPI() unimplemented! ---")
+    paged: False
+    count = 20
+    username: "foo"
+    role = Userrole(Userrole.Mapper)
+    level = Mappinglevel(Mappinglevel.Beginner)
+    result = await users.getPagedUsers(paged, count, username, role, level)
+
+async def UsersQueriesUsernameAPI():
+    "Get user information by OpenStreetMap username"
+    log.debug("--- UsersQueriesUsernameAPI() ---")
+    username = "foobar"
+    result = await users.getByName(username)
+    assert len(result) > 0
+
+async def UsersQueriesUsernameFilterAPI():
+    "Get paged lists of users matching OpenStreetMap username filter"
+    username = "foobar"
+    log.debug("--- UsersQueriesUsernameFilterAPI() unimplemented! ---")
+
+async def UsersQueriesOwnLockedAPI():
+    "Gets any locked task on the project for the logged in user"
+    user_id = 1
+    log.debug("--- UsersQueriesOwnLockedAPI() unimplemented! ---")
+
+async def UsersQueriesOwnLockedDetailsAPI():
+    "Gets details of any locked task for the logged in user"
+    log.debug("--- UsersQueriesOwnLockedDetailsAPI() unimplemented! ---")
+
+async def UsersQueriesFavoritesAPI():
+    "Get projects favorited by a user"
+    log.debug("--- UsersQueriesFavoritesAPI() ---")
+    user_id = 3
+    result = await users.getColumns({"favorite_projects"}, {"id": user_id})
+    # await projects.getByID([])
+    assert len(result) > 0
+
+async def UsersQueriesInterestsAPI():
+    "Get interests by username"
+    log.debug("--- UsersQueriesInterestsAPI()  ---")
+    username = "foobar"
+    user_id = 2
+    result = await users.getColumns({"interests"}, {"id": user_id})
+    # FIXME: It is not clear if this returns interests IDs or the
+    # interests data.
+    assert len(result) > 0
+
+async def UsersRecommendedProjectsAPI():
+    "Get recommended projects for a user"
+    log.debug("--- UsersRecommendedProjectsAPI() unimplemented! ---")
+    username = "foobar"
+    # FIXME: It is not clear if this returns project IDs or the
+    # project data.
+
+async def UsersStatisticsAPI():
+    "Get detailed stats about a user by OpenStreetMap username"
+    log.debug("--- UsersStatisticsAPI() unimplemented! ---")
+    username = "bar"
+    # result = await users.getStats(username
+
+async def UsersStatisticsInterestsAPI():
+    "Get rate of contributions from a user given their interests"
+    log.debug("--- UsersStatisticsInterestsAPI() unimplemented! ---")
+    username = "oob"
+    # result = await getInterestsStats(username)
+
+async def UsersStatisticsAllAPI():
+    "Get stats about users registered within a period of time"
+    log.debug("--- UsersStatisticsAllAPI() unimplemented! ---")
+    start = '2015-11-20 08:36:55'
+    stime = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
+    end = '2023-02-07 12:28:30'
+    etime =  datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
+    # result = await getAllStats(stime, etime)
+
+async def UsersTasksAPI():
+    """
+    Get a list of tasks a user has interacted with.
+
+    criteria to sort by. The supported options are action_date,
+    The default value is action_date.
+    """
+    log.debug("--- UsersTasksAPI() unimplemented! ---")
+
+#
+# These endpoints come from the TM backend/services directory.
+#
+
 # def get_all_users(query: UserSearchQuery):
 async def test_all():
     log.debug("--- test_all() ---")
     result = await users.getColumns(['*'])
     assert len(result) > 0
-    
+
 #def get_user_by_id(user_id: int):
 async def test_by_id():
     log.debug("--- test_by_id() ---")
     user_id = 1
     result = await users.getByID(user_id)
     assert len(result) > 0
-    
+
 # def get_user_by_username(username: str):
 async def test_by_name():
     log.debug("--- test_by_name() unimplemented! ---")
@@ -175,7 +280,7 @@ async def test_expert():
     user_id = 3
     result = await users.getColumns(['is_expert'], {"id": user_id})
     assert len(result) > 0
-    
+
 async def get_project_managers():
     log.debug("--- get_project_managers() ---")
     role = Userrole(Userrole.PROJECT_MANAGER)
@@ -190,7 +295,7 @@ async def is_user_an_admin():
     user_id = 5
     result = await users.getRole(user_id)
     assert noresult == Userrole.USER_READ_ONLY and result == Userrole.SUPER_ADMIN
-        
+
 async def is_user_validator():
     log.debug("--- is_user_validator() ---")
     # first user is not a validator
@@ -206,16 +311,16 @@ async def is_user_blocked():
     user_id = 1
     result = await users.getBlocked(user_id)
     assert result
-        
+
 async def get_interests():
-    log.debug(f"--- get_interests() ---")
+    log.debug("--- get_interests() ---")
     user_id = 2
     result = await users.getColumns({"interests"}, {"id": user_id})
     assert len(result) > 0
 
 async def get_projects_favorited():
     # user_id: int
-    log.debug(f"--- get_projects_favorited() ---")
+    log.debug("--- get_projects_favorited() ---")
     user_id = 3
     result = await users.getColumns({"favorite_projects"}, {"id": user_id})
     assert len(result) > 0
@@ -252,8 +357,10 @@ async def register_user():
     log.debug("--- update_user() ---")
     user_id = 1
     # osm_id, username, changeset_count, picture_url, email
-    # The id is generated by postgres, so we don't supply it.    
-    ut = UsersTable(username='foobar', name='barfoo', picture_url='URI', email_address="bar@foo.com", mapping_level='INTERMEDIATE', role='VALIDATOR')
+    # The id is generated by postgres, so we don't supply it.
+    ut = UsersTable(username='foobar', name='barfoo', picture_url='URI',
+                    email_address="bar@foo.com",
+                    mapping_level='INTERMEDIATE', role='VALIDATOR')
     #await users.updateColumns(ut, {"id": user_id})
     result = await users.getByName('foobar')
     # print(result)
@@ -262,8 +369,10 @@ async def register_user_with_email():
     """Validate that user is not within the general users table."""
     log.debug("--- register_user_with_email() ---")
     # osm_id, username, changeset_count, picture_url, email
-    # The id is generated by postgres, so we don't supply it.    
-    ut = UsersTable(username='foobar', name='barfoo', picture_url='URI', email_address="bar@foo.com", mapping_level='INTERMEDIATE', role='VALIDATOR')
+    # The id is generated by postgres, so we don't supply it.
+    ut = UsersTable(username='foobar', name='barfoo', picture_url='URI',
+                    email_address="bar@foo.com",
+                    mapping_level='INTERMEDIATE', role='VALIDATOR')
     # new = await users.createTable(ut)
     # entry = await users.getByName(ut.data['name'])
     # assert entry['id'] > 0
@@ -285,7 +394,7 @@ async def has_user_accepted_license():
     license_id = 1
     result = await users.getColumns({"licenses"}, {"id": user_id})
     assert license_id in result[0]['licenses']
-        
+
 async def accept_license_terms():
     """Saves the fact user has accepted license terms"""
     # user_id: int, license_id: int
@@ -343,7 +452,7 @@ async def get_countries_contributed():
     # FIXME: this uses task history
     # user_id: int
     log.debug(f"get_countries_contributed() unimplemented!")
-        
+
 async def get_contributions_by_day():
     # The TM source says "Validate that user exists",
     # FIXME: this uses task history
@@ -362,7 +471,9 @@ async def get_contributions_by_day():
 # def get_user_dto_by_username():
 # def get_user_dto_by_id(user: int, request_user: int):
 
-# test FMTM API    
+#
+# FMTM API tests
+#
 async def get_users():
     # db: Session, skip: int = 0, limit: int = 100):
     log.debug(f"--- get_users() unimplemented!")
@@ -386,7 +497,7 @@ async def convert_to_app_users():
 async def get_user_role_by_user_id():
     # db: Session, user_id: int):
     log.debug(f"--- get_user_role_by_user_id() unimplemented!")
-    
+
 async def create_user_roles():
     # user_role: user_schemas.UserRoles, db: Session):
     log.debug(f"--- create_user_roles() unimplemented!")
@@ -415,6 +526,9 @@ async def main():
 
     await users.initialize(args.uri)
     await projects.initialize(args.uri)
+
+    # Populate the table with test data
+    await create_users()
 
     # Test TM API
     # get_user_dto_by_username()
