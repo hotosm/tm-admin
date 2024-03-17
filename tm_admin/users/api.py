@@ -64,8 +64,9 @@ class UsersAPI(PGSupport):
             Teamrole.TEAM_VALIDATOR,
             Teamrole.TEAM_MANAGER,
         ]
-        self.messagesdb = MessagesDB()
-        self.projectsdb = ProjectsDB()
+        # self.messagesdb = MessagesDB()
+        # self.projectsdb = ProjectsDB()
+        self.cursor = None
         super().__init__("users")
 
     async def initialize(self,
@@ -80,6 +81,7 @@ class UsersAPI(PGSupport):
         """
         await self.connect(inuri)
         await self.getTypes("users")
+        self.cursor = "DECLARE user_cursor CURSOR FOR SELECT * FROM users;"
         #await self.messagesdb.connect(uri)
         #await self.usersdb.connect(uri)
         #await self.teamsdb.connect(uri)
@@ -226,8 +228,8 @@ class UsersAPI(PGSupport):
         """
 
     async def getFilterUsers(self,
-                             username: str = None,
-                             user_id: int = None,
+                             username: str,
+                             page: int = 10,
                              project_id: int = None,
                              ):
         """"
@@ -237,11 +239,20 @@ class UsersAPI(PGSupport):
         Args:
             username (str): The partial user name
             project_id (int): Optional project ID
-            user_id (int): The user ID
+            page (int): How many records in each page
 
         Returns:
              (list): The users matching the query
         """
+        if project_id:
+            self.cursor = f"DECLARE user_cursor CURSOR WITH HOLD FOR SELECT username AS username, {project_id} = ANY (projects_mapped) FROM users WHERE username ILIKE '%{username}%' AND project_id = {project_id} ORDER BY username DESC NULLS LAST, username"
+        else:
+            self.cursor = f"DECLARE user_cursor CURSOR WITH HOLD FOR SELECT username AS users_username FROM users WHERE username ILIKE '%{username}%' ORDER BY username DESC NULLS LAST, username"
+        print(self.cursor)
+        await self.execute(self.cursor)
+        sql = f"FETCH FORWARD {page} FROM user_cursor"
+        return await self.execute(sql)
+
     async def getLockedTasks(self,
                              username: str = None,
                              user_id: int = None,
