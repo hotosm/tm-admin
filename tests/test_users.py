@@ -153,11 +153,11 @@ async def UsersRestAPI():
 async def UsersAllAPI():
     "Get paged list of all usernames"
     log.debug("--- UsersAllAPI() unimplemented! ---")
-    paged: False
+    paged = False
     count = 20
-    username: "foo"
-    role = Userrole(Userrole.Mapper)
-    level = Mappinglevel(Mappinglevel.Beginner)
+    username = "foo"
+    role = Userrole(Userrole.MAPPER)
+    level = Mappinglevel(Mappinglevel.BEGINNER)
     result = await users.getPagedUsers(paged, count, username, role, level)
 
 async def UsersQueriesUsernameAPI():
@@ -530,9 +530,7 @@ async def main():
     # Populate the table with test data
     await create_users()
 
-    # Test TM API
-    # get_user_dto_by_username()
-    # get_user_dto_by_id()
+    # These tests are from the TM backend
     await set_user_mapping_level()
     await test_expert()
     await test_registered()
@@ -567,6 +565,20 @@ async def main():
     # notify_level_upgrade() # Not part of this API
     await test_all()
 
+    # These tests are from the TM REST API
+    await UsersRestAPI()
+    await UsersAllAPI()
+    await UsersQueriesUsernameAPI()
+    await UsersQueriesUsernameFilterAPI()
+    await UsersQueriesOwnLockedAPI()
+    await UsersQueriesFavoritesAPI()
+    await UsersQueriesInterestsAPI()
+    await UsersRecommendedProjectsAPI()
+    await UsersStatisticsAPI()
+    await UsersStatisticsInterestsAPI()
+    await UsersStatisticsAllAPI()
+    await UsersTasksAPI()
+    
     # FMTM API tests
     await get_user()
     await get_user_by_username()
