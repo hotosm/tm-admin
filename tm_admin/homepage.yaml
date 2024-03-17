@@ -1,0 +1,29 @@
+---
+# This file is used to generate the full SQL to create database
+# tables, as well as the protobuf files.
+
+- homepage:
+    - mappers_online:
+        - int32
+    - total_area:
+        - int32
+    - tasks_mapped:
+        - int32
+    - tasks_validated:
+        - int32
+    - total_mappers:
+        - int32
+    - total_validators:
+        - int32
+    - total_projects:
+        - int32
+    - total_mapped_area:
+        - int32
+    - total_validated_area:
+        - int32
+    - total_organisations:
+        - int32
+    - total_campaigns:
+        - int32
+#    - organisations = ListType(ModelType(OrganizationListStatsDTO))
+#     - campaigns = ListType(ModelType(CampaignStatsDTO))
