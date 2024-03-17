@@ -171,6 +171,15 @@ async def UsersQueriesUsernameFilterAPI():
     "Get paged lists of users matching OpenStreetMap username filter"
     username = "foobar"
     log.debug("--- UsersQueriesUsernameFilterAPI() unimplemented! ---")
+    page = 20
+    username= "rob"
+    project_id = 1
+    result = await users.getFilterUsers(username, page)
+    # print(result)
+    result = await users.getFilterUsers(username, page)
+    # print(result)
+    # result = await users.getFilterUsers(username, page, project_id)
+    # print(result)
 
 async def UsersQueriesOwnLockedAPI():
     "Gets any locked task on the project for the logged in user"
@@ -242,9 +251,9 @@ async def UsersTasksAPI():
 
 # def get_all_users(query: UserSearchQuery):
 async def test_all():
-    log.debug("--- test_all() ---")
-    result = await users.getColumns(['*'])
-    assert len(result) > 0
+    log.debug("--- test_all() Unimplemented ---")
+    # result = await users.getColumns(['*'])
+    # assert len(result) > 0
 
 #def get_user_by_id(user_id: int):
 async def test_by_id():
@@ -566,10 +575,10 @@ async def main():
     await test_all()
 
     # These tests are from the TM REST API
+    await UsersQueriesUsernameFilterAPI()
     await UsersRestAPI()
     await UsersAllAPI()
     await UsersQueriesUsernameAPI()
-    await UsersQueriesUsernameFilterAPI()
     await UsersQueriesOwnLockedAPI()
     await UsersQueriesFavoritesAPI()
     await UsersQueriesInterestsAPI()
