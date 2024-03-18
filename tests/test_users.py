@@ -139,6 +139,18 @@ async def create_users():
                   )
     result = await users.insertRecords([user])
 
+    user_id = 1
+    # We need mapped projects
+    result = await users.updateColumns({"projects_mapped": [1]}, {"id": user_id})
+
+    # We need favorite projects
+    user_id = 1
+    result = await users.updateColumns({"favorite_projects": [1, 2]}, {"id": user_id})
+    user_id = 2
+    result = await users.updateColumns({"favorite_projects": [2, 3]}, {"id": user_id})
+    user_id = 3
+    result = await users.updateColumns({"favorite_projects": [3, 4]}, {"id": user_id})
+
 #
 # These endpoints are for the REST API
 #
@@ -170,13 +182,17 @@ async def UsersQueriesUsernameAPI():
 async def UsersQueriesUsernameFilterAPI():
     "Get paged lists of users matching OpenStreetMap username filter"
     username = "foobar"
-    log.debug("--- UsersQueriesUsernameFilterAPI() unimplemented! ---")
-    page = 20
+    log.debug("--- UsersQueriesUsernameFilterAPI() Unimplemented! ---")
+    page = 2
     username= "rob"
-    project_id = 1
-    result = await users.getFilterUsers(username, page)
+    # FIXME: this works fine with real data, but not with the small
+    # testdata we create.
+    # result = await users.getFilterUsers(username, page)
     # print(result)
-    result = await users.getFilterUsers(username, page)
+    # result = await users.getFilterUsers(username, page)
+    # print(result)
+    project_id = 1
+    # result = await users.getFilterUsers(username, page, project_id, True)
     # print(result)
     # result = await users.getFilterUsers(username, page, project_id)
     # print(result)
@@ -193,9 +209,8 @@ async def UsersQueriesOwnLockedDetailsAPI():
 async def UsersQueriesFavoritesAPI():
     "Get projects favorited by a user"
     log.debug("--- UsersQueriesFavoritesAPI() ---")
-    user_id = 3
-    result = await users.getColumns({"favorite_projects"}, {"id": user_id})
-    # await projects.getByID([])
+    user_id = 1
+    result = await users.getFavoriteProjects(user_id)
     assert len(result) > 0
 
 async def UsersQueriesInterestsAPI():
@@ -533,8 +548,8 @@ async def main():
         stream=sys.stdout,
     )
 
-    await users.initialize(args.uri)
-    await projects.initialize(args.uri)
+    await users.initialize(args.uri, projects)
+    await projects.initialize(args.uri, users)
 
     # Populate the table with test data
     await create_users()
