@@ -34,8 +34,9 @@ import tm_admin.types_tm
 from osm_rawdata.pgasync import PostgresClient
 from tm_admin.yamlfile import YamlFile
 from tm_admin.projects.projects_class import ProjectsTable
-from shapely.geometry import Polygon, Point, shape
 from tm_admin.projects.projects_teams_class import Projects_teamsTable
+from shapely.geometry import Polygon, Point, shape
+# from tm_admin.projects.projects_teams_class import Projects_teamsTable
 # from tm_admin.teams.teams_members_class import Teams_membersTable
 
 # Find the other files for this project
@@ -149,6 +150,9 @@ class PGSupport(PostgresClient):
         jcol = dict()
         for entry in records:
             for key, value in entry.data.items():
+                if key not in self.types:
+                    log.error(f"You need to update types_tm.py for {key}!")
+                    breakpoint()
                 val = self.types[key]
                 # print(type(val), value)
                 if not value:
@@ -243,9 +247,11 @@ class PGSupport(PostgresClient):
             check = "WHERE "
             for k, v in where.items():
                 if v == 'null':
-                    check += f"{k} IS NOT NULL OR "
+                    check += f"{k} IS NOT NULL "
                 else:
-                    check += f"{k}={v} OR "
+                    check += f"{k}={v} "
+                if len(where) > 1:
+                    check += "AND"
 
         sql = f"UPDATE {self.table} SET "
         for key, value in columns.items():
@@ -272,7 +278,7 @@ class PGSupport(PostgresClient):
                 sql += "}'"
             else:
                 sql += f"{key} = {value}, "
-        query = sql + f"{check[:-3]} RETURNING id"
+        query = sql[:-2] + f" {check} RETURNING id"
         # print(query)
         result = await self.execute(query.replace(", WHERE", " WHERE"))
         if len(result) > 0:
@@ -327,6 +333,7 @@ class PGSupport(PostgresClient):
         get = str(columns)[1:-1].replace("'", "")
 
         check = str()
+        # FIXME: maybe there needs to be an AND in here ?
         if where:
             for k, v in where.items():
                 if str(type(v))[:5] == "<enum":
@@ -363,9 +370,8 @@ class PGSupport(PostgresClient):
 
     async def updateJsonb(self,
                             history: list,
-                            task_id: int,
-                            project_id: int,
                             columns: str,
+                            where: dict,
                             ):
         """
         FIXME: a work in progress
@@ -374,9 +380,8 @@ class PGSupport(PostgresClient):
 
         Args:
             history (list): The task history to update
-            task_id (int): The task to update
-            project_id (int): The project this task is in
             column (str): The column to update.
+            where (str): The condition to limit the records
 
         Returns:
             (bool): If it worked
@@ -407,6 +412,7 @@ class PGSupport(PostgresClient):
         Args:
             data (list): The data for this column to update
             column (str): The column to update.
+            where (str): The condition to limit the records
 
         Returns:
             (bool): If it worked
@@ -486,7 +492,7 @@ async def main():
     data = await pgs.getColumns(['id', 'teams'], [foo])
     print(f"{len(data)} records returned from foo")
 
-    foo = {'teams': {"role": tm_admin.types_tm.Teamroles.TEAM_READ_ONLY, "team_id": 144}}
+    foo = {'teams': {"role": tm_admin.types_tm.Teamrole.TEAM_READ_ONLY, "team_id": 144}}
     data = await pgs.getColumns(['id', 'teams'], [foo])
     print(f"{len(data)} records returned from getColumns()")
     # print(data)
