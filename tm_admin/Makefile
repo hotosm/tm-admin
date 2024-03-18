@@ -39,7 +39,7 @@ generate: support $(OUTSQL)
 
 support: $(PBUFS)
 	@echo "Generating the types files"
-	-@./generator.py -v types.yaml
+	-@./generator.py types.yaml -v
 	@echo "Build services"
 	-@$(PROTOC) -I. --python_out=. $(GRPC) services.proto
 
@@ -80,7 +80,7 @@ import:
 
 clean:
 	@echo "Removing all generated files!"
-	$(RM) -f $(GENP) $(PYI) $(PROTOS) $(SQL) types_tm* services_pb2* */*_proto.py */*_class.py 
+	$(RM) -f $(GENP) $(PYI) $(PROTOS) $(SQL) types_tm* services_pb2* */*_proto.py */*_class.py */*.cover
 
 realclean: clean
 	@$(RM) -f *~ */*~ rm -fr __pycache__/ */rm -fr __pycache__/
