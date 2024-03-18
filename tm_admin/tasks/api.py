@@ -19,6 +19,8 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+from __future__ import annotations
+
 import argparse
 import logging
 import sys
@@ -33,15 +35,9 @@ from shapely.geometry import shape
 from shapely import centroid
 from tm_admin.types_tm import Taskcreationmode, Taskstatus, Teamrole, Taskaction
 from tm_admin.projects.projects_class import ProjectsTable
-from tm_admin.projects.projects_teams_class import Project_teamsTable
+from tm_admin.projects.projects_teams_class import Projects_teamsTable
 from tm_admin.tasks.tasks_class import TasksTable
-# from tm_admin.messages.messages_class import MessagesAPI
-from tm_admin.projects.api import ProjectsAPI
-from tm_admin.users.users import UsersDB
-from tm_admin.teams.teams import TeamsDB
 from shapely import wkb, get_coordinates
-from tm_admin.dbsupport import DBSupport
-from tm_admin.generator import Generator
 from tm_admin.tasks.task_history_class import Task_historyTable
 import re
 # from progress import Bar, PixelBar
@@ -50,6 +46,10 @@ import tqdm.asyncio
 from codetiming import Timer
 import asyncio
 from tm_admin.pgsupport import PGSupport
+import typing
+#if typing.TYPE_CHECKING:
+#    from tm_admin.projects.api import ProjectsAPI
+#    from tm_admin.users.api import UsersAPI
 
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
@@ -68,11 +68,14 @@ class TasksAPI(PGSupport):
             (TasksAPI): An instance of this class
         """
         super().__init__("tasks")
-        self.projects = ProjectsAPI()
+        self.projects =  tm_admin.projects.api.ProjectsAPI()
+        self.users = tm_admin.users.api.UsersAPI()
 
     async def initialize(self,
                       inuri: str,
-                      ):
+                      papi: ProjectsAPI,
+                      uapi: UsersAPI,
+                      ) -> None:
         """
         Connect to all tables for API endpoints that require
         accessing multiple tables.
@@ -82,12 +85,13 @@ class TasksAPI(PGSupport):
         """
         await self.connect(inuri)
         await self.getTypes("tasks")
-        await self.projects.initialize(inuri)
+        self.projects = papi
+        self.users = uapi
 
     async def getStatus(self,
                       task_id: int,
                       project_id: int,
-                    ):
+                    ) -> Taskstatus:
         """
         Get the current status for a task using it's project and task IDs.
 

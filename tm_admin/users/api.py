@@ -40,8 +40,10 @@ from tm_admin.users.user_stats_class import UserstatsTable
 from shapely import wkb, get_coordinates
 from tm_admin.pgsupport import PGSupport
 import typing
-if typing.TYPE_CHECKING:
-    from tm_admin.projects.api import ProjectsAPI
+#if typing.TYPE_CHECKING:
+#    from tm_admin.projects.api import ProjectsAPI
+#    from tm_admin.tasks.api import TasksAPI
+import tm_admin
 import re
 # from progress import Bar, PixelBar
 from tqdm import tqdm
@@ -57,7 +59,7 @@ log = logging.getLogger(__name__)
 
 class UsersAPI(PGSupport):
     def __init__(self):
-        self.projects = None #ProjectsAPI()
+        self.projects = None
         # self.projects = projects.api.ProjectsAPI()
         self.cursor = None
         super().__init__("users")
@@ -65,6 +67,7 @@ class UsersAPI(PGSupport):
     async def initialize(self,
                       inuri: str,
                       papi: ProjectsAPI,
+                      tapi: TasksAPI,
                       ) -> None:
         """
         Connect to all tables for API endpoints that require
@@ -76,8 +79,10 @@ class UsersAPI(PGSupport):
         await self.connect(inuri)
         await self.getTypes("users")
         # await self.projects.initialize(inuri)
-        await papi.initialize(inuri, self)
+        await papi.initialize(inuri, self, tapi)
+        await tapi.initialize(inuri, papi, self)
         self.projects = papi
+        self.tasks = tapi
         # self.cursor = "DECLARE user_cursor CURSOR FOR SELECT * FROM users;"
 
     async def getByID(self,

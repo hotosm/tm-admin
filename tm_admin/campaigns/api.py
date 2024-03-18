@@ -64,9 +64,9 @@ class CampaignsAPI(PGSupport):
             (CampaignsAPI): An instance of this class
         """
         # self.allowed_roles = [
-        #     Teamroles.TEAM_MAPPER,
-        #     Teamroles.TEAM_VALIDATOR,
-        #     Teamroles.TEAM_MANAGER,
+        #     Teamrole.TEAM_MAPPER,
+        #     Teamrole.TEAM_VALIDATOR,
+        #     Teamrole.TEAM_MANAGER,
         # ]
         # self.messagesdb = MessagesDB()
         # self.usersdb = UsersDB()

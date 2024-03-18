@@ -32,13 +32,12 @@ from tm_admin.users.users_class import UsersTable
 from tm_admin.projects.projects_class import ProjectsTable
 import asyncio
 from codetiming import Timer
-from tm_admin.teams.api import TeamsAPI
-from tm_admin.tasks.api import TasksAPI
-from tm_admin.users.api import UsersAPI
 from tm_admin.projects.api import ProjectsAPI
-from test_users import create_users
+import typing
+import tm_admin
 from shapely.geometry import Polygon, Point, shape
-from test_users import create_users
+import test_tasks
+import test_users
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -46,12 +45,11 @@ log = logging.getLogger(__name__)
 import tm_admin as tma
 rootdir = tma.__path__[0]
 
-# FIXME: For now these tests assume you have a local postgres installed.
-
-users = UsersAPI()
 projects = ProjectsAPI()
-tasks = TasksAPI()
-teams = TeamsAPI()
+users = tm_admin.users.api.UsersAPI()
+tasks = tm_admin.tasks.api.TasksAPI()
+
+# FIXME: For now these tests assume you have a local postgres installed.
 
 # These tests are for the API endpoints
 async def create_projects(papi):
@@ -118,8 +116,8 @@ async def get_team_role():
     project_id = 1
     team_id = 1
     result = await projects.getTeamRole(project_id, team_id)
-    print(result)
-    # assert result == Teamrole.TEAM_MAPPER
+    # print(result)
+    assert result == Teamrole.TEAM_MAPPER
 
 # These endpoint tests come from the TM backend
 async def get_project_by_id():
@@ -511,12 +509,18 @@ async def main():
     # await users.getTypes("users")
     # await tasks.connectDBs(args.uri)
     # await tasks.getTypes("tasks")
-    await projects.initialize(args.uri, users)
-    await users.initialize(args.uri, projects)
+    # teams = tm_admin.teams.api.TeamsAPI()
 
-    # The API for this class also requires access to the Users table
+    await projects.initialize(args.uri, users, tasks)
+    await users.initialize(args.uri, projects, tasks)
+    await tasks.initialize(args.uri, projects, users)
+    # await teams.initialize(args.uri, projects)
+
+    # The API for this class also requires access to other tables
     await create_projects(projects)
-    await create_users(users)
+    await test_users.create_users(users)
+    await test_tasks.create_tasks(tasks)
+    # await create_teams(teams)
 
     await get_team_role()
 

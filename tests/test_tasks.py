@@ -34,21 +34,26 @@ from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.tasks.task_history_class import Task_historyTable
 from tm_admin.tasks.task_issues_class import Task_issuesTable
 from tm_admin.tasks.task_invalidation_history_class import Task_invalidation_historyTable
-from tm_admin.tasks.api import TasksAPI
 import asyncio
 from codetiming import Timer
+import tm_admin
+from tm_admin.tasks.api import TasksAPI
+import test_projects
+import test_users
 
 # Instantiate logger
 log = logging.getLogger(__name__)
 
 tasks = TasksAPI()
+projects = tm_admin.projects.api.ProjectsAPI()
+users = tm_admin.users.api.UsersAPI()
 
 # FIXME: For now these tests assume you have a local postgres installed. One has the TM
 # database, the other for tm_admin.
 
-async def create_tasks():
-    await tasks.deleteRecords([1, 2, 3])
-    await tasks.resetSequence()
+async def create_tasks(tapi):
+    await tapi.deleteRecords([1, 2, 3])
+    await tapi.resetSequence()
     project_id = 1
     user_id = 1
     tl = list()
@@ -63,7 +68,7 @@ async def create_tasks():
                    "action_text": "validated task",
                    "action_date": "2024-01-25 10:50:56.140958",
                    "user_id": user_id})
-    await tasks.updateHistory(history, task_id, project_id)
+    await tapi.updateHistory(history, task_id, project_id)
 
     task_id = 1
     history = list()
@@ -81,7 +86,7 @@ async def create_tasks():
                 "action_text": "marked mapped",
                 "action_date": "2024-01-25 10:50:56.140958",
                 "user_id": user_id})
-    await tasks.appendHistory(history, task_id, project_id)
+    await tapi.appendHistory(history, task_id, project_id)
 
     tl.append(TasksTable(id = 2, project_id = 1,
                         project_task_name = "testing, 1,2,3",
@@ -89,14 +94,14 @@ async def create_tasks():
                         task_status = Taskstatus.READY))
 
     # Insert all the tables
-    result = await tasks.insertRecords(tl)
+    result = await tapi.insertRecords(tl)
 
     # Now add some data to the jsonb columns
     history.append({"action": Taskaction.RELEASED_FOR_MAPPING,
                    "action_text": "validated task",
                    "action_date": "2024-01-25 10:50:56.140958",
                    "user_id": user_id})
-    await tasks.updateHistory(history, task_id, project_id)
+    await tapi.updateHistory(history, task_id, project_id)
 
     task_id = 1
     project_id = 1
@@ -105,7 +110,7 @@ async def create_tasks():
                    "action_text": "validated task",
                    "action_date": "2024-01-25 10:50:56.140958",
                    "user_id": user_id})
-    await tasks.updateHistory(history, task_id, project_id)
+    await tapi.updateHistory(history, task_id, project_id)
 
     task_id = 1
     project_id = 1
@@ -124,13 +129,13 @@ async def create_tasks():
                 "action_text": "marked mapped",
                 "action_date": "2024-01-25 10:50:56.140958",
                 "user_id": user_id})
-    await tasks.appendHistory(history, task_id, project_id)
+    await tapi.appendHistory(history, task_id, project_id)
 
     # Add some mapping issues
     issuses = list()
     issuses.append({"issue": Mapping_issue.FEATURE_GEOMETRY, "count": 3})
     issuses.append({"issue": Mapping_issue.MISSED_FEATURE, "count": 10})
-    await tasks.updateIssues(issuses, task_id, project_id)
+    await tapi.updateIssues(issuses, task_id, project_id)
 
     # Add some invalidation entries
     mapper_id = 1
@@ -146,7 +151,7 @@ async def create_tasks():
                 "validator_id": validator_id,
                 "updated_date": updated_date,
                 }
-    await tasks.appendHistory([validation], task_id, project_id)
+    await tapi.appendHistory([validation], task_id, project_id)
 
 async def get_task():
     # task_id: int, project_id: int) -> Task:
@@ -305,10 +310,14 @@ async def main():
         stream=sys.stdout,
     )
 
-    # user = UsersDB(args.uri)
-    # task = TasksDB(args.uri)
-    await tasks.initialize(args.uri)
-    await create_tasks()
+    await projects.initialize(args.uri, users, tasks)
+    await users.initialize(args.uri, projects, tasks)
+    await tasks.initialize(args.uri, projects, users)
+
+    # These populate the database for testing
+    await create_tasks(tasks)
+    await test_users.create_users(users)
+    await test_projects.create_projects(projects)
     # project = ProjectsDB(args.uri)
     
     await get_tasks()

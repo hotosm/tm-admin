@@ -23,6 +23,8 @@
 Test users API
 """
 
+from __future__ import annotations
+
 import tm_admin as tma
 rootdir = tma.__path__[0]
 
@@ -33,23 +35,24 @@ import os
 from sys import argv
 # from tm_admin.users.users_proto import UsersMessage
 #from tm_admin.yamlfile import YamlFile
-from tm_admin.users.users import UsersDB
-from tm_admin.users.api import UsersAPI
-from tm_admin.projects.projects import ProjectsDB
-from tm_admin.projects.api import ProjectsAPI
 from tm_admin.types_tm import Userrole, Mappinglevel
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
 import asyncio
 from codetiming import Timer
-
+from tm_admin.users.api import UsersAPI
+import typing
+import tm_admin
+import test_tasks
+import test_projects
 # Instantiate logger
 log = logging.getLogger(__name__)
 
-# FIXME: For now these tests assume you have a local postgres installed.
-
 users = UsersAPI()
-projects = ProjectsAPI()
+tasks = tm_admin.tasks.api.TasksAPI()
+projects = None # tm_admin.projects.api.ProjectsAPI()
+
+# FIXME: For now these tests assume you have a local postgres installed.
 
 async def create_users(uapi):
     await uapi.deleteRecords([1, 2, 3, 4, 5])
@@ -548,11 +551,15 @@ async def main():
         stream=sys.stdout,
     )
 
-    await users.initialize(args.uri, projects)
-    await projects.initialize(args.uri, users)
+    tasks = tm_admin.tasks.api.TasksAPI()
+    projects = tm_admin.projects.api.ProjectsAPI()
+    await projects.initialize(args.uri, users, tasks)
+    await users.initialize(args.uri, projects, tasks)
 
     # Populate the table with test data
     await create_users(users)
+    # await create_tasks(tasks)
+    # await create_projects(projects)
 
     # These tests are from the TM backend
     await set_user_mapping_level()

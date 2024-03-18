@@ -31,7 +31,7 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamroles, Teammemberfunctions
+from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamrole, Teammemberfunctions
 # from osm_rawdata.pgasync import PostgresClient
 from tm_admin.teams.teams_class import TeamsTable
 from tm_admin.teams.team_members_class import Team_membersTable
@@ -61,9 +61,9 @@ class TeamsAPI(PGSupport):
             (TeamsAPI): An instance of this class
         """
         self.allowed_roles = [
-            Teamroles.TEAM_MAPPER,
-            Teamroles.TEAM_VALIDATOR,
-            Teamroles.TEAM_MANAGER,
+            Teamrole.TEAM_MAPPER,
+            Teamrole.TEAM_VALIDATOR,
+            Teamrole.TEAM_MANAGER,
         ]
         super().__init__("teams")
 

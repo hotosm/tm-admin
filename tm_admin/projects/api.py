@@ -19,6 +19,8 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+from __future__ import annotations
+
 import argparse
 import logging
 import sys
@@ -45,8 +47,11 @@ from codetiming import Timer
 import asyncio
 from shapely import wkb, wkt
 import typing
+import tm_admin
 #if typing.TYPE_CHECKING:
-from tm_admin.users.api import UsersAPI
+#    from tm_admin.users.api import UsersAPI
+#    from tm_admin.tasks.api import TasksAPI
+#    from tm_admin.projects.api import ProjectsAPI
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
 cores = info["count"] * 2
@@ -69,13 +74,15 @@ class ProjectsAPI(PGSupport):
             Teamrole.TEAM_MANAGER,
         ]
         from tm_admin.users.api import UsersAPI
-        self.users = UsersAPI()
+        self.users = None
+        self.tasks = None
         super().__init__("projects")
 
     async def initialize(self,
                          inuri: str,
                          uapi: UsersAPI,
-                      ):
+                         tapi: TasksAPI,
+                      ) -> None:
         """
         Connect to all tables for API endpoints that require accessing multiple tables.
 
@@ -84,6 +91,8 @@ class ProjectsAPI(PGSupport):
         """
         await self.connect(inuri)
         await self.getTypes("projects")
+        self.users = uapi
+        self.tasks = tapi
 
     async def getByID(self,
                      project_id: int,
@@ -114,7 +123,7 @@ class ProjectsAPI(PGSupport):
         Returns:
             (Teamrole): The role of this team in this project
         """
-        log.warning(f"getProjectByTeam(): unimplemented!")
+        # log.warning(f"getProjectByTeam(): unimplemented!")
         # sql = f"SELECT FROM projects WHERE project_id={project_id}"
         # where = [{'teams': {"team_id": team_id, "project_id": project_id}}]
         #data = await self.getColumns(['id', 'teams'], where)
