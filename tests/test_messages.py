@@ -26,15 +26,14 @@ import os
 from sys import argv
 # from tm_admin.users.users_proto import UsersMessage
 #from tm_admin.yamlfile import YamlFile
-from tm_admin.users.users import UsersDB
 from tm_admin.types_tm import Userrole, Mappinglevel
 from datetime import datetime
 from tm_admin.messages.api import MessagesAPI
 from tm_admin.users.users_class import UsersTable
-from tm_admin.messages.messages import MessagesDB
 from tm_admin.messages.messages_class import MessagesTable
 import asyncio
 from codetiming import Timer
+import tm_admin
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -53,26 +52,26 @@ async def create_messages():
     await messages.deleteRecords([1, 2, 3])
     await messages.resetSequence()
     msg = MessagesTable(id = 1, message = "Hi has just been validated",
-                        from_user_id = 7775678, to_user_id = 6643593,
+                        from_user_id = 1, to_user_id = 2,
                         date = '2018-06-04T04:49:02.614348',
                         read = False,message_type=4,
-                        project_id = 3213, task_id = 777,
+                        project_id = 3, task_id = 777,
                         )
     result = await messages.insertRecords([msg])
 
     msg = MessagesTable(id=2, message = "Hi has just been validated",
-                        from_user_id = 7775590, to_user_id = 8405478,
+                        from_user_id = 2, to_user_id = 3,
                         date = '2018-07-19T03:17:42.122209',
                         read = False, message_type = 4,
-                        project_id = 4231, task_id = 90,
+                        project_id = 2, task_id = 90,
                         )
     result = await messages.insertRecords([msg])
 
     msg = MessagesTable(id = 3, message = "Hi has just been validated",
-                         from_user_id = 5484336, to_user_id = 3043750,
+                         from_user_id = 1, to_user_id = 3,
                          date = '2018-02-07T13:32:47.56986',
                          read = False, message_type = 4,
-                         project_id = 4091, task_id = 55
+                         project_id = 1, task_id = 55
                          )
     result = await messages.insertRecords([msg])
 
@@ -83,8 +82,8 @@ async def get_message():
     """Gets the specified message to a user"""
     log.debug(f"--- get_message() ---")
     # message_id: int, to_ser_id: int) -> Message:
-    message_id = 197862
-    user_id = 6643593
+    message_id = 1
+    user_id = 2
     data = await messages.getColumns(['*'], {"id": message_id, "to_user_id": user_id})
     assert len(data) > 0
 
