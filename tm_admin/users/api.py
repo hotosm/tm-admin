@@ -19,6 +19,8 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+from __future__ import annotations
+
 import argparse
 import logging
 import sys
@@ -35,21 +37,17 @@ from tm_admin.types_tm import Editors, Permissions, Userrole, Mappinglevel, Team
 from tm_admin.projects.projects_class import ProjectsTable
 from tm_admin.users.users_class import UsersTable
 from tm_admin.users.user_stats_class import UserstatsTable
-from tm_admin.messages.messages import MessagesDB
-from tm_admin.projects.projects import ProjectsDB
-from tm_admin.users.users import UsersDB
-from tm_admin.teams.teams import TeamsDB
 from shapely import wkb, get_coordinates
-from tm_admin.dbsupport import DBSupport
-from tm_admin.generator import Generator
 from tm_admin.pgsupport import PGSupport
+import typing
+if typing.TYPE_CHECKING:
+    from tm_admin.projects.api import ProjectsAPI
 import re
 # from progress import Bar, PixelBar
 from tqdm import tqdm
 import tqdm.asyncio
 from codetiming import Timer
 import asyncio
-
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
 cores = info["count"] * 2
@@ -59,19 +57,15 @@ log = logging.getLogger(__name__)
 
 class UsersAPI(PGSupport):
     def __init__(self):
-        self.allowed_roles = [
-            Teamrole.TEAM_MAPPER,
-            Teamrole.TEAM_VALIDATOR,
-            Teamrole.TEAM_MANAGER,
-        ]
-        # self.messagesdb = MessagesDB()
-        # self.projectsdb = ProjectsDB()
+        self.projects = None #ProjectsAPI()
+        # self.projects = projects.api.ProjectsAPI()
         self.cursor = None
         super().__init__("users")
 
     async def initialize(self,
                       inuri: str,
-                      ):
+                      papi: ProjectsAPI,
+                      ) -> None:
         """
         Connect to all tables for API endpoints that require
         accessing multiple tables.
@@ -81,10 +75,10 @@ class UsersAPI(PGSupport):
         """
         await self.connect(inuri)
         await self.getTypes("users")
-        self.cursor = "DECLARE user_cursor CURSOR FOR SELECT * FROM users;"
-        #await self.messagesdb.connect(uri)
-        #await self.usersdb.connect(uri)
-        #await self.teamsdb.connect(uri)
+        # await self.projects.initialize(inuri)
+        await papi.initialize(inuri, self)
+        self.projects = papi
+        # self.cursor = "DECLARE user_cursor CURSOR FOR SELECT * FROM users;"
 
     async def getByID(self,
                      user_id: int,
@@ -93,7 +87,7 @@ class UsersAPI(PGSupport):
         Get all the information for a user using it's ID
 
         Args:
-            user_id (int): The team to get the data for
+            user_id (int): The user to get the data for
 
         Returns:
             (dict): the user information
@@ -203,6 +197,25 @@ class UsersAPI(PGSupport):
         # result = self.getByWhere(where)
         # return result
 
+    async def getFavoriteProjects(self,
+                                  user_id: int,
+                                  ):
+        """
+        Get the data for a users favorite projects.
+
+        Args:
+            user_id (int): The user to get the favorites for
+
+        Returns:
+            (list): A list of the projects data
+        """
+        result = await self.getColumns({"favorite_projects"}, {"id": user_id})
+        data = list()
+        for project_id in result[0]['favorite_projects']:
+            data.append(await self.projects.getByID(project_id))
+
+        return data
+
     async def getPagedUsers(self,
                             paged: bool,
                             count: int,
@@ -231,24 +244,35 @@ class UsersAPI(PGSupport):
                              username: str,
                              page: int = 10,
                              project_id: int = None,
+                             close: bool = False,
                              ):
         """"
         Get paged lists of users matching OpenStreetMap
         using either the user ID or a partial username.
+        The cursor gets closed when the class destructs,
+        or by specifying the close parameter.
 
         Args:
             username (str): The partial user name
-            project_id (int): Optional project ID
             page (int): How many records in each page
+            project_id (int): Optional project ID
+            close (bool): Whether to close the cursor to restart
+                          from the beginning.
 
         Returns:
-             (list): The users matching the query
+            (list): The users matching the query
         """
+        try:
+            result = await self.execute(f"SELECT FROM pg_cursor WHERE name = 'user_cursor'")
+            print(result)
+        except:
+            pass
         if project_id:
-            self.cursor = f"DECLARE user_cursor CURSOR WITH HOLD FOR SELECT username AS username, {project_id} = ANY (projects_mapped) FROM users WHERE username ILIKE '%{username}%' AND project_id = {project_id} ORDER BY username DESC NULLS LAST, username"
+            self.cursor = f"DECLARE user_cursor CURSOR WITH HOLD FOR SELECT username AS username FROM users WHERE username ILIKE '%{username}%' AND  {project_id} = ANY (projects_mapped) ORDER BY username DESC NULLS LAST, username"
         else:
             self.cursor = f"DECLARE user_cursor CURSOR WITH HOLD FOR SELECT username AS users_username FROM users WHERE username ILIKE '%{username}%' ORDER BY username DESC NULLS LAST, username"
         print(self.cursor)
+
         await self.execute(self.cursor)
         sql = f"FETCH FORWARD {page} FROM user_cursor"
         return await self.execute(sql)
@@ -381,3 +405,4 @@ if __name__ == "__main__":
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(main())
+
