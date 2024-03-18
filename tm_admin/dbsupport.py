@@ -282,7 +282,7 @@ class DBSupport(object):
         This gets a single column from the database.
 
         Args:
-            uid (int): The ID of the user to update.
+            uid (int): The ID to get
             column (str): The column.
 
         Returns:
