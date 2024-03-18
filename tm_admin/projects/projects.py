@@ -31,7 +31,7 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamroles
+from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamrole, Userrole
 from tm_admin.projects.projects_class import ProjectsTable
 from shapely import wkb, get_coordinates
 from tm_admin.dbsupport import DBSupport
@@ -214,6 +214,8 @@ class ProjectsDB(DBSupport):
         inpg = PostgresClient()
         await inpg.connect(inuri)
 
+        await self.mergeAllowed(inpg)
+
         await self.mergeTeams(inpg)
 
         await self.mergeInfo(inpg)
@@ -223,8 +225,6 @@ class ProjectsDB(DBSupport):
         await self.mergeInterests(inpg)
 
         await self.mergePriorities(inpg)
-
-        # await self.mergeAllowed(inpg)
 
         # The project favorites table is imported into the users table instead.
         # await self.mergeFavorites(inpg)
@@ -301,9 +301,9 @@ class ProjectsDB(DBSupport):
         teams = dict()
         for record in result:
             if record['role'] <= 0:
-                role = Teamroles(1)
+                role = Teamrole(1)
             else:
-                role = Teamroles(record['role'])
+                role = Teamrole(record['role'])
             if record['project_id'] not in teams:
                 teams[record['project_id']] = [{"role": role.name,
                                             "team_id": record['team_id']}]
@@ -314,9 +314,9 @@ class ProjectsDB(DBSupport):
         for project, members in teams.items():
             # Sometimes the role wasn't set
             try:
-                role = Teamroles(record['role'])
+                role = Teamrole(record['role'])
             except:
-                role = Teamroles(1)
+                role = Teamrole(1)
 
             # sql = "UPDATE projects SET teams=teams||'{\"team_id\": %s, \"role\": %s}' WHERE id=%d" % (record['team_id'], role, pid)
             # Note that this will replace any existing values for this column
@@ -342,6 +342,8 @@ class ProjectsDB(DBSupport):
         timer.stop()
         return True
 
+    # This tables turns out to not be used anymore, this is supported
+    # by teams.
     async def mergeAllowed(self,
                         inpg: PostgresClient,
                         ):
@@ -362,7 +364,9 @@ class ProjectsDB(DBSupport):
             if not record['project_id'] in data:
                 entry = list()
                 data[record['project_id']] = entry
-            entry.append(record['user_id'])
+                role = Userrole(Userrole.USER_READ_ONLY)
+                entry.append({"user_id": record['user_id'],
+                              "role": role.name})
 
         entries = len(result)
         log.debug(f"There are {entries} entries in {table}, and {len(data)} in the array")
@@ -370,7 +374,11 @@ class ProjectsDB(DBSupport):
         # This table has a small amount of data, so threading would be overkill.
         # for record in pbar:
         for pid, array in tqdm.tqdm(data.items()):
-            sql = f" UPDATE projects SET allowed_users = ARRAY{array} WHERE id={pid}"
+            # user = {"user_id": }
+            #sql = f" UPDATE projects SET allowed_users = ARRAY{array} WHERE id={pid}"
+            asc = str(entry).replace("'", '"').replace("\\'", "'")
+            sql = "UPDATE projects SET users = '{\"users\": %s}' WHERE id=%d;" % (asc, pid)
+
             # print(sql)
             result = await self.pg.execute(sql)
 

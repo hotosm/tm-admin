@@ -17,6 +17,7 @@
         - timestamp
         - required: true
         - share: false
+        - partition: true
     - task_creation_mode:
         - public.taskcreationmode
         - required: true
@@ -153,10 +154,6 @@
         - string
     - per_task_instructions:
         - string
-    - allowed_users:
-        - int64
-        - array: true
-        - share: true
     - priority_areas:
         - int64
         - array: true
@@ -166,6 +163,3 @@
         - share: true
     - teams:
         - jsonb
-
-# project_id_str|character varying|||
-# text_searchable|tsvector|||

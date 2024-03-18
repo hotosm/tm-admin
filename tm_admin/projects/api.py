@@ -31,16 +31,10 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamroles
+from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamrole
 from tm_admin.projects.projects_class import ProjectsTable
 from tm_admin.tasks.tasks_class import TasksTable
-from tm_admin.messages.messages import MessagesDB
-from tm_admin.projects.projects import ProjectsDB
-from tm_admin.users.users import UsersDB
-from tm_admin.teams.teams import TeamsDB
 from shapely import wkb, get_coordinates
-from tm_admin.dbsupport import DBSupport
-from tm_admin.generator import Generator
 from tm_admin.pgsupport import PGSupport
 from osm_rawdata.pgasync import PostgresClient
 import re
@@ -50,7 +44,9 @@ import tqdm.asyncio
 from codetiming import Timer
 import asyncio
 from shapely import wkb, wkt
-
+import typing
+#if typing.TYPE_CHECKING:
+from tm_admin.users.api import UsersAPI
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
 cores = info["count"] * 2
@@ -68,17 +64,17 @@ class ProjectsAPI(PGSupport):
             (ProjectsAPI): An instance of this class
         """
         self.allowed_roles = [
-            Teamroles.TEAM_MAPPER,
-            Teamroles.TEAM_VALIDATOR,
-            Teamroles.TEAM_MANAGER,
+            Teamrole.TEAM_MAPPER,
+            Teamrole.TEAM_VALIDATOR,
+            Teamrole.TEAM_MANAGER,
         ]
-        self.messagesdb = MessagesDB()
-        self.usersdb = UsersDB()
-        self.teamsdb = TeamsDB()
+        from tm_admin.users.api import UsersAPI
+        self.users = UsersAPI()
         super().__init__("projects")
 
     async def initialize(self,
-                      inuri: str,
+                         inuri: str,
+                         uapi: UsersAPI,
                       ):
         """
         Connect to all tables for API endpoints that require accessing multiple tables.
@@ -88,30 +84,6 @@ class ProjectsAPI(PGSupport):
         """
         await self.connect(inuri)
         await self.getTypes("projects")
-
-    async def evaluateMappingPermissions(self,
-                                   uid: int,
-                                   pid: int,
-                                   perm: Permissions,
-                                   ):
-        """
-        evaluate_mapping_permission()
-
-        Args:
-            uid (int): The user ID
-            pid (int): The project ID
-            perm (Permissions): The permission level to check against
-        
-        """
-        teamperm = Mappingnotallowed('USER_NOT_TEAM_MEMBER')
-        result = await project.getByWhere(f" ")
-        
-        # See if user is on a team with team permissions
-        level = user.getColumn(uid, 'mapping_level')
-        if level != Permissions() or Permissions():
-            pass
-
-        return False
 
     async def getByID(self,
                      project_id: int,
@@ -153,11 +125,11 @@ class ProjectsAPI(PGSupport):
 
         # There should only be one item in the results. Since it's a jsonb column
         # the data is returned as a string. In the string is an enum value, which
-        # gets converted to the actual enum for Teamroles.
+        # gets converted to the actual enum for Teamrole.
         if len(results) > 0:
             if results[0]['results'][0] == '{':
                 tmp1 = eval(results[0]['results'])
-                tmp2 = f"Teamroles.{tmp1['role']}"
+                tmp2 = f"Teamrole.{tmp1['role']}"
                 role = eval(tmp2)
                 return role
 
@@ -199,6 +171,78 @@ class ProjectsAPI(PGSupport):
         log.warning(f"changeStatus(): unimplemented!")
 
         return False
+
+    async def evaluateMappingPermissions(self,
+                                   uid: int,
+                                   pid: int,
+                                   perm: Permissions,
+                                   ):
+        """
+        evaluate_mapping_permission()
+
+        Args:
+            uid (int): The user ID
+            pid (int): The project ID
+            perm (Permissions): The permission level to check against
+
+        Returns:
+            (bool): If the user has the right permissions for this project
+        """
+        teamperm = Mappingnotallowed('USER_NOT_TEAM_MEMBER')
+        result = await project.getByWhere(f" ")
+
+        # See if user is on a team with team permissions
+        level = user.getColumn(uid, 'mapping_level')
+        if level != Permissions() or Permissions():
+            pass
+
+        return False
+
+    async def permittedUser(self,
+                            project_id: int,
+                            user_id: int,
+                            ):
+        """
+        Is a user permitted to map on this project.
+
+        Args:
+            user_id (int): The user ID to lock
+            project_id (int): The project this task is in
+
+        Returns:
+            (Mappingnotallowed): The results of checking permissions
+        """
+
+        # FIXME: is the user blocked ?
+
+        # FIXME: see it the users is allowed to work on this project
+        log.warning(f"permittedUser(): unimplemented!")
+        result = await self.getColumns(["allowed_users"],
+                                        {"project_id": project_id})
+
+        # FIXME: Has user accepted license
+        log.warning(f"permittedUser(): unimplemented!")
+        result = await self.users.getColumns(["licenses"],
+                                        {"user_id": user_id})
+        if len(result) == 0:
+            return Mappingnotallowed.USER_NOT_ACCEPTED_LICENSE
+
+        # FIXME: Then check project status
+        result = await self.getColumns(["status"],
+                                        {"project_id": project_id})
+        if len(result) == 0:
+            return Mappingnotallowed.PROJECT_NOT_PUBLISHED
+
+        # FIXME: Then see if task is already locked
+        result = await self.users.getColumns(["task_status"],
+                                        {"user_id": user_id})
+
+
+        if user_id in result[0]:
+            return Mappingnotallowed.USER_ALLOWED
+        else:
+            # FIXME: add errors
+            pass
 
     async def toggleFavorites(self,
                               flag: bool = None,

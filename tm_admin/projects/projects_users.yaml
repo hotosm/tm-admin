@@ -2,8 +2,8 @@
 # This file is used to generate the full SQL to create database
 # tables, as well as the protobuf files.
 
-- projects_teams:
-    - team_id:
-        - int32
+- projects_users:
+    - user_id:
+        - int64
     - role:
-        - public.teamrole
+        - public.userroles
