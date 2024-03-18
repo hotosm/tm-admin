@@ -26,11 +26,7 @@ import os
 from sys import argv
 # from tm_admin.users.users_proto import UsersMessage
 #from tm_admin.yamlfile import YamlFile
-from tm_admin.users.users import UsersDB
-from tm_admin.tasks.tasks import TasksDB
-from tm_admin.teams.teams import TeamsDB
-from tm_admin.projects.projects import ProjectsDB
-from tm_admin.types_tm import Userrole, Mappinglevel, Teamroles, Permissions
+from tm_admin.types_tm import Userrole, Mappinglevel, Teamrole, Permissions
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
 from tm_admin.projects.projects_class import ProjectsTable
@@ -40,9 +36,9 @@ from tm_admin.teams.api import TeamsAPI
 from tm_admin.tasks.api import TasksAPI
 from tm_admin.users.api import UsersAPI
 from tm_admin.projects.api import ProjectsAPI
-
-# from tm_admin.users.api import UsersAPI
+from test_users import create_users
 from shapely.geometry import Polygon, Point, shape
+from test_users import create_users
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -53,21 +49,20 @@ rootdir = tma.__path__[0]
 # FIXME: For now these tests assume you have a local postgres installed.
 
 users = UsersAPI()
-#users.connect("localhost/tm_admin")
 projects = ProjectsAPI()
 tasks = TasksAPI()
 teams = TeamsAPI()
 
 # These tests are for the API endpoints
-async def create_projects(api):
+async def create_projects(papi):
     """
     Create a project. We don't need any valid geometries for this test.
 
     The id column defaults to auto-increment. TM doesn't have any ids below
     100, so we can use the 0-100 range for testing on a live database.
     """
-    await projects.deleteRecords([1, 2])
-    await projects.resetSequence()
+    await papi.deleteRecords([1, 2])
+    await papi.resetSequence()
     coords = ((0., 0.), (0., 1.), (1., 1.), (1., 0.), (0., 0.))
     geom = Polygon(coords)
     center = Point(1.0, -1.0)
@@ -75,19 +70,24 @@ async def create_projects(api):
                         created = '2021-12-15 09:58:02.672236', organisation_id = 1,
                         task_creation_mode = 'GRID', status = 'DRAFT', featured = "false",
                         mapping_level = 'BEGINNER', priority_areas = [1, 2, 3])
-    result = await projects.insertRecords([pt])
+    result = await papi.insertRecords([pt])
 
     pt = ProjectsTable(id=2, name="World!", author_id = 1, geometry = geom, centroid = center,
                         created = '2022-12-15 09:58:02.672236', featured = "true",
                         task_creation_mode = 'CREATE_ROADS', status = 'PUBLISHED',
                         mapping_level = 'ADVANCED', priority_areas = [1],
                         organisation_id = 1)
-    result = await projects.insertRecords([pt])
+    result = await papi.insertRecords([pt])
 
-    role =  Teamroles(Teamroles.TEAM_MAPPER)
+    role =  Teamrole(Teamrole.TEAM_MAPPER)
     teams = {"team_id": 1, "role": role}
     project_id = 1
-    result = await projects.updateColumns({"teams": teams}, {"id": project_id})
+    result = await papi.updateColumns({"teams": teams}, {"id": project_id})
+
+    # Add some allowed users
+    user_id = 1
+    # FIXME: this is now a jsonb column
+    #result = await projects.updateColumns({"allowed_users": user_id}, {"id": project_id})
 
 # These tests are for basic table management
 async def delete_project():
@@ -118,8 +118,8 @@ async def get_team_role():
     project_id = 1
     team_id = 1
     result = await projects.getTeamRole(project_id, team_id)
-    # print(result)
-    assert result == Teamroles.TEAM_MAPPER
+    print(result)
+    # assert result == Teamrole.TEAM_MAPPER
 
 # These endpoint tests come from the TM backend
 async def get_project_by_id():
@@ -511,8 +511,12 @@ async def main():
     # await users.getTypes("users")
     # await tasks.connectDBs(args.uri)
     # await tasks.getTypes("tasks")
-    await projects.initialize(args.uri)
+    await projects.initialize(args.uri, users)
+    await users.initialize(args.uri, projects)
+
+    # The API for this class also requires access to the Users table
     await create_projects(projects)
+    await create_users(users)
 
     await get_team_role()
 

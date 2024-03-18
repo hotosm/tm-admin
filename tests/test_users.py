@@ -51,9 +51,9 @@ log = logging.getLogger(__name__)
 users = UsersAPI()
 projects = ProjectsAPI()
 
-async def create_users():
-    await users.deleteRecords([1, 2, 3, 4, 5])
-    await users.resetSequence()
+async def create_users(uapi):
+    await uapi.deleteRecords([1, 2, 3, 4, 5])
+    await uapi.resetSequence()
     user = UsersTable(id = 1, username = "foobar", name = "foo",
                   city = "Someplace", email_address = "fubr@gmail.com",
                   is_email_verified = False, is_expert = False,
@@ -69,7 +69,7 @@ async def create_users():
                   tasks_comments_notifications = False,
                   teams_announcement_notifications = True,
                   )
-    result = await users.insertRecords([user])
+    result = await uapi.insertRecords([user])
 
     user = UsersTable(id = 2, username = "barfoo", name = "foobar",
                   city = "Someplace", email_address = "barfood@gmail.com",
@@ -86,7 +86,7 @@ async def create_users():
                   tasks_comments_notifications = False,
                   teams_announcement_notifications = True,
                   )
-    result = await users.insertRecords([user])
+    result = await uapi.insertRecords([user])
 
     user = UsersTable(id = 3, username = "barfood", name = "bar",
                   city = "Someplace", email_address = "oops@gmail.com",
@@ -103,7 +103,7 @@ async def create_users():
                   tasks_comments_notifications = False,
                   teams_announcement_notifications = True,
                   )
-    result = await users.insertRecords([user])
+    result = await uapi.insertRecords([user])
 
     user = UsersTable(id = 4, username = "test", name = "tester",
                   city = "Someplace", email_address = "nogood@gmail.com",
@@ -120,7 +120,7 @@ async def create_users():
                   tasks_comments_notifications = False,
                   teams_announcement_notifications = True,
                   )
-    result = await users.insertRecords([user])
+    result = await uapi.insertRecords([user])
 
     user = UsersTable(id = 5, username = "superbeing", name = "god",
                   city = "Someplace", email_address = "nogood@gmail.com",
@@ -137,19 +137,19 @@ async def create_users():
                   tasks_comments_notifications = False,
                   teams_announcement_notifications = True,
                   )
-    result = await users.insertRecords([user])
+    result = await uapi.insertRecords([user])
 
     user_id = 1
     # We need mapped projects
-    result = await users.updateColumns({"projects_mapped": [1]}, {"id": user_id})
+    result = await uapi.updateColumns({"projects_mapped": [1]}, {"id": user_id})
 
     # We need favorite projects
     user_id = 1
-    result = await users.updateColumns({"favorite_projects": [1, 2]}, {"id": user_id})
+    result = await uapi.updateColumns({"favorite_projects": [1, 2]}, {"id": user_id})
     user_id = 2
-    result = await users.updateColumns({"favorite_projects": [2, 3]}, {"id": user_id})
+    result = await uapi.updateColumns({"favorite_projects": [2, 3]}, {"id": user_id})
     user_id = 3
-    result = await users.updateColumns({"favorite_projects": [3, 4]}, {"id": user_id})
+    result = await uapi.updateColumns({"favorite_projects": [3, 4]}, {"id": user_id})
 
 #
 # These endpoints are for the REST API
@@ -552,7 +552,7 @@ async def main():
     await projects.initialize(args.uri, users)
 
     # Populate the table with test data
-    await create_users()
+    await create_users(users)
 
     # These tests are from the TM backend
     await set_user_mapping_level()
