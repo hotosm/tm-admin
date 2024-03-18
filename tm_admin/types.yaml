@@ -46,7 +46,7 @@
     - BAD
     - SPLIT
     - TASK_ARCHIVED
-    - BADIMAGERY
+    - ISSUES
 
 - projectstatus:
     - ARCHIVED
@@ -73,6 +73,7 @@
 # USER_NOT_ON_ALLOWED_LIST -> USER_NOT_ALLOWED
 # PROJECT_HAS_NO_TEAM -> PROJECT_HAS_NO_OSM_TEAM
 - mappingnotallowed:
+    - USER_CAN_MAP
     - USER_ALREADY_HAS_TASK_LOCKED
     - USER_NOT_CORRECT_MAPPING_LEVEL
     - USER_NOT_ACCEPTED_LICENSE
@@ -103,17 +104,6 @@
     - SELF_DESCRIBE
     - PREFER_NOT
 
-- userrole:
-    - USER_READ_ONLY
-    - SUPER_ADMIN
-    - WEB_ADMIN
-    - FIELD_ADMIN
-    - ORGANIZATION_ADMIN
-    - PROJECT_MANAGER
-    - ASSOCIATE_MANAGER
-    - VALIDATOR
-    - MAPPER
-
 - editors:
     - ID
     - JOSM
@@ -131,7 +121,17 @@
     - BY_REQUEST
     - BY_INVITE
 
-- teamroles:
+- userrole:
+    - USER_READ_ONLY
+    - SUPER_ADMIN
+    - FIELD_ADMIN
+    - ORGANIZATION_ADMIN
+    - PROJECT_MANAGER
+    - ASSOCIATE_MANAGER
+    - VALIDATOR
+    - MAPPER
+
+- teamrole:
     - TEAM_READ_ONLY
     - TEAM_MAPPER
     - TEAM_VALIDATOR
@@ -175,6 +175,7 @@
 - mapping_issue:
     - MISSED_FEATURE
     - FEATURE_GEOMETRY
+    - BADIMAGERY
 
 - message_type:
     - SYSTEM
