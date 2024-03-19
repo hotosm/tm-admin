@@ -68,7 +68,7 @@ async def create_teams():
                       description = "Hello World!", visibility = "PUBLIC")
     result = await teams.insertRecords([team])
 
-    team_members = {"active": "true", "user_id": 3, "function": "MEMBER"}
+    team_members = {"active": "true", "user_id": 2, "function": "MANAGER"}
     result = await teams.updateColumns({"team_members": team_members}, {"id": team_id})
 
 async def get_team_by_id():
@@ -137,7 +137,7 @@ async def _get_active_team_members():
     team_id = 1
     function = Teammemberfunctions(1)
     result = await teams.getActiveMembers(team_id, True)
-    print(result)
+    # print(result)
     assert len(result) > 0
 
 async def is_user_an_active_team_member():
@@ -158,19 +158,21 @@ async def get_all_teams():
 
 async def is_user_team_member():
     log.debug(f"--- is_user_team_member() ---")
-    user_id = 3
-    team_id = 2
+    user_id = 1
+    team_id = 1
     function = Teammemberfunctions(Teammemberfunctions.MEMBER)
     result = await teams.checkFunction(team_id, user_id, function)
+    # print(result)
     assert result
 
 async def is_user_team_manager():
     log.debug(f"--- is_user_team_manager() ---")
     # team_id: int, user_id: int
     user_id = 2
-    team_id = 1
+    team_id = 2
     function = Teammemberfunctions(Teammemberfunctions.MANAGER)
     result = await teams.checkFunction(team_id, user_id, function)
+    # print(result)
     assert result
 
 async def accept_reject_invitation_request():
