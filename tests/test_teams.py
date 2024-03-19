@@ -35,6 +35,7 @@ from tm_admin.teams.teams_class import TeamsTable
 import asyncio
 from codetiming import Timer
 from tm_admin.teams.team_members_class import Team_membersTable
+import tm_admin
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -50,19 +51,25 @@ teams = TeamsAPI()
 async def create_teams():
     await teams.deleteRecords([1, 2])
     await teams.resetSequence()
-    team = TeamsTable(id = 1, organisation_id = 56, name = "HOT Practice Team",
-                      description = "For fun", visibility = "PUBLIC",
-                      join_method = 1, team_members = {"members":
-                                [{"active": "false", "user_id": 1, "function": "MEMBER"},
-                                 {"active": "true", "user_id": 2, "function": "MANAGER"}]})
+    team_id = 1
+    team = TeamsTable(id = team_id, organisation_id = 56,
+                      name = "HOT Practice Team",
+                      description = "For fun", visibility = "PUBLIC",)
     result = await teams.insertRecords([team])
 
-    team = TeamsTable(id = 2, organisation_id = 56, name = "Not Enough Practice",
-                      description = "Hello World!", visibility = "PUBLIC",
-                      join_method = 1, team_members = {"members":
-                                [{"active": "false", "user_id": 3, "function": "MEMBER"},
-                                 {"active": "true", "user_id": 4, "function": "MEMBER"}]})
+    team_members = {"active": "false", "user_id": 1, "function": "MEMBER"}
+#                     {"active": "true", "user_id": 2, "function": "MANAGER"}
+    result = await teams.updateColumns({"team_members": team_members}, {"id": team_id})
+    team_members =  {"active": "true", "user_id": 2, "function": "MANAGER"}
+    result = await teams.appendColumns({"team_members": team_members}, {"id": team_id})
+
+    team_id = 2
+    team = TeamsTable(id = team_id, organisation_id = 56, name = "Not Enough Practice",
+                      description = "Hello World!", visibility = "PUBLIC")
     result = await teams.insertRecords([team])
+
+    team_members = {"active": "true", "user_id": 3, "function": "MEMBER"}
+    result = await teams.updateColumns({"team_members": team_members}, {"id": team_id})
 
 async def get_team_by_id():
     log.debug(f"get_team_by_id() unimplemented!")
@@ -119,7 +126,7 @@ async def send_invite():
 async def accept_reject_join_request():
     log.debug(f"accept_reject_join_request() unimplemented!")
     team_id = 1
-    user_id = 17255752
+    user_id = 1
     name = "HOT Practice Team"
     action = "accept"
     results = await teams.processInvite(team_id, user_id, name, action)
@@ -129,8 +136,8 @@ async def _get_active_team_members():
     log.debug(f"--- _get_active_team_members() ---")
     team_id = 1
     function = Teammemberfunctions(1)
-    result = await teams.getActiveMembers(team_id)
-    # print(result)
+    result = await teams.getActiveMembers(team_id, True)
+    print(result)
     assert len(result) > 0
 
 async def is_user_an_active_team_member():
