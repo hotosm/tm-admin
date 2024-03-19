@@ -32,13 +32,8 @@ from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
 from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamrole, Teammemberfunctions
-# from osm_rawdata.pgasync import PostgresClient
 from tm_admin.teams.teams_class import TeamsTable
 from tm_admin.teams.team_members_class import Team_membersTable
-from tm_admin.messages.messages import MessagesDB
-from tm_admin.projects.projects import ProjectsDB
-from tm_admin.users.users import UsersDB
-from tm_admin.teams.teams import TeamsDB
 import re
 from codetiming import Timer
 import asyncio
@@ -206,11 +201,15 @@ class TeamsAPI(PGSupport):
         Returns:
             (bool): Whether the user is a manager of this team
         """
-        log.warning(f"isManager(): unimplemented!")
-        sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.function==\"%s\" && @.user_id==%d)') AS members FROM teams WHERE id=%d;" % (function.name, user_id, team_id)
+        # log.warning(f"isManager(): unimplemented!")
+        sql = "SELECT jsonb_path_query(team_members, '$.team_members[*] ? (@.function==\"%s\" && @.user_id==%d)') FROM teams WHERE id=%d;" % (function.name, user_id, team_id)
+        #print(sql)
         result = await self.execute(sql)
 
-        return result
+        if len(result) > 0:
+            return True
+
+        return False
 
     async def joinRequest(self,
                           team_id: int,
@@ -253,7 +252,6 @@ class TeamsAPI(PGSupport):
         log.warning(f"processRequest(): unimplemented!")
 
         # Construct the message
-        mdb = MessagesDB()
 
         return False
 
@@ -270,7 +268,6 @@ class TeamsAPI(PGSupport):
         """
         log.warning(f"sendInvite(): unimplemented!")
         # Construct the message
-        mdb = MessagesDB()
 
         return False
 
@@ -328,10 +325,11 @@ class TeamsAPI(PGSupport):
             (list): The active members for this team
         """
         if flip:
-            sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.active==\"false\")') AS members FROM teams WHERE id=%d;" % team_id
+            sql = "SELECT jsonb_path_query(team_members, '$.team_members[*] ? (@.active==\"false\")') AS members FROM teams WHERE id=%d;" % team_id
         else:
-            sql = "SELECT jsonb_path_query(team_members, '$.members[*] ? (@.active==\"true\")') AS members FROM teams WHERE id=%d;" % team_id
+            sql = "SELECT jsonb_path_query(team_members, '$team_members[*] ? (@.active==\"true\")') FROM teams WHERE id=%d;" % team_id
 
+        # print(sql)
         results = await self.execute(sql)
         return results
 
