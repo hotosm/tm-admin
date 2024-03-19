@@ -164,14 +164,13 @@ class PGSupport(PostgresClient):
                     # It's for a jsonb column
                     # a dict uses single quotes, postgres wants double quotes.
                     # newval = str(value).replace("'", '"')
-                    breakpoint()
                     for entry in value[key]:
                         for k, v in entry.items():
                             if str(type(v))[:5] == "<enum":
                                 jcol[k] = v.name
                             else:
                                 jcol[k] = v
-                    print(jcol)
+                    # print(jcol)
                     # continue
                 # This is a bit ugly. When passing a geometry we need to get rid of the
                 # double quote around this value.
@@ -278,7 +277,11 @@ class PGSupport(PostgresClient):
                 sql += "}'"
             else:
                 sql += f"{key} = {value}, "
-        query = sql[:-2] + f" {check} RETURNING id"
+
+        if sql[-2:] == ", ":
+            query = sql[:-2] + f" {check} RETURNING id"
+        else:
+            query = sql + f" {check} RETURNING id"
         # print(query)
         result = await self.execute(query.replace(", WHERE", " WHERE"))
         if len(result) > 0:
@@ -397,7 +400,7 @@ class PGSupport(PostgresClient):
                     data += f'" {v}", '
                 #asc = str(entry).replace("'", '"').replace("\\'", "'")
             sql = "UPDATE %s SET %s = '{\"%s\": [%s]}' WHERE id=%d AND project_id=%d" % (self.table, column, column, data[:-2], task_id, project_id)
-            print(sql)
+            # print(sql)
             result = await self.execute(sql)
 
     async def appendJsonb(self,

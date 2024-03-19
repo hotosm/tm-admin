@@ -99,7 +99,7 @@ class TeamsDB(DBSupport):
             # sql = f"UPDATE teams SET team_members.team={record['team_id']}, team_members.active={record['active']}, team_members.function='{tmfunc.name}' WHERE id={record['team_id']}"
             # UPDATE teams SET team_members = '{"13": [{"user_id": 629, "function": 1, "active": true}, {"user_id": 111, "function": 2, "active": true}]}';
             sql = "UPDATE teams SET team_members = '{\"members\": %s}' WHERE id=%d;" % (asc, id)
-            #print(sql)
+            print(sql)
             result = await self.pg.execute(sql)
 
         timer.stop()
