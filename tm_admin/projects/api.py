@@ -80,8 +80,6 @@ class ProjectsAPI(PGSupport):
 
     async def initialize(self,
                          inuri: str,
-                         uapi: UsersAPI,
-                         tapi: TasksAPI,
                       ) -> None:
         """
         Connect to all tables for API endpoints that require accessing multiple tables.
@@ -91,8 +89,8 @@ class ProjectsAPI(PGSupport):
         """
         await self.connect(inuri)
         await self.getTypes("projects")
-        self.users = uapi
-        self.tasks = tapi
+        self.users = tm_admin.users.api.UsersAPI()
+        self.tasks = tm_admin.tasks.api.TasksAPI()
 
     async def getByID(self,
                      project_id: int,

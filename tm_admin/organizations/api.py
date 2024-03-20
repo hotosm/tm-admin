@@ -73,9 +73,6 @@ class OrganizationsAPI(PGSupport):
         """
         await self.connect(inuri)
         await self.getTypes("organizations")
-        #await self.messagesdb.connect(uri)
-        #await self.usersdb.connect(uri)
-        #await self.teamsdb.connect(uri)
 
     async def getByID(self,
                      org_id: int,

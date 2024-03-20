@@ -73,8 +73,6 @@ class TasksAPI(PGSupport):
 
     async def initialize(self,
                       inuri: str,
-                      papi: ProjectsAPI,
-                      uapi: UsersAPI,
                       ) -> None:
         """
         Connect to all tables for API endpoints that require
@@ -85,8 +83,8 @@ class TasksAPI(PGSupport):
         """
         await self.connect(inuri)
         await self.getTypes("tasks")
-        self.projects = papi
-        self.users = uapi
+        self.projects = tm_admin.projects.api.ProjectsAPI()
+        self.users = tm_admin.users.api.UsersAPI()
 
     async def getStatus(self,
                       task_id: int,

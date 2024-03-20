@@ -66,8 +66,6 @@ class UsersAPI(PGSupport):
 
     async def initialize(self,
                       inuri: str,
-                      papi: ProjectsAPI,
-                      tapi: TasksAPI,
                       ) -> None:
         """
         Connect to all tables for API endpoints that require
@@ -78,11 +76,13 @@ class UsersAPI(PGSupport):
         """
         await self.connect(inuri)
         await self.getTypes("users")
-        # await self.projects.initialize(inuri)
-        await papi.initialize(inuri, self, tapi)
-        await tapi.initialize(inuri, papi, self)
-        self.projects = papi
-        self.tasks = tapi
+
+        self.tasks = tm_admin.tasks.api.TasksAPI()
+        await self.tasks.initialize(inuri)
+
+        self.projects = tm_admin.projects.api.ProjectsAPI()
+        await self.projects.initialize(inuri)
+
         # self.cursor = "DECLARE user_cursor CURSOR FOR SELECT * FROM users;"
 
     async def getByID(self,
