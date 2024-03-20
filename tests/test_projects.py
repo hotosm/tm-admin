@@ -511,9 +511,9 @@ async def main():
     # await tasks.getTypes("tasks")
     # teams = tm_admin.teams.api.TeamsAPI()
 
-    await projects.initialize(args.uri, users, tasks)
-    await users.initialize(args.uri, projects, tasks)
-    await tasks.initialize(args.uri, projects, users)
+    await projects.initialize(args.uri)
+    await users.initialize(args.uri)
+    await tasks.initialize(args.uri)
     # await teams.initialize(args.uri, projects)
 
     # The API for this class also requires access to other tables

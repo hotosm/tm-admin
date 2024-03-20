@@ -310,9 +310,9 @@ async def main():
         stream=sys.stdout,
     )
 
-    await projects.initialize(args.uri, users, tasks)
-    await users.initialize(args.uri, projects, tasks)
-    await tasks.initialize(args.uri, projects, users)
+    await projects.initialize(args.uri)
+    await users.initialize(args.uri)
+    await tasks.initialize(args.uri)
 
     # These populate the database for testing
     await create_tasks(tasks)

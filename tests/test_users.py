@@ -189,7 +189,7 @@ async def UsersQueriesUsernameFilterAPI():
     page = 2
     username= "rob"
     # FIXME: this works fine with real data, but not with the small
-    # testdata we create.
+    # testdata we create.a
     # result = await users.getFilterUsers(username, page)
     # print(result)
     # result = await users.getFilterUsers(username, page)
@@ -552,9 +552,9 @@ async def main():
     )
 
     tasks = tm_admin.tasks.api.TasksAPI()
-    projects = tm_admin.projects.api.ProjectsAPI()
-    await projects.initialize(args.uri, users, tasks)
-    await users.initialize(args.uri, projects, tasks)
+    # projects = tm_admin.projects.api.ProjectsAPI()
+    # await projects.initialize(args.uri, users, tasks)
+    await users.initialize(args.uri)
 
     # Populate the table with test data
     await create_users(users)

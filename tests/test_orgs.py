@@ -26,15 +26,14 @@ import os
 from sys import argv
 # from tm_admin.organizations.organizations_proto import OrganizationsMessage
 #from tm_admin.yamlfile import YamlFile
-from tm_admin.organizations.organizations import OrganizationsDB
 from tm_admin.organizations.organizations_class import OrganizationsTable
 from tm_admin.organizations.api import OrganizationsAPI
-from tm_admin.users.api import UsersAPI
-from tm_admin.projects.api import ProjectsAPI
 from tm_admin.types_tm import Organizationtype, Userrole
 from datetime import datetime
 import asyncio
 from codetiming import Timer
+import tm_admin
+import test_users
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -46,8 +45,9 @@ rootdir = tma.__path__[0]
 # database, the other for tm_admin.
 
 organizations = OrganizationsAPI()
-users = UsersAPI()
-projects = ProjectsAPI()
+users = tm_admin.users.api.UsersAPI()
+projects = tm_admin.projects.api.ProjectsAPI()
+tasks = tm_admin.tasks.api.TasksAPI()
 
 async def create_organisations():
     # new_organisation_dto: NewOrganisationDTO) -> int:
@@ -185,15 +185,12 @@ async def main():
         datefmt="%y-%m-%d %H:%M:%S",
         stream=sys.stdout,
     )
-
-    # FIXME: this assumes there is some user data to query
-    await users.initialize(args.uri)
-
-    # FIXME: this assumes there is some project data to query
-    await projects.initialize(args.uri)
-
     await organizations.initialize(args.uri)
     await create_organisations()
+
+    await projects.initialize(args.uri)
+    await users.initialize(args.uri)
+    await tasks.initialize(args.uri)
     
     await get_organisation_by_id()
     await get_organisation_by_name()
