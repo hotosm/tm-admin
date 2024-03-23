@@ -861,13 +861,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#tm_admin.projects.api.ProjectsAPI.evaluateMappingPermissions" class="md-nav__link">
-    evaluateMappingPermissions()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#tm_admin.projects.api.ProjectsAPI.getByID" class="md-nav__link">
     getByID()
   </a>
@@ -891,6 +884,20 @@
           <li class="md-nav__item">
   <a href="#tm_admin.projects.api.ProjectsAPI.changeStatus" class="md-nav__link">
     changeStatus()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tm_admin.projects.api.ProjectsAPI.evaluateMappingPermissions" class="md-nav__link">
+    evaluateMappingPermissions()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tm_admin.projects.api.ProjectsAPI.permittedUser" class="md-nav__link">
+    permittedUser()
   </a>
   
 </li>
@@ -1126,7 +1133,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../apidocs/html/" class="md-nav__link">
+      <a href="../../apidocs/html/index.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1342,13 +1349,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#tm_admin.projects.api.ProjectsAPI.evaluateMappingPermissions" class="md-nav__link">
-    evaluateMappingPermissions()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#tm_admin.projects.api.ProjectsAPI.getByID" class="md-nav__link">
     getByID()
   </a>
@@ -1372,6 +1372,20 @@
           <li class="md-nav__item">
   <a href="#tm_admin.projects.api.ProjectsAPI.changeStatus" class="md-nav__link">
     changeStatus()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tm_admin.projects.api.ProjectsAPI.evaluateMappingPermissions" class="md-nav__link">
+    evaluateMappingPermissions()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tm_admin.projects.api.ProjectsAPI.permittedUser" class="md-nav__link">
+    permittedUser()
   </a>
   
 </li>
@@ -1716,9 +1730,9 @@
     <span class="n">inpg</span> <span class="o">=</span> <span class="n">PostgresClient</span><span class="p">()</span>
     <span class="k">await</span> <span class="n">inpg</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">inuri</span><span class="p">)</span>
 
-    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">mergeTeams</span><span class="p">(</span><span class="n">inpg</span><span class="p">)</span>
+    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">mergeAllowed</span><span class="p">(</span><span class="n">inpg</span><span class="p">)</span>
 
-    <span class="n">quit</span><span class="p">()</span>
+    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">mergeTeams</span><span class="p">(</span><span class="n">inpg</span><span class="p">)</span>
 
     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">mergeInfo</span><span class="p">(</span><span class="n">inpg</span><span class="p">)</span>
 
@@ -1873,13 +1887,7 @@
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/projects.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">417</span>
-<span class="normal">418</span>
-<span class="normal">419</span>
-<span class="normal">420</span>
-<span class="normal">421</span>
-<span class="normal">422</span>
-<span class="normal">423</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">423</span>
 <span class="normal">424</span>
 <span class="normal">425</span>
 <span class="normal">426</span>
@@ -1912,7 +1920,13 @@
 <span class="normal">453</span>
 <span class="normal">454</span>
 <span class="normal">455</span>
-<span class="normal">456</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This main function lets this class be run standalone by a bash script.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;verbose output&quot;</span><span class="p">)</span>
@@ -2064,7 +2078,11 @@ heading_level: 3</p>
 
                 <details class="quote">
                   <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-                  <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">62</span>
+                  <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span>
@@ -2076,11 +2094,7 @@ heading_level: 3</p>
 <span class="normal">71</span>
 <span class="normal">72</span>
 <span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a class to handle the backend API calls, so the code can be shared</span>
 <span class="sd">    between test cases and the actual code.</span>
@@ -2089,13 +2103,13 @@ heading_level: 3</p>
 <span class="sd">        (ProjectsAPI): An instance of this class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">allowed_roles</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">Teamroles</span><span class="o">.</span><span class="n">TEAM_MAPPER</span><span class="p">,</span>
-        <span class="n">Teamroles</span><span class="o">.</span><span class="n">TEAM_VALIDATOR</span><span class="p">,</span>
-        <span class="n">Teamroles</span><span class="o">.</span><span class="n">TEAM_MANAGER</span><span class="p">,</span>
+        <span class="n">Teamrole</span><span class="o">.</span><span class="n">TEAM_MAPPER</span><span class="p">,</span>
+        <span class="n">Teamrole</span><span class="o">.</span><span class="n">TEAM_VALIDATOR</span><span class="p">,</span>
+        <span class="n">Teamrole</span><span class="o">.</span><span class="n">TEAM_MANAGER</span><span class="p">,</span>
     <span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">messagesdb</span> <span class="o">=</span> <span class="n">MessagesDB</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">usersdb</span> <span class="o">=</span> <span class="n">UsersDB</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">teamsdb</span> <span class="o">=</span> <span class="n">TeamsDB</span><span class="p">()</span>
+    <span class="kn">from</span> <span class="nn">tm_admin.users.api</span> <span class="kn">import</span> <span class="n">UsersAPI</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">users</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;projects&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
                 </details>
@@ -2166,7 +2180,11 @@ heading_level: 3</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">80</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
 <span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span>
@@ -2174,11 +2192,9 @@ heading_level: 3</p>
 <span class="normal">85</span>
 <span class="normal">86</span>
 <span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                  <span class="n">inuri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-                  <span class="p">):</span>
+<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                     <span class="n">inuri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Connect to all tables for API endpoints that require accessing multiple tables.</span>
 
@@ -2187,139 +2203,8 @@ heading_level: 3</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">inuri</span><span class="p">)</span>
     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTypes</span><span class="p">(</span><span class="s2">&quot;projects&quot;</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-          </details>
-  </div>
-
-</div>
-
-
-<div class="doc doc-object doc-function">
-
-
-
-
-<h3 id="tm_admin.projects.api.ProjectsAPI.evaluateMappingPermissions" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">evaluateMappingPermissions</span>
-
-  
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
-  </span>
-
-<a href="#tm_admin.projects.api.ProjectsAPI.evaluateMappingPermissions" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="n">evaluateMappingPermissions</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">perm</span><span class="p">)</span>
-</code></pre></div>
-
-  <div class="doc doc-contents ">
-  
-      <p>evaluate_mapping_permission()</p>
-
-
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>uid</code></td>
-          <td>
-                <code>int</code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>The user ID</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-        <tr>
-          <td><code>pid</code></td>
-          <td>
-                <code>int</code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>The project ID</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-        <tr>
-          <td><code>perm</code></td>
-          <td>
-                <code><span title="tm_admin.types_tm.Permissions">Permissions</span></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>The permission level to check against</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-          <details class="quote">
-            <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">evaluateMappingPermissions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                               <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-                               <span class="n">pid</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-                               <span class="n">perm</span><span class="p">:</span> <span class="n">Permissions</span><span class="p">,</span>
-                               <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    evaluate_mapping_permission()</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        uid (int): The user ID</span>
-<span class="sd">        pid (int): The project ID</span>
-<span class="sd">        perm (Permissions): The permission level to check against</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">teamperm</span> <span class="o">=</span> <span class="n">Mappingnotallowed</span><span class="p">(</span><span class="s1">&#39;USER_NOT_TEAM_MEMBER&#39;</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">project</span><span class="o">.</span><span class="n">getByWhere</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
-
-    <span class="c1"># See if user is on a team with team permissions</span>
-    <span class="n">level</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">getColumn</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="s1">&#39;mapping_level&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">level</span> <span class="o">!=</span> <span class="n">Permissions</span><span class="p">()</span> <span class="ow">or</span> <span class="n">Permissions</span><span class="p">():</span>
-        <span class="k">pass</span>
-
-    <span class="k">return</span> <span class="kc">False</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">users</span> <span class="o">=</span> <span class="n">tm_admin</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">UsersAPI</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="n">tm_admin</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">TasksAPI</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -2404,22 +2289,22 @@ heading_level: 3</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getByID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getByID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2519,7 +2404,7 @@ heading_level: 3</p>
     <tbody>
         <tr>
           <td>
-                <code>Teamrole</code>
+                <code><span title="tm_admin.types_tm.Teamrole">Teamrole</span></code>
           </td>
           <td>
             <div class="doc-md-description">
@@ -2532,39 +2417,39 @@ heading_level: 3</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">133</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
 <span class="normal">134</span>
 <span class="normal">135</span>
 <span class="normal">136</span>
 <span class="normal">137</span>
 <span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getTeamRole</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<span class="normal">139</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getTeamRole</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                     <span class="n">team_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                     <span class="p">):</span>
@@ -2576,7 +2461,7 @@ heading_level: 3</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        (Teamrole): The role of this team in this project</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;getProjectByTeam(): unimplemented!&quot;</span><span class="p">)</span>
+    <span class="c1"># log.warning(f&quot;getProjectByTeam(): unimplemented!&quot;)</span>
     <span class="c1"># sql = f&quot;SELECT FROM projects WHERE project_id={project_id}&quot;</span>
     <span class="c1"># where = [{&#39;teams&#39;: {&quot;team_id&quot;: team_id, &quot;project_id&quot;: project_id}}]</span>
     <span class="c1">#data = await self.getColumns([&#39;id&#39;, &#39;teams&#39;], where)</span>
@@ -2587,11 +2472,11 @@ heading_level: 3</p>
 
     <span class="c1"># There should only be one item in the results. Since it&#39;s a jsonb column</span>
     <span class="c1"># the data is returned as a string. In the string is an enum value, which</span>
-    <span class="c1"># gets converted to the actual enum for Teamroles.</span>
+    <span class="c1"># gets converted to the actual enum for Teamrole.</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;results&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;{&#39;</span><span class="p">:</span>
             <span class="n">tmp1</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;results&#39;</span><span class="p">])</span>
-            <span class="n">tmp2</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Teamroles.</span><span class="si">{</span><span class="n">tmp1</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">tmp2</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Teamrole.</span><span class="si">{</span><span class="n">tmp1</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">role</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">tmp2</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">role</span>
 
@@ -2681,22 +2566,22 @@ heading_level: 3</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getByName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getByName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                     <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2811,24 +2696,24 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">changeStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">changeStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                     <span class="n">status</span><span class="p">:</span> <span class="n">Projectstatus</span><span class="p">,</span>
                     <span class="p">):</span>
@@ -2846,6 +2731,354 @@ validation status, etc...</p>
     <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;changeStatus(): unimplemented!&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="tm_admin.projects.api.ProjectsAPI.evaluateMappingPermissions" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">evaluateMappingPermissions</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#tm_admin.projects.api.ProjectsAPI.evaluateMappingPermissions" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">evaluateMappingPermissions</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">perm</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>evaluate_mapping_permission()</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>uid</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The user ID</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>pid</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The project ID</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>perm</code></td>
+          <td>
+                <code><span title="tm_admin.types_tm.Permissions">Permissions</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The permission level to check against</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If the user has the right permissions for this project</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">evaluateMappingPermissions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                               <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                               <span class="n">pid</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                               <span class="n">perm</span><span class="p">:</span> <span class="n">Permissions</span><span class="p">,</span>
+                               <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    evaluate_mapping_permission()</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        uid (int): The user ID</span>
+<span class="sd">        pid (int): The project ID</span>
+<span class="sd">        perm (Permissions): The permission level to check against</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (bool): If the user has the right permissions for this project</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">teamperm</span> <span class="o">=</span> <span class="n">Mappingnotallowed</span><span class="p">(</span><span class="s1">&#39;USER_NOT_TEAM_MEMBER&#39;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">project</span><span class="o">.</span><span class="n">getByWhere</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+    <span class="c1"># See if user is on a team with team permissions</span>
+    <span class="n">level</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">getColumn</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="s1">&#39;mapping_level&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">level</span> <span class="o">!=</span> <span class="n">Permissions</span><span class="p">()</span> <span class="ow">or</span> <span class="n">Permissions</span><span class="p">():</span>
+        <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="tm_admin.projects.api.ProjectsAPI.permittedUser" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">permittedUser</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#tm_admin.projects.api.ProjectsAPI.permittedUser" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">permittedUser</span><span class="p">(</span><span class="n">project_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Is a user permitted to map on this project.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>user_id</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The user ID to lock</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>project_id</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The project this task is in</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>Mappingnotallowed</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The results of checking permissions</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">permittedUser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                        <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Is a user permitted to map on this project.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user_id (int): The user ID to lock</span>
+<span class="sd">        project_id (int): The project this task is in</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (Mappingnotallowed): The results of checking permissions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># FIXME: is the user blocked ?</span>
+
+    <span class="c1"># FIXME: see it the users is allowed to work on this project</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;permittedUser(): unimplemented!&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">getColumns</span><span class="p">([</span><span class="s2">&quot;allowed_users&quot;</span><span class="p">],</span>
+                                    <span class="p">{</span><span class="s2">&quot;project_id&quot;</span><span class="p">:</span> <span class="n">project_id</span><span class="p">})</span>
+
+    <span class="c1"># FIXME: Has user accepted license</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;permittedUser(): unimplemented!&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">getColumns</span><span class="p">([</span><span class="s2">&quot;licenses&quot;</span><span class="p">],</span>
+                                    <span class="p">{</span><span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">})</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Mappingnotallowed</span><span class="o">.</span><span class="n">USER_NOT_ACCEPTED_LICENSE</span>
+
+    <span class="c1"># FIXME: Then check project status</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">getColumns</span><span class="p">([</span><span class="s2">&quot;status&quot;</span><span class="p">],</span>
+                                    <span class="p">{</span><span class="s2">&quot;project_id&quot;</span><span class="p">:</span> <span class="n">project_id</span><span class="p">})</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Mappingnotallowed</span><span class="o">.</span><span class="n">PROJECT_NOT_PUBLISHED</span>
+
+    <span class="c1"># FIXME: Then see if task is already locked</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">getColumns</span><span class="p">([</span><span class="s2">&quot;task_status&quot;</span><span class="p">],</span>
+                                    <span class="p">{</span><span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">})</span>
+
+
+    <span class="k">if</span> <span class="n">user_id</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">Mappingnotallowed</span><span class="o">.</span><span class="n">USER_ALLOWED</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># FIXME: add errors</span>
+        <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -2906,18 +3139,18 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">toggleFavorites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">toggleFavorites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                           <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                           <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2960,20 +3193,20 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">toggleFeatures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">toggleFeatures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                           <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                          <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3018,20 +3251,20 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">unlockTasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">unlockTasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                           <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                          <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3076,21 +3309,21 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getUserStats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getUserStats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                         <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                         <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                          <span class="p">):</span>
@@ -3136,20 +3369,20 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getProjectStats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getProjectStats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                          <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                          <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3223,22 +3456,22 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span>
-<span class="normal">281</span>
-<span class="normal">282</span>
-<span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getAOI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getAOI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                      <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                      <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3314,21 +3547,21 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span>
-<span class="normal">297</span>
-<span class="normal">298</span>
-<span class="normal">299</span>
-<span class="normal">300</span>
-<span class="normal">301</span>
-<span class="normal">302</span>
-<span class="normal">303</span>
-<span class="normal">304</span>
-<span class="normal">305</span>
-<span class="normal">306</span>
-<span class="normal">307</span>
-<span class="normal">308</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getDailyContributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getDailyContributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                            <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                             <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3374,18 +3607,18 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">310</span>
-<span class="normal">311</span>
-<span class="normal">312</span>
-<span class="normal">313</span>
-<span class="normal">314</span>
-<span class="normal">315</span>
-<span class="normal">316</span>
-<span class="normal">317</span>
-<span class="normal">318</span>
-<span class="normal">319</span>
-<span class="normal">320</span>
-<span class="normal">321</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getProjectSummary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getProjectSummary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Args:</span>
@@ -3436,25 +3669,25 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/projects/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">323</span>
-<span class="normal">324</span>
-<span class="normal">325</span>
-<span class="normal">326</span>
-<span class="normal">327</span>
-<span class="normal">328</span>
-<span class="normal">329</span>
-<span class="normal">330</span>
-<span class="normal">331</span>
-<span class="normal">332</span>
-<span class="normal">333</span>
-<span class="normal">334</span>
-<span class="normal">335</span>
-<span class="normal">336</span>
-<span class="normal">337</span>
-<span class="normal">338</span>
-<span class="normal">339</span>
-<span class="normal">340</span>
-<span class="normal">341</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This main function lets this class be run standalone by a bash script.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;verbose output&quot;</span><span class="p">)</span>

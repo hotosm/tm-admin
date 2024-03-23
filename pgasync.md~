@@ -1,4 +1,0 @@
-# Async Data Flow
-
-To avoid some performance issues, all communication with the database
-is asyc using the *asyncpy* module. 

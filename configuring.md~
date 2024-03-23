@@ -1,7 +1,0 @@
-# Configuring The Data Structures
-
-This file is used to generate the full SQL to create database
-tables, as well as the protobuf files. The first field becomes the
-name of the tables in postgres, or the message in the .proto
-file. Each table is then followed by a list of fields.
-Each field has a few settings, the data type

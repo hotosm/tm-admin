@@ -1,7 +1,0 @@
-<map id="tmdb.TMImport.getAllData" name="tmdb.TMImport.getAllData">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,201,60"/>
-<area shape="rect" id="Node000002" href="$classpgsupport_1_1PGSupport.html#aa697b537a0d1d97655949ba0308cef36" title=" " alt="" coords="249,5,489,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,33,233,30,234,35,201,39"/>
-<area shape="rect" id="Node000003" href="$classtmdb_1_1TMImport.html#a48dc256a06d6b4bed3e879a4129ab794" title=" " alt="" coords="267,57,471,85"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,53,252,57,252,63,201,58"/>
-</map>

@@ -923,8 +923,36 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#tm_admin.tasks.api.TasksAPI.changeStatus" class="md-nav__link">
-    changeStatus()
+  <a href="#tm_admin.tasks.api.TasksAPI.changeAction" class="md-nav__link">
+    changeAction()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tm_admin.tasks.api.TasksAPI.lockTask" class="md-nav__link">
+    lockTask()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tm_admin.tasks.api.TasksAPI.updateHistory" class="md-nav__link">
+    updateHistory()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tm_admin.tasks.api.TasksAPI.appendHistory" class="md-nav__link">
+    appendHistory()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tm_admin.tasks.api.TasksAPI.updateIssues" class="md-nav__link">
+    updateIssues()
   </a>
   
 </li>
@@ -1105,7 +1133,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../apidocs/html/" class="md-nav__link">
+      <a href="../../apidocs/html/index.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1363,8 +1391,36 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#tm_admin.tasks.api.TasksAPI.changeStatus" class="md-nav__link">
-    changeStatus()
+  <a href="#tm_admin.tasks.api.TasksAPI.changeAction" class="md-nav__link">
+    changeAction()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tm_admin.tasks.api.TasksAPI.lockTask" class="md-nav__link">
+    lockTask()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tm_admin.tasks.api.TasksAPI.updateHistory" class="md-nav__link">
+    updateHistory()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tm_admin.tasks.api.TasksAPI.appendHistory" class="md-nav__link">
+    appendHistory()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tm_admin.tasks.api.TasksAPI.updateIssues" class="md-nav__link">
+    updateIssues()
   </a>
   
 </li>
@@ -1846,7 +1902,18 @@ the campaigns table as an array.</p>
 <span class="normal">211</span>
 <span class="normal">212</span>
 <span class="normal">213</span>
-<span class="normal">214</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="k">async</span> <span class="k">def</span> <span class="nf">mergeHistory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="k">async</span> <span class="k">def</span> <span class="nf">mergeHistory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                         <span class="n">inpg</span><span class="p">:</span> <span class="n">PostgresClient</span><span class="p">,</span>
                         <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1899,11 +1966,16 @@ the campaigns table as an array.</p>
             <span class="n">entry</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]}</span>
             <span class="c1"># entry[&#39;action&#39;] = Taskaction(record[&#39;action&#39;]).name</span>
             <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span>
-            <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;action_text&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;action_text&#39;</span><span class="p">]</span>
+            <span class="c1"># The action_text column often has issues with embedded</span>
+            <span class="c1"># quotes.</span>
+            <span class="k">if</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;action_text&#39;</span><span class="p">]:</span>
+                <span class="n">fix</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;action_text&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&amp;quot;&#39;</span><span class="p">)</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;action_text&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fix</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&amp;apos;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\xa0</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;action_date&#39;</span><span class="p">]:</span>
                 <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;action_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;{:%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%S}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;action_date&#39;</span><span class="p">])</span>
             <span class="c1"># If there is an issue, add it to the record in the jsonb column</span>
             <span class="k">if</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">:</span>
+                <span class="n">entry</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">issues</span><span class="p">[</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]])</span>
                 <span class="n">entry</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">issues</span><span class="p">[</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]])</span>
                 <span class="c1"># entry[&#39;issue&#39;] = issues[&#39;issue&#39;]</span>
                 <span class="c1"># entry[&#39;category&#39;] = issues[&#39;category&#39;]</span>
@@ -1913,10 +1985,14 @@ the campaigns table as an array.</p>
             <span class="c1"># print(sql)</span>
             <span class="n">queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
 
+            <span class="c1"># Add a timestamp to the created column so this table can</span>
+            <span class="c1"># be partitioned.</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;UPDATE tasks SET created = &#39;</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;action_date&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39; WHERE id=</span><span class="si">{</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> AND project_id=</span><span class="si">{</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;project_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="c1"># print(sql)</span>
+            <span class="n">queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+
         <span class="n">entries</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
         <span class="n">chunk</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">entries</span><span class="o">/</span><span class="n">cores</span><span class="p">)</span>
-        <span class="c1"># FIXME: this a temporary hack to see if it works aroundf whatever is making</span>
-        <span class="c1"># python core dump on Fedora 39.</span>
         <span class="kn">import</span> <span class="nn">copy</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TaskGroup</span><span class="p">()</span> <span class="k">as</span> <span class="n">tg</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">chunk</span><span class="p">):</span>
@@ -1924,6 +2000,8 @@ the campaigns table as an array.</p>
                 <span class="n">outpg</span> <span class="o">=</span> <span class="n">PostgresClient</span><span class="p">()</span>
                 <span class="c1"># FIXME: this should not be hard coded</span>
                 <span class="k">await</span> <span class="n">outpg</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;localhost/tm_admin&#39;</span><span class="p">)</span>
+                <span class="c1"># FIXME: this may be removed after testing, but memory</span>
+                <span class="c1"># corruption errors fored this workaround.</span>
                 <span class="n">foo</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">queries</span><span class="p">[</span><span class="n">block</span><span class="p">:</span><span class="n">block</span> <span class="o">+</span> <span class="n">chunk</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
                 <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dispatching thread </span><span class="si">{</span><span class="n">block</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">block</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">chunk</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="c1">#                await updateThread(foo, outpg)</span>
@@ -1961,18 +2039,7 @@ the campaigns table as an array.</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/tasks/tasks.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">227</span>
 <span class="normal">228</span>
 <span class="normal">229</span>
 <span class="normal">230</span>
@@ -2024,7 +2091,18 @@ the campaigns table as an array.</p>
 <span class="normal">276</span>
 <span class="normal">277</span>
 <span class="normal">278</span>
-<span class="normal">279</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">mergeInvalidations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">mergeInvalidations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">inpg</span><span class="p">:</span> <span class="n">PostgresClient</span><span class="p">,</span>
                     <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2073,7 +2151,7 @@ the campaigns table as an array.</p>
             <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;is_closed_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
         <span class="c1"># entries[record[&#39;task_id&#39;]].append(entry)</span>
         <span class="n">asc</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
-        <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;UPDATE tasks SET invalidation_history = &#39;{</span><span class="se">\&quot;</span><span class="s2">history</span><span class="se">\&quot;</span><span class="s2">: [</span><span class="si">%s</span><span class="s2">]}&#39; WHERE id=</span><span class="si">%d</span><span class="s2"> AND project_id=</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">asc</span><span class="p">,</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">],</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;project_id&#39;</span><span class="p">])</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;UPDATE tasks SET history = &#39;{</span><span class="se">\&quot;</span><span class="s2">history</span><span class="se">\&quot;</span><span class="s2">: [</span><span class="si">%s</span><span class="s2">]}&#39; WHERE id=</span><span class="si">%d</span><span class="s2"> AND project_id=</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">asc</span><span class="p">,</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">],</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;project_id&#39;</span><span class="p">])</span>
         <span class="c1"># print(sql)</span>
         <span class="n">queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
 
@@ -2234,18 +2312,7 @@ the campaigns table as an array.</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/tasks/tasks.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">281</span>
-<span class="normal">282</span>
-<span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">292</span>
 <span class="normal">293</span>
 <span class="normal">294</span>
 <span class="normal">295</span>
@@ -2262,7 +2329,18 @@ the campaigns table as an array.</p>
 <span class="normal">306</span>
 <span class="normal">307</span>
 <span class="normal">308</span>
-<span class="normal">309</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This main function lets this class be run standalone by a bash script.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;verbose output&quot;</span><span class="p">)</span>
@@ -2403,15 +2481,17 @@ heading_level: 3</p>
 
                 <details class="quote">
                   <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
-                  <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
+                  <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span>
 <span class="normal">66</span>
 <span class="normal">67</span>
-<span class="normal">68</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a class to handle the backend API calls, so the code can be shared</span>
 <span class="sd">    between test cases and the actual code.</span>
@@ -2420,6 +2500,8 @@ heading_level: 3</p>
 <span class="sd">        (TasksAPI): An instance of this class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;tasks&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">projects</span> <span class="o">=</span>  <span class="n">tm_admin</span><span class="o">.</span><span class="n">projects</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ProjectsAPI</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">users</span> <span class="o">=</span> <span class="n">tm_admin</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">UsersAPI</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
                 </details>
 
@@ -2490,20 +2572,22 @@ accessing multiple tables.</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span>
 <span class="normal">77</span>
 <span class="normal">78</span>
 <span class="normal">79</span>
 <span class="normal">80</span>
-<span class="normal">81</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">inuri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-                  <span class="p">):</span>
+                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Connect to all tables for API endpoints that require</span>
 <span class="sd">    accessing multiple tables.</span>
@@ -2513,6 +2597,8 @@ accessing multiple tables.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">inuri</span><span class="p">)</span>
     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTypes</span><span class="p">(</span><span class="s2">&quot;tasks&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">projects</span> <span class="o">=</span> <span class="n">tm_admin</span><span class="o">.</span><span class="n">projects</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ProjectsAPI</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">users</span> <span class="o">=</span> <span class="n">tm_admin</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">UsersAPI</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -2611,13 +2697,7 @@ accessing multiple tables.</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 89</span>
 <span class="normal"> 90</span>
 <span class="normal"> 91</span>
 <span class="normal"> 92</span>
@@ -2628,10 +2708,16 @@ accessing multiple tables.</p>
 <span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
-<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">task_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                   <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-                <span class="p">):</span>
+                <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Taskstatus</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the current status for a task using it&#39;s project and task IDs.</span>
 
@@ -2744,13 +2830,7 @@ accessing multiple tables.</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
 <span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span>
@@ -2761,7 +2841,13 @@ accessing multiple tables.</p>
 <span class="normal">116</span>
 <span class="normal">117</span>
 <span class="normal">118</span>
-<span class="normal">119</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getByID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getByID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">task_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                   <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                 <span class="p">):</span>
@@ -2891,13 +2977,7 @@ accessing multiple tables.</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
@@ -2910,7 +2990,13 @@ accessing multiple tables.</p>
 <span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span>
-<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getByUser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">getByUser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                     <span class="n">task_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                     <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -2942,16 +3028,16 @@ accessing multiple tables.</p>
 
 
 
-<h3 id="tm_admin.tasks.api.TasksAPI.changeStatus" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">changeStatus</span>
+<h3 id="tm_admin.tasks.api.TasksAPI.changeAction" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">changeAction</span>
 
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#tm_admin.tasks.api.TasksAPI.changeStatus" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="n">changeStatus</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+<a href="#tm_admin.tasks.api.TasksAPI.changeAction" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">changeAction</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -3015,13 +3101,13 @@ validation status, etc...</p>
           </td>
         </tr>
         <tr>
-          <td><code>status</code></td>
+          <td><code>action</code></td>
           <td>
-                <code>TaskStatus</code>
+                <code><span title="tm_admin.types_tm.Taskaction">Taskaction</span></code>
           </td>
           <td>
             <div class="doc-md-description">
-              <p>The status to change to</p>
+              <p>The action to change to</p>
             </div>
           </td>
           <td>
@@ -3048,7 +3134,7 @@ validation status, etc...</p>
           </td>
           <td>
             <div class="doc-md-description">
-              <p>Whether locking/unlocking the task was sucessful</p>
+              <p>Whether the change was sucessful</p>
             </div>
           </td>
         </tr>
@@ -3057,13 +3143,7 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">148</span>
 <span class="normal">149</span>
 <span class="normal">150</span>
 <span class="normal">151</span>
@@ -3076,11 +3156,67 @@ validation status, etc...</p>
 <span class="normal">158</span>
 <span class="normal">159</span>
 <span class="normal">160</span>
-<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">changeStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">changeAction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                     <span class="n">task_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                     <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-                    <span class="n">status</span><span class="p">:</span> <span class="n">Taskstatus</span><span class="p">,</span>
+                    <span class="n">action</span><span class="p">:</span> <span class="n">Taskaction</span><span class="p">,</span>
                     <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manage the status of a task. This would be locking or unlocking,</span>
@@ -3090,12 +3226,764 @@ validation status, etc...</p>
 <span class="sd">        user_id (int): The mapper locking the task</span>
 <span class="sd">        task_id (int): The task to lock</span>
 <span class="sd">        project_id (int): The project containing the task</span>
-<span class="sd">        status (TaskStatus): The status to change to</span>
+<span class="sd">        action (Taskaction): The action to change to</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (bool): Whether locking/unlocking the task was sucessful</span>
+<span class="sd">        (bool): Whether the change was sucessful</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;changeStatus(): unimplemented!&quot;</span><span class="p">)</span>
+    <span class="c1"># log.warning(f&quot;changeStatus(): unimplemented!&quot;)</span>
+
+    <span class="c1"># FIXME: Make sure the user is in the allowed_user in the projects table</span>
+    <span class="c1"># the history</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="c1"># All actions get written to the history</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span>
+               <span class="s2">&quot;action_text&quot;</span><span class="p">:</span> <span class="n">action</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+               <span class="s2">&quot;action_date&quot;</span><span class="p">:</span> <span class="s1">&#39;{:%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%S}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">now</span><span class="p">),</span>
+               <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">}</span>
+    <span class="c1"># Actions change the status</span>
+    <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">LOCKED_FOR_MAPPING</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="p">(</span><span class="n">Taskstatus</span><span class="o">.</span><span class="n">TASK_LOCKED_FOR_MAPPING</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">LOCKED_FOR_VALIDATION</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="p">(</span><span class="n">Taskstatus</span><span class="o">.</span><span class="n">TASK_LOCKED_FOR_VALIDATIONG</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">STATE_CHANGE</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">COMMENT</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">AUTO_UNLOCKED_FOR_MAPPING</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="p">(</span><span class="n">Taskstatus</span><span class="o">.</span><span class="n">READY</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">AUTO_UNLOCKED_FOR_VALIDATION</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="p">(</span><span class="n">Taskstatus</span><span class="o">.</span><span class="n">TASK_LOCKED_FOR_VALIDATION</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">EXTENDED_FOR_MAPPING</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskactipon</span><span class="p">(</span><span class="n">Taskaction</span><span class="o">.</span><span class="n">READY</span><span class="p">)</span> <span class="c1"># FIXME: Huh ?</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">EXTENDED_FOR_VALIDATION</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskaction</span><span class="p">(</span><span class="n">Taskaction</span><span class="o">.</span><span class="n">READY</span><span class="p">)</span> <span class="c1"># FIXME: Huh ?</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">RELEASED_FOR_MAPPING</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="p">(</span><span class="n">Taskaction</span><span class="o">.</span><span class="n">READY</span><span class="p">)</span> <span class="c1"># FIXME: Huh ?</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">MARKED_MAPPED</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="p">(</span><span class="n">Taskaction</span><span class="o">.</span><span class="n">TASK_STATUS_MAPPED</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">VALIDATED</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="p">(</span><span class="n">Taskaction</span><span class="o">.</span><span class="n">VALIDATED</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">TASK_MARKED_INVALID</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="p">(</span><span class="n">Taskaction</span><span class="o">.</span><span class="n">TASK_INVALIDATED</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">MARKED_BAD</span><span class="p">:</span>
+        <span class="c1"># FIXME: this should set the mapping issue</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="p">(</span><span class="n">Taskaction</span><span class="o">.</span><span class="n">READY</span><span class="p">)</span> <span class="c1"># FIXME: Huh ?</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">SPLIT_NEEDED</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="p">(</span><span class="n">Taskaction</span><span class="o">.</span><span class="n">SPLIT</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">RECREATED</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="p">(</span><span class="n">Taskaction</span><span class="o">.</span><span class="n">READY</span><span class="p">)</span> <span class="c1"># FIXME: Huh ?</span>
+
+    <span class="c1"># FIXME: For some reason if I try to pass the dict inline,</span>
+    <span class="c1"># it gets converted to a set, so then fails.</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;task_status&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">}</span>
+    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">updateColumns</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span>
+                             <span class="p">{</span><span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="n">task_id</span><span class="p">,</span>
+                              <span class="s2">&quot;project_id&quot;</span><span class="p">:</span> <span class="n">project_id</span><span class="p">})</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="tm_admin.tasks.api.TasksAPI.lockTask" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">lockTask</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#tm_admin.tasks.api.TasksAPI.lockTask" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">lockTask</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Lock a task to a mapper</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>user_id</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The user ID to lock</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>task_id</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The task to update</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>project_id</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The project this task is in</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>Mappingnotallowed</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If locking was sucessful or not</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">lockTask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                   <span class="n">task_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                   <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                   <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                   <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lock a task to a mapper</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user_id (int): The user ID to lock</span>
+<span class="sd">        task_id (int): The task to update</span>
+<span class="sd">        project_id (int): The project this task is in</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (Mappingnotallowed): If locking was sucessful or not</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># FIXME: First see if a task is in a valid state to map.</span>
+    <span class="c1"># Errors from Mappingnotallowed</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">projects</span><span class="o">.</span><span class="n">permittdUser</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">project_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="n">Mappingnotallowed</span><span class="o">.</span><span class="n">USER_ALLOWED</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tasks</span><span class="o">.</span><span class="n">changeAction</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span>
+                                          <span class="n">Taskaction</span><span class="o">.</span><span class="n">LOCKED_FOR_MAPPING</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="tm_admin.tasks.api.TasksAPI.updateHistory" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">updateHistory</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#tm_admin.tasks.api.TasksAPI.updateHistory" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">updateHistory</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">project_id</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Update the task history column.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>history</code></td>
+          <td>
+                <code>list</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The task history to update</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>task_id</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The task to update</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>project_id</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The project this task is in</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If it worked</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">updateHistory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                        <span class="n">history</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+                        <span class="n">task_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the task history column.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        history (list): The task history to update</span>
+<span class="sd">        task_id (int): The task to update</span>
+<span class="sd">        project_id (int): The project this task is in</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (bool): If it worked</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># log.warning(f&quot;updateHistory(): unimplemented!&quot;)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">str</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">))[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&lt;enum&quot;</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;&quot; </span><span class="si">{</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;, &#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;&quot; </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">&quot;, &#39;</span>
+            <span class="c1">#asc = str(entry).replace(&quot;&#39;&quot;, &#39;&quot;&#39;).replace(&quot;\\&#39;&quot;, &quot;&#39;&quot;)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;UPDATE tasks SET history = &#39;{</span><span class="se">\&quot;</span><span class="s2">history</span><span class="se">\&quot;</span><span class="s2">: [</span><span class="si">%s</span><span class="s2">]}&#39; WHERE id=</span><span class="si">%d</span><span class="s2"> AND project_id=</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">project_id</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="tm_admin.tasks.api.TasksAPI.appendHistory" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">appendHistory</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#tm_admin.tasks.api.TasksAPI.appendHistory" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">appendHistory</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">project_id</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Update the task history column.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>history</code></td>
+          <td>
+                <code>list</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The task history to update</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>task_id</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The task to update</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>project_id</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The project this task is in</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If it worked</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">appendHistory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                        <span class="n">history</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+                        <span class="n">task_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the task history column.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        history (list): The task history to update</span>
+<span class="sd">        task_id (int): The task to update</span>
+<span class="sd">        project_id (int): The project this task is in</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (bool): If it worked</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># log.warning(f&quot;updateHistory(): unimplemented!&quot;)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;history&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
+        <span class="c1"># SQL wants the string value</span>
+        <span class="k">if</span> <span class="s2">&quot;action&quot;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="s2">&quot;is_closed&quot;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;is_closed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;is_closed&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">asc</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;UPDATE tasks SET history = history||&#39;[</span><span class="si">%s</span><span class="s2">]&#39;::jsonb WHERE id=</span><span class="si">%d</span><span class="s2"> AND project_id=</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">asc</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">project_id</span><span class="p">)</span>
+        <span class="c1"># print(sql)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+
+        <span class="c1"># Update the task status</span>
+        <span class="k">if</span> <span class="s2">&quot;action&quot;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">VALIDATED</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="o">.</span><span class="n">TASK_VALIDATED</span>
+            <span class="k">elif</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">MARKED_INVALID</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="o">.</span><span class="n">TASK_INVALIDATED</span>
+            <span class="k">elif</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">Taskaction</span><span class="o">.</span><span class="n">MARKED_INVALID</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">Taskstatus</span><span class="o">.</span><span class="n">TASK_VALIDATED</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">updateColumns</span><span class="p">({</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">},</span>
+                                                  <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">task_id</span><span class="p">,</span>
+                                                  <span class="s2">&quot;project_id&quot;</span><span class="p">:</span> <span class="n">project_id</span><span class="p">})</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="tm_admin.tasks.api.TasksAPI.updateIssues" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">updateIssues</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#tm_admin.tasks.api.TasksAPI.updateIssues" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">updateIssues</span><span class="p">(</span><span class="n">issues</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">project_id</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Update the task history column.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>issues</code></td>
+          <td>
+                <code>list</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The issues for this task</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>task_id</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The task to update</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>project_id</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The project this task is in</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If it worked</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">updateIssues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                        <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+                        <span class="n">task_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="n">project_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the task history column.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        issues (list): The issues for this task</span>
+<span class="sd">        task_id (int): The task to update</span>
+<span class="sd">        project_id (int): The project this task is in</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (bool): If it worked</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># log.warning(f&quot;updateHistory(): unimplemented!&quot;)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">str</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">))[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&lt;enum&quot;</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;&quot; </span><span class="si">{</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;, &#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;&quot; </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">&quot;, &#39;</span>
+            <span class="c1">#asc = str(entry).replace(&quot;&#39;&quot;, &#39;&quot;&#39;).replace(&quot;\\&#39;&quot;, &quot;&#39;&quot;)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;UPDATE tasks SET issues = &#39;{</span><span class="se">\&quot;</span><span class="s2">issues</span><span class="se">\&quot;</span><span class="s2">: [</span><span class="si">%s</span><span class="s2">]}&#39; WHERE id=</span><span class="si">%d</span><span class="s2"> AND project_id=</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">project_id</span><span class="p">)</span>
+        <span class="c1"># print(sql)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -3127,17 +4015,17 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">markAllMapped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">markAllMapped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Args:</span>
@@ -3179,17 +4067,17 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">resetBadImagery</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">resetBadImagery</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Args:</span>
@@ -3231,17 +4119,17 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">undoMapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">undoMapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Args:</span>
@@ -3291,25 +4179,25 @@ validation status, etc...</p>
 
           <details class="quote">
             <summary>Source code in <code>tm_admin/tasks/api.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This main function lets this class be run standalone by a bash script.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;verbose output&quot;</span><span class="p">)</span>

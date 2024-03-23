@@ -1,7 +1,0 @@
-<map id="api.UsersAPI.getByID" name="api.UsersAPI.getByID">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,165,60"/>
-<area shape="rect" id="Node000002" href="$classpgsupport_1_1PGSupport.html#aa697b537a0d1d97655949ba0308cef36" title=" " alt="" coords="213,5,453,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,35,197,31,198,36,166,40"/>
-<area shape="rect" id="Node000003" href="$classtmdb_1_1TMImport.html#a48dc256a06d6b4bed3e879a4129ab794" title=" " alt="" coords="231,57,435,85"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="166,51,216,57,216,62,165,57"/>
-</map>

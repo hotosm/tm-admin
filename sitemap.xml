@@ -2,157 +2,152 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://www.hotosm.org/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/CHANGELOG/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/LICENSE/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/about/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/api/</loc>
-         <lastmod>2024-03-07</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://www.hotosm.org/backend/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/build/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/communication/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/configuring/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/dataexchange/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/dataflow/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/endpoints/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/generator/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/getting_started/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/importing/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/pgasync/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/pgsupport/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/protos-api/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://www.hotosm.org/roles/</loc>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/schema/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/structure/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/tmadmin-manage/</loc>
-         <lastmod>2024-03-07</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://www.hotosm.org/tmbackend/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/tmdb/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/tmschema/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/wiki_redirect/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/api/campaigns/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/api/messages/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/api/organizations/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/api/projects/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/api/tasks/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://www.hotosm.org/api/users/</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>

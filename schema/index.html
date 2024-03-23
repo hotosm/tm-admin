@@ -902,7 +902,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../apidocs/html/" class="md-nav__link">
+      <a href="../apidocs/html/index.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1082,6 +1082,16 @@ to debug. You wind up with SQL like this:</p>
 <p>I'm burying the SQL queries in a python module, but luckily at one
 point implementing new queries is mostly cut &amp; paste with minor
 editing for column names.</p>
+<h2 id="enum-usage">Enum Usage<a class="headerlink" href="#enum-usage" title="Permanent link">&para;</a></h2>
+<p>The current code base for the Tasking Manager defines a bunch of
+enums, which aren't actually used for database access. This makes the
+code harder to read as most of the code and the database only use the
+integer value. This project enforces the use of enums as it makes the
+code more readable, and more secure. Unfortuantely when using the
+existing data in the Tasking Manager database, this requires
+conversion. As a jsonb column may also contain enum values, this
+requires the data being inserted or updated to loop through all the
+values to convert them.</p>
 <h2 id="the-types-files">The Types files<a class="headerlink" href="#the-types-files" title="Permanent link">&para;</a></h2>
 <p>All of the enums have been extracted from FMTM and TM, and are defined
 in the <em>types.yaml</em> file. This file must be processed before all the
@@ -1300,26 +1310,34 @@ project ID need to be used in queries to get the right one.</p>
 <ul>
 <li>task_mapping_issues is now an Enum instead of a table</li>
 </ul>
-<h5 id="task-annotations">Task Annotations<a class="headerlink" href="#task-annotations" title="Permanent link">&para;</a></h5>
-<p>This table appears not to be used by TM yet.</p>
 <h5 id="task-history-table">Task History Table<a class="headerlink" href="#task-history-table" title="Permanent link">&para;</a></h5>
 <p>The <em>task_history</em> table is now a jsonb column within the tasks
 table. The <em>id</em> column is no longer needed, and the <em>project_id</em> and
 <em>task_id</em> are already in the tasks table. In TM the action is a
 string, which in TM Admin is a proper Enum, which is used instead. The
 <em>action_text</em>, <em>action_date</em> and <em>user_id</em> are all preserved in the
-jsonb column.</p>
+jsonb column. The action is now using an Enum in the code, and the
+equivalant SQL type everywhere.</p>
 <h5 id="task-mapping-issues">Task Mapping Issues<a class="headerlink" href="#task-mapping-issues" title="Permanent link">&para;</a></h5>
 <p>This table in Tasking Manager must be new, as it contains little
 data. It's basically a summary of the issue, like "Missed
 Features(s)", or "Feature Geometry", with a count of how many features
-have this issue.</p>
+have this issue. I'm not sure the category actually needs to be a
+column.</p>
 <p>Currently in the Tasking Manager there is an index into the history
 table, which no longer exists. So the details of the issue are merged
-with the task history jsonb column. This way the actual issue data is
-part of the history.</p>
+with the issues jsob column. THe only two columns still in use is
+issue and count.</p>
+<p>In the Tasking Manager, there is a task status of <em>BADIMAGERY</em>, which
+has been moved to the <em>Mapping_issue</em> enum, which is more appropriate.</p>
 <h5 id="task-invalidation-history-table">Task Invalidation History Table<a class="headerlink" href="#task-invalidation-history-table" title="Permanent link">&para;</a></h5>
-<p>This table has been merged into the <em>tasks</em> table as a jsonb column.</p>
+<p>This table has been merged into the history as invalidation is an
+update to the history. Several columns have been dropped as nopw they
+are unnecessary, id, project_id, task_id. Updated_data seemes like a
+duplicate, so using the two validate or invalidate dates, since
+updates change those.</p>
+<h5 id="task-annotations">Task Annotations<a class="headerlink" href="#task-annotations" title="Permanent link">&para;</a></h5>
+<p>This table appears not to be used by TM yet.</p>
 <h5 id="notifications">Notifications<a class="headerlink" href="#notifications" title="Permanent link">&para;</a></h5>
 <p>TODO: not implemented yet</p>
 <h5 id="messages">Messages<a class="headerlink" href="#messages" title="Permanent link">&para;</a></h5>
@@ -1344,7 +1362,7 @@ lower-level functionality the existing backends require.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 24, 2024</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 9, 2024</span>
       
     
   </small>

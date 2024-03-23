@@ -902,7 +902,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../apidocs/html/" class="md-nav__link">
+      <a href="../apidocs/html/index.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1051,33 +1051,14 @@ used to generate all the protobuf files that define each gRPC message,
 and the python wrappers.</p>
 <p>Once the SQL files have been generated, this program imports them into
 the database. It can also handle database schema migrations.</p>
-<p>The Database URI defaults to <em>localhost/tm_admin</em>.</p>
-<div class="highlight"><pre><span></span><code>options:
--h, --help                  show this help message and exit
--v, --verbose               verbose output
--i INURI, --inuri INURI     Input Database URI
--o OUTURI, --outuri OUTURI  Output Database URI
--c {generate,create,import,merge,update,migrate}, --cmd {COMMAND}
-
-cmd=&quot;generate,create,import,merge,update,migrate&quot;
-
-   An example data flow is:
-
-    # Generate all language binding files
-    tmadmin_manage.py -v -c generate */*.yaml
-
-    # Create the database tables
-    tmadmin_manage.py -v -c create */*.sql
-
-    # Import the data for the all primary tables.
-    tmadmin_manage.py -v -c import
-
-    # Import the data for just the users table
-    tmadmin_manage.py -v -c import users
-    &quot;&quot;&quot;,
-)
-choices = [&#39;generate&#39;, &#39;create&#39;, &#39;import&#39;, &#39;merge&#39;, &#39;updat
+<div class="highlight"><pre><span></span><code>usage: config [-h] -v -d DIFF -u URI YAML files
+options:
+-h, --help            show this help message and exit
+-v [VERBOSE], --verbose [VERBOSE] verbose output
+-d DIFF, --diff DIFF  SQL file diff for migrations
+-u URI, --uri URI     Database URI
 </code></pre></div>
+<p>The Database URI defaults to <em>localhost/tm_admin</em>.</p>
 
   <hr>
 <div class="md-source-file">

@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://www.hotosm.org/wiki_redirect/">
+        <link rel="canonical" href="https://www.hotosm.org/roles/">
       
       
       
@@ -20,7 +20,7 @@
     
     
       
-        <title>TM Admin - tm-admin</title>
+        <title>Managing Roles - tm-admin</title>
       
     
     
@@ -75,7 +75,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tm-admin" class="md-skip">
+        <a href="#managing-roles" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              TM Admin
+              Managing Roles
             
           </span>
         </div>
@@ -1006,6 +1006,28 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Page contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#team-roles" class="md-nav__link">
+    Team Roles
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-roles" class="md-nav__link">
+    User Roles
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1022,16 +1044,127 @@
   
 
 
-<h1 id="tm-admin">TM Admin<a class="headerlink" href="#tm-admin" title="Permanent link">&para;</a></h1>
-<p>Please see the docs page at:
-<a href="https://hotosm.github.io/tm-admin/">https://hotosm.github.io/tm-admin/</a></p>
+<h1 id="managing-roles">Managing Roles<a class="headerlink" href="#managing-roles" title="Permanent link">&para;</a></h1>
+<p>Currently there are two sets of roles in Tasking Manager style
+projects, users and teams, The team roles only apply to teams, a
+users indivigual role is used for mapping. For a user on a team, their
+role is derived from the team's role.</p>
+<p>While it would be possible to implement complex access rules for most
+operations, I think a ladder approach is easiest. Operations just
+require a certain minimal role level. For example, an assocate
+project manager might be able to update a project profile, but not be
+able to delete it. It is entirely possible that an associate project
+mamager would be helping with managing mappers and team profiles as
+well.</p>
+<h2 id="team-roles">Team Roles<a class="headerlink" href="#team-roles" title="Permanent link">&para;</a></h2>
+<p>The HOT Tasking Mannager (Tasking Manager) has these team roles:</p>
+<div class="highlight"><pre><span></span><code>- teamroles:
+    - READ_ONLY
+    - MAPPER
+    - VALIDATOR
+    - MANAGER
+</code></pre></div>
+<p>The HOT Field Mapping Tasking Manager (FMTM) doesn't quite have the
+same concept as an OSM Team, as it uses OpenDataKit (ODK) instead of
+OpenStreetMap (OSM). If a field mappers using FMTM are also in an OSM
+Teams, they should be able to use OSM Teams from FMTM, but Teams
+support in FMTM is not something on the roadmap. It is entirely likely
+field mapper may want to form a team, whether they have an OSM account
+or not. For now, FMTM doesm't need to add any additional roles. </p>
+<h2 id="user-roles">User Roles<a class="headerlink" href="#user-roles" title="Permanent link">&para;</a></h2>
+<p>The HOT Tasking Mannager (Tasking Manager) has these user roles:</p>
+<div class="highlight"><pre><span></span><code>- userrole:
+    - USER_READ_ONLY
+    - MAPPER
+    - ADMIN
+    - PROJECT_MANAGER
+</code></pre></div>
+<p>The expanded set of roles used by the Field Mapping Tasking Manager
+(FMTM) is:</p>
+<div class="highlight"><pre><span></span><code>- userrole:
+    - FIELD_ADMIN
+    - ORGANIZATION_ADMIN
+    - PROJECT_MANAGER
+    - ASSOCIATE_MANAGER
+    - VALIDATOR
+    - WEB_ADMIN
+</code></pre></div>
+<p>A difference here is FMTM has VALIDATOR as a user roles, where Tasking
+Manager has it as a team role. Other changes are the addition of
+multiple administrative roles. Since roles aren't portsble across
+projects, this can be ignored. I'm not sure SUPER_ADMIN and
+WEB_ADMIN are needed, it seems those access permissions would be
+handled by postgres directly.</p>
+<h1 id="data-exchange">Data Exchange<a class="headerlink" href="#data-exchange" title="Permanent link">&para;</a></h1>
+<p>Since this project supports data exchange between projects, it's worth
+nothing that roles <em>are not</em> portable across projects. Even witnin Tasking Manager,
+a project manager in one project only may be  mapper in another,
+Especially for Tasking Manager projects transferred to FMTM.</p>
+<p>There are other limitations, for example, the ability to send and
+receive data from other projects other than automated messages.</p>
+<h1 id="role-handling">Role Handling<a class="headerlink" href="#role-handling" title="Permanent link">&para;</a></h1>
+<h2 id="tasking-manager-role-handling">Tasking Manager Role Handling<a class="headerlink" href="#tasking-manager-role-handling" title="Permanent link">&para;</a></h2>
+<p>The Tasking Manager has a rich set of roles. Initially all roles were
+user roles, but currently these have been replaced by team roles. The
+user role is now derived from the team role. By default, all teams and
+users are READ_ONLY. Only an ADMIN, VALIDATOR, or PROJECT_MANAGER
+can change a user or team role.</p>
+<h2 id="fmtm-role-handling">FMTM Role Handling<a class="headerlink" href="#fmtm-role-handling" title="Permanent link">&para;</a></h2>
+<p>Currently FMTM only supports the ADMIN and READ_ONLY roles. READ_ONLY
+limits users to only viewing publically accessible projects. The ADMIN
+is the only one who can create, modify, or delete projects.</p>
+<h1 id="tasking-manager-admin-roles">Tasking Manager Admin Roles<a class="headerlink" href="#tasking-manager-admin-roles" title="Permanent link">&para;</a></h1>
+<p>Since TM-Admin supports multiple projects, it has an
+enhanced set of roles and permissions. The roles for each project are
+defined in a configuration file to allow for project specific roles
+and access permissions.</p>
+<h2 id="mapper">Mapper<a class="headerlink" href="#mapper" title="Permanent link">&para;</a></h2>
+<p>For Tasking Manager, a MAPPER is tracing features using satellite
+imagery with the goal of adding these to OSM. By default, a new user
+or team is READ_ONLY, and limited to only viewing public projects.</p>
+<p>For FMTM, a mapper is using ODK Collect to collect data, not all of
+which is for OSM. Once a mapper is logged into FMTM, then they hgain
+the MAPPER role, whic allows them to download the XForm, data extract,
+and imagery basemap.</p>
+<h2 id="organization-manager">Organization Manager<a class="headerlink" href="#organization-manager" title="Permanent link">&para;</a></h2>
+<p>The ORGANIZATION_MANAGER is responsible for creating and maintaining
+the organization profile for the TM or FMTM. They would be
+responsible for specifying a PROJECT_MANAGER for the organization's
+projects. The ORGANIZATION_MANAGER is also responsbile to create the
+campign for a mapping project.</p>
+<h2 id="project-manager">Project Manager<a class="headerlink" href="#project-manager" title="Permanent link">&para;</a></h2>
+<p>The project manager is responsible for creating and maintaining
+project profiles. They have the ability to delete projects when
+necessary.</p>
+<h2 id="associate-manager">Associate Manager<a class="headerlink" href="#associate-manager" title="Permanent link">&para;</a></h2>
+<p>The ASSOCIATE_MANAGER is usually a PROJECT_MANAGER in training, and
+has most of the permissions of a project manager other than project
+or campaign creation or deletion. Their role is to support the
+PROJECT_MANAGER, who may be responsible for multiple projects.</p>
+<p>The ASSOCIATE_MANAGER also </p>
+<h2 id="validator">Validator<a class="headerlink" href="#validator" title="Permanent link">&para;</a></h2>
+<p>For Tasking Manager, the VALIDATOR role is responsible to sign off on
+the quality of the features that have been traced. They have the
+abilit to modify the task status to be invalidated. This may be due to
+poor building geometry, unconnected highway segments, or unsupport tag
+or values. Often the PROJECT_MANAGER is also the VALIDATOR, so any
+PROJECT_MANAGER would also have permissions to validate. With the
+implementation of teams, it is also possible that there will be a team
+of validators for a project.</p>
+<p>Since FMTM uses ODK, the chances of bad tag values is limited, but
+not always, as it is possible to incorrectly answer a question, or
+misspellings in text fields. If a user consistently makes the same
+mistakes, a task may be invalidated requiring that task to be mapped
+again. Since FMTM supports both public data for OSM, and private data
+for the project sponsors, the VALIDATOR will also make sure no private
+data, like gender for example, leaks into OSM.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 13, 2023</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 23, 2024</span>
       
     
   </small>
