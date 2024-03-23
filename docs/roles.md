@@ -1,4 +1,4 @@
-# Managing Roles
+# Managing Roles & Permissions
 
 Currently there are two sets of roles in Tasking Manager style
 projects, users and teams, The team roles only apply to teams, a
@@ -149,7 +149,7 @@ again. Since FMTM supports both public data for OSM, and private data
 for the project sponsors, the VALIDATOR will also make sure no private
 data, like gender for example, leaks into OSM.
 
-# Permissions
+# Permission Categories
 
 Permissions are based on the user or team role. In FMTM, this is
 simple, for TM, it's much more complicated, as often it involves the
@@ -179,3 +179,20 @@ campaigns.
 
 This allows for the modification of projects, organizations, and
 campaigns.
+
+## Team Permissions
+
+Team support for TM is implemented using OSM Teams, and are created on
+the OSM Teams website by a project or organization manager. It is not
+required for all mappers to be in a team. For mappers on a team, they
+inherit the team role, and don't have a user role. Users not in a team
+still have a user role. For a user to join a team, they are invited
+via email, and have to respond to the email before they are officially
+on a team.
+
+## User Permissons
+
+For users not in a team, the default is a MAPPER, which lets them
+select tasks and start mapping. The project manager or admin can
+update a users role. Only an admin can designate a mapper to be an
+admin.
