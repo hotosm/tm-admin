@@ -54,17 +54,20 @@ The expanded set of roles used by the Field Mapping Tasking Manager
 
 A difference here is FMTM has VALIDATOR as a user roles, where Tasking
 Manager has it as a team role. Other changes are the addition of
-multiple administrative roles. Since roles aren't portsble across
+multiple administrative roles. Since roles aren't portable across
 projects, this can be ignored. I'm not sure SUPER_ADMIN and
 WEB_ADMIN are needed, it seems those access permissions would be
-handled by postgres directly.
+handled by postgres directly. Currently FMTM is not using most of
+these roles yet, and is linmited to READ_ONLY (the default), ADMIN,
+and VALIDATOR.
 
 # Data Exchange
 
 Since this project supports data exchange between projects, it's worth
-nothing that roles *are not* portable across projects. Even witnin Tasking Manager,
-a project manager in one project only may be  mapper in another,
-Especially for Tasking Manager projects transferred to FMTM.
+nothing that roles *are not* portable across projects. Even withnin
+Tasking Manager, a project manager in one project only may be  mapper
+in another, Especially for Tasking Manager projects transferred to
+FMTM.
 
 There are other limitations, for example, the ability to send and
 receive data from other projects other than automated messages.
@@ -124,7 +127,8 @@ has most of the permissions of a project manager other than project
 or campaign creation or deletion. Their role is to support the
 PROJECT_MANAGER, who may be responsible for multiple projects.
 
-The ASSOCIATE_MANAGER also 
+The ASSOCIATE_MANAGER also doubles as the FIELD_ADMIN, as it's not
+uncommon to need somebody in the field to unlock tasks
 
 ## Validator
 
@@ -144,3 +148,34 @@ mistakes, a task may be invalidated requiring that task to be mapped
 again. Since FMTM supports both public data for OSM, and private data
 for the project sponsors, the VALIDATOR will also make sure no private
 data, like gender for example, leaks into OSM.
+
+# Permissions
+
+Permissions are based on the user or team role. In FMTM, this is
+simple, for TM, it's much more complicated, as often it involves the
+mappers level within OSM as well.
+
+It's common in the industry to use these 4 high-level permissions for
+access control. All other permissions are based on top of these, and
+of course the role is also taken into consideration.
+
+## read
+
+This access is limited to read-only access of public facing
+content. This the default for users and teams until somebody with
+higher permissions updates it.
+
+## create
+
+This access allows the create of projects, organizations, and
+campaigns.
+
+## delete
+
+This allows for the deletion of projects, organizations, and
+campaigns.
+
+## modify
+
+This allows for the modification of projects, organizations, and
+campaigns.
