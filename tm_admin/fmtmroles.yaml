@@ -1,0 +1,60 @@
+---
+
+- domains:
+    - teams
+    - users
+    - organizations
+    - projects
+    - tasks
+    - users
+    - messages
+    - notications
+
+- permissions:
+    - mapper:
+        - read
+        - tables:
+            - tasks
+            - users
+            - messages
+
+    - validator:
+        - update
+        - children:
+            - mapper
+        - tables:
+            - projects
+            - tasks
+
+    - associate_manager:
+        - update
+        - children:
+            - mapper
+        - tables:
+            - projects
+            - tasks
+            - users
+
+    - project_manager:
+        - delete
+        - children:
+            - associate_manager
+            - validator
+            - mapper
+        - tables:
+            - projects
+            - tasks
+            - users
+
+    - organization_admin:
+        - update
+        - children:
+            - project_manager
+        - tables:
+            - organizations
+            - campaigns
+
+    # - super_admin:
+    #     - create
+    #     - update
+    #     - delete

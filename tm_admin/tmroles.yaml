@@ -1,0 +1,45 @@
+---
+
+# By default mappers not in a team are initially read only
+
+- permissions:
+    - mapper:
+        - read
+
+    - project_manager:
+        - create
+        - modify
+        - delete
+        - children:
+            - validator
+            - mapper
+        - tables:
+            - projects
+            - tasks
+            - users
+
+    - validator:
+        - modify
+        - children:
+            - mapper
+        - tables:
+            - projects
+            - tasks
+         
+# Teams have similar permisions as users
+
+# - team_manager:
+#     - read
+#     - modify
+#     - children:
+#         - validator
+#         - mapper
+
+# - team_mapper:
+#     - read
+
+# - team_validator:
+#     - read
+#     - modify
+#     - children:
+#         - team_mapper
