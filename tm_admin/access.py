@@ -113,11 +113,10 @@ class Access(object):
         # print(json.dumps(self.permissions, indent=4))
         # print("------------------")
         for k, v in self.permissions.items():
-            print(k)
             if 'children' in v:
                 # print(f"CHILD: {k} = {v['children']}")
                 self.rbac.create_role(k, children=v['children'])
-            elif 'tables' in v:
+            if 'tables' in v:
                 print(f"TABLE: {k} = {v['tables']}")
                 for table in v['tables']:
                     log.debug(f"Adding permission '{v['access']}' for '{k.upper()}' on '{table}'")
@@ -181,7 +180,7 @@ async def main():
     await acl.check('tasks', Roles.MAPPER, Operation.READ)
     await acl.check('messages', Roles.MAPPER, Operation.READ)
     await acl.check('campaigns', Roles.MAPPER, Operation.READ)
-    await acl.check('campaigns', Roles.MAPPER, Operation.CREATE)
+    # await acl.check('campaigns', Roles.MAPPER, Operation.CREATE)
 
     await acl.check('projects', Roles.VALIDATOR, Operation.UPDATE)
     # await acl.check('tasks', Roles.VALIDATOR, Operation.UPDATE)
