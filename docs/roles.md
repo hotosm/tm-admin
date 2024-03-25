@@ -196,3 +196,94 @@ For users not in a team, the default is a MAPPER, which lets them
 select tasks and start mapping. The project manager or admin can
 update a users role. Only an admin can designate a mapper to be an
 admin.
+
+# Implementation
+
+To support multiple projects with different needs, the role &
+permissions module uses a configuration file in YAML format. This
+defines the roles and their permissions as they relate to the 4
+primary operations used by the industry standard RBAC for access
+control. These control acccess to the database tables.
+
+* create
+* update
+* delete
+* read
+
+## Config File
+
+The confg file has two primary top level tags, *domains* that list all
+the tables, and *permissions*, which is where the actual settings
+are. Under the permissions tags, the next level is the role of the
+user or team. These are a direct match to the types defined in python
+and SQL. Each tag lists the RBAC access permissions.  Since there can
+be a hierarchtical relationshop between roles, a role can include the
+values from other roles. This is done using the *children* tag. For
+example, the *validator* can is inherits values from the *mapper*
+tag. Since not all roles can access all tables, they are listed under
+the *tables* tag. Since roles inherit values from their children, only
+the additionalo tables the rols can access need to be listed.
+
+	- domains:
+		- teams
+		- users
+		- organizations
+		- projects
+		- tasks
+		- users
+		- messages
+		- notications
+		- campaigns
+
+	- permissions:
+		- mapper:
+			- read
+			- tables:
+				- projects
+				- tasks
+				- users
+				- messages
+				- campaigns
+
+	- validator:
+		- update
+			- children:
+				- mapper
+			- tables:
+				- projects
+				- tasks
+				- users
+
+	... more roles
+
+## API
+
+There are defined roles that can apply across all projects. This is
+a super-set of the roles a project may support. For a project, the
+roles are defined in the config file, and wil lbe a subset of these
+values.
+
+* READ_ONLY
+* ORGANIZATION_ADMIN
+* PROJECT_MANAGER
+* ASSOCIATE_MANAGER
+* VALIDATOR
+* MAPPER
+
+The API to check access permissions for a role is simple, and requires
+the table name, the role, and the operation. While some operations in
+the backend for a website will use the role to determine access to
+other functionality, most operations require database access, so this
+controls that lower level access. Most simple operations, like a
+mapper locking a task to map have to update the database, so this
+allows the backend to control access for most operations.
+
+For example, this checks to make sure a mapper can read the campaigns
+table. if sucessful, it returns True.
+
+    await acl.check('campaigns', Roles.MAPPER, Operation.READ)
+
+In this example, the mapper is trying to create a campaign, but lacks
+the proper permissions to do so. In this case a False is returned.
+
+    await acl.check('campaigns', Roles.MAPPER, Operation.CREATE)
