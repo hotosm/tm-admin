@@ -20,7 +20,7 @@
     
     
       
-        <title>Managing Roles - tm-admin</title>
+        <title>Managing Roles & Permissions - tm-admin</title>
       
     
     
@@ -75,7 +75,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#managing-roles" class="md-skip">
+        <a href="#managing-roles-permissions" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Managing Roles
+              Managing Roles & Permissions
             
           </span>
         </div>
@@ -1044,7 +1044,7 @@
   
 
 
-<h1 id="managing-roles">Managing Roles<a class="headerlink" href="#managing-roles" title="Permanent link">&para;</a></h1>
+<h1 id="managing-roles-permissions">Managing Roles &amp; Permissions<a class="headerlink" href="#managing-roles-permissions" title="Permanent link">&para;</a></h1>
 <p>Currently there are two sets of roles in Tasking Manager style
 projects, users and teams, The team roles only apply to teams, a
 users indivigual role is used for mapping. For a user on a team, their
@@ -1091,15 +1091,18 @@ or not. For now, FMTM doesm't need to add any additional roles. </p>
 </code></pre></div>
 <p>A difference here is FMTM has VALIDATOR as a user roles, where Tasking
 Manager has it as a team role. Other changes are the addition of
-multiple administrative roles. Since roles aren't portsble across
+multiple administrative roles. Since roles aren't portable across
 projects, this can be ignored. I'm not sure SUPER_ADMIN and
 WEB_ADMIN are needed, it seems those access permissions would be
-handled by postgres directly.</p>
+handled by postgres directly. Currently FMTM is not using most of
+these roles yet, and is linmited to READ_ONLY (the default), ADMIN,
+and VALIDATOR.</p>
 <h1 id="data-exchange">Data Exchange<a class="headerlink" href="#data-exchange" title="Permanent link">&para;</a></h1>
 <p>Since this project supports data exchange between projects, it's worth
-nothing that roles <em>are not</em> portable across projects. Even witnin Tasking Manager,
-a project manager in one project only may be  mapper in another,
-Especially for Tasking Manager projects transferred to FMTM.</p>
+nothing that roles <em>are not</em> portable across projects. Even withnin
+Tasking Manager, a project manager in one project only may be  mapper
+in another, Especially for Tasking Manager projects transferred to
+FMTM.</p>
 <p>There are other limitations, for example, the ability to send and
 receive data from other projects other than automated messages.</p>
 <h1 id="role-handling">Role Handling<a class="headerlink" href="#role-handling" title="Permanent link">&para;</a></h1>
@@ -1141,7 +1144,8 @@ necessary.</p>
 has most of the permissions of a project manager other than project
 or campaign creation or deletion. Their role is to support the
 PROJECT_MANAGER, who may be responsible for multiple projects.</p>
-<p>The ASSOCIATE_MANAGER also </p>
+<p>The ASSOCIATE_MANAGER also doubles as the FIELD_ADMIN, as it's not
+uncommon to need somebody in the field to unlock tasks</p>
 <h2 id="validator">Validator<a class="headerlink" href="#validator" title="Permanent link">&para;</a></h2>
 <p>For Tasking Manager, the VALIDATOR role is responsible to sign off on
 the quality of the features that have been traced. They have the
@@ -1158,13 +1162,130 @@ mistakes, a task may be invalidated requiring that task to be mapped
 again. Since FMTM supports both public data for OSM, and private data
 for the project sponsors, the VALIDATOR will also make sure no private
 data, like gender for example, leaks into OSM.</p>
+<h1 id="permission-categories">Permission Categories<a class="headerlink" href="#permission-categories" title="Permanent link">&para;</a></h1>
+<p>Permissions are based on the user or team role. In FMTM, this is
+simple, for TM, it's much more complicated, as often it involves the
+mappers level within OSM as well.</p>
+<p>It's common in the industry to use these 4 high-level permissions for
+access control. All other permissions are based on top of these, and
+of course the role is also taken into consideration.</p>
+<h2 id="read">read<a class="headerlink" href="#read" title="Permanent link">&para;</a></h2>
+<p>This access is limited to read-only access of public facing
+content. This the default for users and teams until somebody with
+higher permissions updates it.</p>
+<h2 id="create">create<a class="headerlink" href="#create" title="Permanent link">&para;</a></h2>
+<p>This access allows the create of projects, organizations, and
+campaigns.</p>
+<h2 id="delete">delete<a class="headerlink" href="#delete" title="Permanent link">&para;</a></h2>
+<p>This allows for the deletion of projects, organizations, and
+campaigns.</p>
+<h2 id="modify">modify<a class="headerlink" href="#modify" title="Permanent link">&para;</a></h2>
+<p>This allows for the modification of projects, organizations, and
+campaigns.</p>
+<h2 id="team-permissions">Team Permissions<a class="headerlink" href="#team-permissions" title="Permanent link">&para;</a></h2>
+<p>Team support for TM is implemented using OSM Teams, and are created on
+the OSM Teams website by a project or organization manager. It is not
+required for all mappers to be in a team. For mappers on a team, they
+inherit the team role, and don't have a user role. Users not in a team
+still have a user role. For a user to join a team, they are invited
+via email, and have to respond to the email before they are officially
+on a team.</p>
+<h2 id="user-permissons">User Permissons<a class="headerlink" href="#user-permissons" title="Permanent link">&para;</a></h2>
+<p>For users not in a team, the default is a MAPPER, which lets them
+select tasks and start mapping. The project manager or admin can
+update a users role. Only an admin can designate a mapper to be an
+admin.</p>
+<h1 id="implementation">Implementation<a class="headerlink" href="#implementation" title="Permanent link">&para;</a></h1>
+<p>To support multiple projects with different needs, the role &amp;
+permissions module uses a configuration file in YAML format. This
+defines the roles and their permissions as they relate to the 4
+primary operations used by the industry standard RBAC for access
+control. These control acccess to the database tables.</p>
+<ul>
+<li>create</li>
+<li>update</li>
+<li>delete</li>
+<li>read</li>
+</ul>
+<h2 id="config-file">Config File<a class="headerlink" href="#config-file" title="Permanent link">&para;</a></h2>
+<p>The confg file has two primary top level tags, <em>domains</em> that list all
+the tables, and <em>permissions</em>, which is where the actual settings
+are. Under the permissions tags, the next level is the role of the
+user or team. These are a direct match to the types defined in python
+and SQL. Each tag lists the RBAC access permissions.  Since there can
+be a hierarchtical relationshop between roles, a role can include the
+values from other roles. This is done using the <em>children</em> tag. For
+example, the <em>validator</em> can is inherits values from the <em>mapper</em>
+tag. Since not all roles can access all tables, they are listed under
+the <em>tables</em> tag. Since roles inherit values from their children, only
+the additionalo tables the rols can access need to be listed.</p>
+<div class="highlight"><pre><span></span><code>- domains:
+    - teams
+    - users
+    - organizations
+    - projects
+    - tasks
+    - users
+    - messages
+    - notications
+    - campaigns
+
+- permissions:
+    - mapper:
+        - read
+        - tables:
+            - projects
+            - tasks
+            - users
+            - messages
+            - campaigns
+
+- validator:
+    - update
+        - children:
+            - mapper
+        - tables:
+            - projects
+            - tasks
+            - users
+
+... more roles
+</code></pre></div>
+<h2 id="api">API<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
+<p>There are defined roles that can apply across all projects. This is
+a super-set of the roles a project may support. For a project, the
+roles are defined in the config file, and wil lbe a subset of these
+values.</p>
+<ul>
+<li>READ_ONLY</li>
+<li>ORGANIZATION_ADMIN</li>
+<li>PROJECT_MANAGER</li>
+<li>ASSOCIATE_MANAGER</li>
+<li>VALIDATOR</li>
+<li>MAPPER</li>
+</ul>
+<p>The API to check access permissions for a role is simple, and requires
+the table name, the role, and the operation. While some operations in
+the backend for a website will use the role to determine access to
+other functionality, most operations require database access, so this
+controls that lower level access. Most simple operations, like a
+mapper locking a task to map have to update the database, so this
+allows the backend to control access for most operations.</p>
+<p>For example, this checks to make sure a mapper can read the campaigns
+table. if sucessful, it returns True.</p>
+<div class="highlight"><pre><span></span><code>await acl.check(&#39;campaigns&#39;, Roles.MAPPER, Operation.READ)
+</code></pre></div>
+<p>In this example, the mapper is trying to create a campaign, but lacks
+the proper permissions to do so. In this case a False is returned.</p>
+<div class="highlight"><pre><span></span><code>await acl.check(&#39;campaigns&#39;, Roles.MAPPER, Operation.CREATE)
+</code></pre></div>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 23, 2024</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 25, 2024</span>
       
     
   </small>
