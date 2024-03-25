@@ -163,3 +163,5 @@
         - share: true
     - teams:
         - jsonb
+    - users:
+        - jsonb
