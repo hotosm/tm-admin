@@ -322,7 +322,7 @@ class ProjectsDB(DBSupport):
             # Note that this will replace any existing values for this column
             asc = str(members).replace("'", '"').replace("\\'", "'")
             sql = "UPDATE projects SET teams = '{\"teams\": %s}' WHERE id=%d;" % (asc, project)
-            print(sql)
+            # print(sql)
             queries.append(sql)
             #result = await self.pg.execute(sql)
 
