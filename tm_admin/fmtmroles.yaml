@@ -9,14 +9,17 @@
     - users
     - messages
     - notications
+    - campaigns
 
 - permissions:
     - mapper:
         - read
         - tables:
+            - projects
             - tasks
             - users
             - messages
+            - campaigns
 
     - validator:
         - update
@@ -25,6 +28,7 @@
         - tables:
             - projects
             - tasks
+            - users
 
     - associate_manager:
         - update
@@ -37,6 +41,7 @@
 
     - project_manager:
         - delete
+        - create
         - children:
             - associate_manager
             - validator

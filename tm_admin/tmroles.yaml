@@ -1,15 +1,37 @@
 ---
 
 # By default mappers not in a team are initially read only
+- domains:
+    - teams
+    - users
+    - organizations
+    - projects
+    - tasks
+    - users
+    - messages
+    - notications
 
 - permissions:
     - mapper:
         - read
+        - tables:
+            - projects
+            - tasks
+            - users
+            - messages
+
+    - validator:
+        - update
+        - children:
+            - mapper
+        - tables:
+            - projects
+            - tasks
+            - users
 
     - project_manager:
-        - create
-        - modify
         - delete
+        - create
         - children:
             - validator
             - mapper
@@ -17,14 +39,6 @@
             - projects
             - tasks
             - users
-
-    - validator:
-        - modify
-        - children:
-            - mapper
-        - tables:
-            - projects
-            - tasks
          
 # Teams have similar permisions as users
 
