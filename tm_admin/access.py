@@ -83,14 +83,13 @@ class Access(object):
                 if category == "domains":
                     for entry in values:
                         self.domains[entry] = self.rbac.create_domain(entry)
-                        log.debug(f"Creating domain for {entry}")
+                        # log.debug(f"Creating domain for {entry}")
                     continue
                 if category == "permissions":
                     for roles in values:
                         [[k, v]] = roles.items()
                         self.permissions[k] = dict()
-                        self.roles[k] = self.rbac.create_role(k)
-                        log.debug(f"Creating role for {k}")
+                        self.permissions[k]['access'] = list()
                         # print(f"\t{k}, {v}")
                         if type(v) == list:
                             for i in v:
@@ -103,24 +102,36 @@ class Access(object):
                                     elif k1 == 'tables':
                                         # print(f"TABLES: {v1}")
                                         self.permissions[k]['tables'] = v1
-                                        log.debug(f"Setting permissions for {k} = {v1}")
+                                        # log.debug(f"Setting permissions for {k} = {v1}")
                                 else:
                                     # This is an access permission
                                     # print(f"STR: {k} = {i}")
-                                    self.permissions[k]['access'] = i
+                                    self.permissions[k]['access'].append(i)
         #for role in self.roles:
         #    subject.authorize(role)
         # print(json.dumps(self.permissions, indent=4))
         # print("------------------")
         for k, v in self.permissions.items():
+            access = list()
+            children = list()
+            for perm in v['access']:
+                access.append(self.perms[perm])
             if 'children' in v:
                 # print(f"CHILD: {k} = {v['children']}")
-                self.rbac.create_role(k, children=v['children'])
+                for child in v['children']:
+                    children.append(self.roles[child])
+
+                self.roles[k] = self.rbac.create_role(k,
+                                    children=children, inherit=True)
+            else:
+                self.roles[k] = self.rbac.create_role(k, inherit=True)
             if 'tables' in v:
-                print(f"TABLE: {k} = {v['tables']}")
+                # print(f"TABLE: {k} = {v['tables']}")
                 for table in v['tables']:
-                    log.debug(f"Adding permission '{v['access']}' for '{k.upper()}' on '{table}'")
-                    self.roles[k].add_permission(self.perms[v['access']], self.domains[table])
+                    # log.debug(f"Adding permission(s) '{v['access']}' for '{k.upper()}' on '{table}'")
+                    self.roles[k].add_permission(access, self.domains[table])
+            else:
+                self.roles[k].add_permission(access, self.domains[table])
 
         # for role, data in self.roles.items():
         for role in self.roles:
@@ -142,16 +153,22 @@ class Access(object):
 ]           role (Roles): The role
             op (Operation): The access permissions
         """
-        xxx = None
+        if domain not in self.domains:
+            log.error(f"Table {domain} is not a valid table!")
+            return False
+
+        result = None
         try:
-            xxx = self.rbac.go(self.subjects[role.name.lower()],
+            result = self.rbac.go(self.subjects[role.name.lower()],
                             self.domains[domain.lower()],
                             self.perms[op.name.lower()])
         except RBACAuthorizationError as e :
-            log.error(f"{e}")
-            print(f"\tARGS: {domain}, {role.name}, {op.name}")
+            log.error(f"{e}: {domain}, {role.name}, {op.name}")
+            return False
 
-        return xxx
+        if result is None:
+            log.debug(f"'{op.name.lower()}' access to '{domain}' granted for '{role.name.lower()}'")
+            return True
 
 async def main():
     """This main function lets this class be run standalone by a bash script."""
@@ -180,10 +197,16 @@ async def main():
     await acl.check('tasks', Roles.MAPPER, Operation.READ)
     await acl.check('messages', Roles.MAPPER, Operation.READ)
     await acl.check('campaigns', Roles.MAPPER, Operation.READ)
-    # await acl.check('campaigns', Roles.MAPPER, Operation.CREATE)
+    # This is supposed to fail
+    await acl.check('campaigns', Roles.MAPPER, Operation.CREATE)
 
     await acl.check('projects', Roles.VALIDATOR, Operation.UPDATE)
-    # await acl.check('tasks', Roles.VALIDATOR, Operation.UPDATE)
+    await acl.check('tasks', Roles.VALIDATOR, Operation.READ)
+    await acl.check('tasks', Roles.VALIDATOR, Operation.UPDATE)
+
+    await acl.check('tasks', Roles.ASSOCIATE_MANAGER, Operation.UPDATE)
+    # FIXME: this should pass !
+    await acl.check('users', Roles.ASSOCIATE_MANAGER, Operation.READ)
 
 if __name__ == "__main__":
     """This is just a hook so this file can be run standalone during development."""
