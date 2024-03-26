@@ -161,7 +161,5 @@
     - interests:
         - int32
         - share: true
-    - teams:
-        - jsonb
-    - users:
+    - members:
         - jsonb
