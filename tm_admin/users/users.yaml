@@ -32,7 +32,7 @@
     - tasks_notifications:
         - bool
     - role:
-        - public.userrole
+        - public.roles
     - mapping_level:
         - public.mappinglevel
         - required: true
