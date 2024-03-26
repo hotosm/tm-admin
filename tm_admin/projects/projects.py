@@ -37,6 +37,7 @@ from shapely import wkb, get_coordinates
 from tm_admin.dbsupport import DBSupport
 from tm_admin.generator import Generator
 from osm_rawdata.pgasync import PostgresClient
+from tm_admin.access import Roles
 import re
 # from progress import Bar, PixelBar
 from tqdm import tqdm
@@ -300,10 +301,15 @@ class ProjectsDB(DBSupport):
         # project, which becomes a nice clean way to add an array.
         teams = dict()
         for record in result:
-            if record['role'] <= 0:
-                role = Teamrole(1)
+            if record['role'] < 0:
+                role = Roles(Roles.READ_ONLY)
             else:
-                role = Teamrole(record['role'])
+                if record['role'] == 0:
+                    role = Roles(Roles.READ_ONLY)
+                elif record['role'] == 1:
+                    role = Roles(Roles.VALIDATOR)
+                elif record['role'] == 2:
+                    role = Roles(Roles.PROJECT_MANAGER)
             if record['project_id'] not in teams:
                 teams[record['project_id']] = [{"role": role.name,
                                             "team_id": record['team_id']}]
@@ -314,14 +320,14 @@ class ProjectsDB(DBSupport):
         for project, members in teams.items():
             # Sometimes the role wasn't set
             try:
-                role = Teamrole(record['role'])
+                role = Roles(record['role'])
             except:
-                role = Teamrole(1)
+                role = Roles(1)
 
             # sql = "UPDATE projects SET teams=teams||'{\"team_id\": %s, \"role\": %s}' WHERE id=%d" % (record['team_id'], role, pid)
             # Note that this will replace any existing values for this column
             asc = str(members).replace("'", '"').replace("\\'", "'")
-            sql = "UPDATE projects SET teams = '{\"teams\": %s}' WHERE id=%d;" % (asc, project)
+            sql = "UPDATE projects SET members = '{\"teams\": %s}' WHERE id=%d;" % (asc, project)
             # print(sql)
             queries.append(sql)
             #result = await self.pg.execute(sql)
@@ -354,6 +360,14 @@ class ProjectsDB(DBSupport):
                     )
         log.info(f"Merging {table} table...")
         timer.start()
+        # Get all the users that are managers or admins. Luckily this
+        # has very few results
+        sql = f"SELECT json_agg(tmp) FROM (SELECT id,role FROM users WHERE role>0) AS tmp;"
+        # print(sql)
+        result = await inpg.execute(sql)
+        admins = dict()
+        for entry in eval(result[0]['json_agg']):
+            admins[entry['id']] = Roles(Roles.PROJECT_MANAGER)
         # It's faster to do this in Python than postgres
         # sql = f"SELECT u.user_id,(SELECT ARRAY(SELECT c.project_id FROM {table} c WHERE c.user_id = u.user_id)) AS projects FROM {table} u;"
         sql = f"SELECT * FROM project_allowed_users ORDER BY project_id"
@@ -364,7 +378,10 @@ class ProjectsDB(DBSupport):
             if not record['project_id'] in data:
                 entry = list()
                 data[record['project_id']] = entry
-                role = Userrole(Userrole.USER_READ_ONLY)
+                if record['user_id'] in admins:
+                    role = admins[record['user_id']]
+                else:
+                    role = Roles(Roles.MAPPER)
                 entry.append({"user_id": record['user_id'],
                               "role": role.name})
 
@@ -377,7 +394,7 @@ class ProjectsDB(DBSupport):
             # user = {"user_id": }
             #sql = f" UPDATE projects SET allowed_users = ARRAY{array} WHERE id={pid}"
             asc = str(entry).replace("'", '"').replace("\\'", "'")
-            sql = "UPDATE projects SET users = '{\"users\": %s}' WHERE id=%d;" % (asc, pid)
+            sql = "UPDATE projects SET members = '{\"users\": %s}' WHERE id=%d;" % (asc, pid)
 
             # print(sql)
             result = await self.pg.execute(sql)
