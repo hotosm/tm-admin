@@ -139,6 +139,7 @@ class UsersDB(DBSupport):
         # table. Most are MAPPERS, so set that as the default.
         sql = f"UPDATE users SET role = 'MAPPER'"
         result = await outpg.execute(sql)
+
         # Get the few users that are a project manager
         sql = f"SELECT json_agg(tmp) FROM (SELECT id,role FROM users WHERE role>0) AS tmp;"
         # print(sql)
@@ -146,6 +147,15 @@ class UsersDB(DBSupport):
         admins = dict()
         for entry in eval(result[0]['json_agg']):
             sql = f"UPDATE users SET role = 'PROJECT_MANAGER' WHERE id={entry['id']}"
+            result = await outpg.execute(sql)
+
+        # Get the few users that are blocked
+        sql = f"SELECT json_agg(tmp) FROM (SELECT id,role FROM users WHERE role<0) AS tmp;"
+        # print(sql)
+        result = await inpg.execute(sql)
+        admins = dict()
+        for entry in eval(result[0]['json_agg']):
+            sql = f"UPDATE users SET role = 'USER_READ_ONLY' WHERE id={entry['id']}"
             result = await outpg.execute(sql)
 
     async def mergeInterests(self,
