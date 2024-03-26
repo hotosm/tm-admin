@@ -26,10 +26,11 @@ import os
 from sys import argv
 # from tm_admin.users.users_proto import UsersMessage
 #from tm_admin.yamlfile import YamlFile
-from tm_admin.types_tm import Userrole, Mappinglevel, Teamrole, Permissions
+from tm_admin.types_tm import Roles, Mappinglevel, Permissions
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
 from tm_admin.projects.projects_class import ProjectsTable
+from tm_admin.access import Roles
 import asyncio
 from codetiming import Timer
 from tm_admin.projects.api import ProjectsAPI
@@ -77,10 +78,10 @@ async def create_projects(papi):
                         organisation_id = 1)
     result = await papi.insertRecords([pt])
 
-    role =  Teamrole(Teamrole.TEAM_MAPPER)
+    role =  Roles(Roles.MAPPER)
     teams = {"team_id": 1, "role": role}
     project_id = 1
-    result = await papi.updateColumns({"teams": teams}, {"id": project_id})
+    result = await papi.updateColumns({"members": teams}, {"id": project_id})
 
     # Add some allowed users
     user_id = 1
@@ -117,7 +118,7 @@ async def get_team_role():
     team_id = 1
     result = await projects.getTeamRole(project_id, team_id)
     # print(result)
-    assert result == Teamrole.TEAM_MAPPER
+    assert result == Roles.MAPPER
 
 # These endpoint tests come from the TM backend
 async def get_project_by_id():
@@ -194,7 +195,7 @@ async def get_project_teams():
     # project_id: int):
     log.debug(f"--- get_project_teams() ---")
     project_id = 1
-    teams = await projects.getColumns(['teams'], {"id": project_id})
+    teams = await projects.getColumns(['members'], {"id": project_id})
     #teams = data[0]['teams']
     assert len(teams) > 0
 

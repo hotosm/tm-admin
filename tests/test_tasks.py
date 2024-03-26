@@ -34,6 +34,8 @@ from tm_admin.tasks.tasks_class import TasksTable
 from tm_admin.tasks.task_history_class import Task_historyTable
 from tm_admin.tasks.task_issues_class import Task_issuesTable
 from tm_admin.tasks.task_invalidation_history_class import Task_invalidation_historyTable
+from tm_admin.access import Roles
+
 import asyncio
 from codetiming import Timer
 import tm_admin
@@ -219,7 +221,7 @@ async def undo_mapping():
 
 async def map_all_tasks():
     log.debug(f"--- map_all_tasks() unimplemented!")
-    result = await tasks.markAllMapped()
+    # result = await tasks.markAllMapped()
     # project_id: int, user_id: int):
 
     """Marks all tasks on a project as mapped"""

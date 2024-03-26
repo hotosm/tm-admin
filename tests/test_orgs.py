@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2022, 2023 Humanitarian OpenStreetMap Team
+# Copyright (c) 2023, 2024 Humanitarian OpenStreetMap Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -28,7 +28,8 @@ from sys import argv
 #from tm_admin.yamlfile import YamlFile
 from tm_admin.organizations.organizations_class import OrganizationsTable
 from tm_admin.organizations.api import OrganizationsAPI
-from tm_admin.types_tm import Organizationtype, Userrole
+from tm_admin.types_tm import Organizationtype
+from tm_admin.access import Roles
 from datetime import datetime
 import asyncio
 from codetiming import Timer
@@ -109,7 +110,7 @@ async def can_user_manage_organisation():
     user_id = 3
     role = await users.getRole(user_id)
     # print(role)
-    assert role == Userrole.ORGANIZATION_ADMIN
+    assert role == Roles.ORGANIZATION_ADMIN
 
 async def is_user_an_org_manager():
     # organisation_id: int, user_id: int):

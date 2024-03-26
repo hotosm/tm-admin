@@ -35,7 +35,8 @@ import os
 from sys import argv
 # from tm_admin.users.users_proto import UsersMessage
 #from tm_admin.yamlfile import YamlFile
-from tm_admin.types_tm import Userrole, Mappinglevel
+from tm_admin.types_tm import Mappinglevel
+from tm_admin.access import Roles
 from datetime import datetime
 from tm_admin.users.users_class import UsersTable
 import asyncio
@@ -45,6 +46,8 @@ import typing
 import tm_admin
 import test_tasks
 import test_projects
+
+
 # Instantiate logger
 log = logging.getLogger(__name__)
 
@@ -60,7 +63,7 @@ async def create_users(uapi):
     user = UsersTable(id = 1, username = "foobar", name = "foo",
                   city = "Someplace", email_address = "fubr@gmail.com",
                   is_email_verified = False, is_expert = False,
-                  tasks_notifications = True, role = "USER_READ_ONLY",
+                  tasks_notifications = True, role = "READ_ONLY",
                   mapping_level = "BEGINNER", tasks_mapped = 0,
                   tasks_validated = 0, tasks_invalidated = 0,
                   date_registered = "2024-01-29T22:19:35.587016",
@@ -125,22 +128,22 @@ async def create_users(uapi):
                   )
     result = await uapi.insertRecords([user])
 
-    user = UsersTable(id = 5, username = "superbeing", name = "god",
-                  city = "Someplace", email_address = "nogood@gmail.com",
-                  is_email_verified = False, is_expert = False,
-                  tasks_notifications = True, role = "SUPER_ADMIN",
-                  mapping_level = "ADVANCED", tasks_mapped = 0,
-                  tasks_validated = 0, tasks_invalidated = 0,
-                  date_registered = "2024-01-29T22:19:35.587016",
-                  last_validation_date = "2024-01-29T22:19:35.587018",
-                  default_editor = "ID", gender = 1,
-                  mentions_notifications = True,
-                  projects_notifications = True,
-                  projects_comments_notifications = False,
-                  tasks_comments_notifications = False,
-                  teams_announcement_notifications = True,
-                  )
-    result = await uapi.insertRecords([user])
+    # user = UsersTable(id = 5, username = "superbeing", name = "god",
+    #               city = "Someplace", email_address = "nogood@gmail.com",
+    #               is_email_verified = False, is_expert = False,
+    #               tasks_notifications = True, role = "SUPER_ADMIN",
+    #               mapping_level = "ADVANCED", tasks_mapped = 0,
+    #               tasks_validated = 0, tasks_invalidated = 0,
+    #               date_registered = "2024-01-29T22:19:35.587016",
+    #               last_validation_date = "2024-01-29T22:19:35.587018",
+    #               default_editor = "ID", gender = 1,
+    #               mentions_notifications = True,
+    #               projects_notifications = True,
+    #               projects_comments_notifications = False,
+    #               tasks_comments_notifications = False,
+    #               teams_announcement_notifications = True,
+    #               )
+    # result = await uapi.insertRecords([user])
 
     user_id = 1
     # We need mapped projects
@@ -171,7 +174,7 @@ async def UsersAllAPI():
     paged = False
     count = 20
     username = "foo"
-    role = Userrole(Userrole.MAPPER)
+    role = Roles(Roles.MAPPER)
     level = Mappinglevel(Mappinglevel.BEGINNER)
     result = await users.getPagedUsers(paged, count, username, role, level)
 
@@ -310,7 +313,7 @@ async def test_expert():
 
 async def get_project_managers():
     log.debug("--- get_project_managers() ---")
-    role = Userrole(Userrole.PROJECT_MANAGER)
+    role = Roles(Roles.PROJECT_MANAGER)
     result = await users.getColumns(['id'], {"role": role})
     assert len(result) > 0
 
@@ -319,9 +322,9 @@ async def is_user_an_admin():
     # first user is not an admin
     user_id = 1
     noresult = await users.getRole(user_id)
-    user_id = 5
+    user_id = 2
     result = await users.getRole(user_id)
-    assert noresult == Userrole.USER_READ_ONLY and result == Userrole.SUPER_ADMIN
+    assert noresult == Roles.READ_ONLY and result == Roles.PROJECT_MANAGER
 
 async def is_user_validator():
     log.debug("--- is_user_validator() ---")
@@ -331,7 +334,7 @@ async def is_user_validator():
     user_id = 4
     # but this user is a validator
     result = await users.getRole(user_id)
-    assert noresult == Userrole.PROJECT_MANAGER and result == Userrole.VALIDATOR
+    assert noresult == Roles.PROJECT_MANAGER and result == Roles.VALIDATOR
 
 async def is_user_blocked():
     log.debug("--- is_user_blocked() ---")
@@ -609,7 +612,7 @@ async def main():
     await UsersStatisticsInterestsAPI()
     await UsersStatisticsAllAPI()
     await UsersTasksAPI()
-    
+
     # FMTM API tests
     await get_user()
     await get_user_by_username()
