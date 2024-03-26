@@ -326,8 +326,8 @@ async def main():
     result = await tm.createTable(f"{rootdir}/schemas.sql")
     # await tm.pg.execute(result)
 
-    # result = await tm.createTable(f"{rootdir}/types_tm.sql")
-    # await tm.pg.execute(result)
+    result = await tm.createTable(f"{rootdir}/types_tm.sql")
+    await tm.pg.execute(result)
 
     # This class generates all the output files.
     if args.cmd == 'generate':
