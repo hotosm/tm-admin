@@ -30,11 +30,13 @@ from shapely.geometry import MultiPolygon, Polygon, Point, shape
 from datetime import datetime
 from osm_rawdata.pgasync import PostgresClient
 from progress.bar import Bar, PixelBar
-from tm_admin.types_tm import Userrole, Mappinglevel, Organizationtype, Taskcreationmode, Projectstatus, Permissions, Projectpriority, Projectdifficulty, Mappingtypes, Editors, Teamvisibility, Taskstatus
+from tm_admin.types_tm import Mappinglevel, Organizationtype, Taskcreationmode, Projectstatus, Permissions, Projectpriority, Projectdifficulty, Mappingtypes, Editors, Teamvisibility, Taskstatus
+from tm_admin.access import Roles
 from tm_admin.yamlfile import YamlFile
 import concurrent.futures
 from cpuinfo import get_cpu_info
 import asyncio
+
 # from asyncpg import create_pool
 # from tm_admin.users.users import createSQLValues
 # from tm_admin.organizations.organizations import createSQLValues
