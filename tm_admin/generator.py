@@ -30,6 +30,7 @@ from tm_admin.yamlfile import YamlFile
 from tm_admin.proto import ProtoBuf
 from datetime import datetime
 from shapely.geometry import Point, LineString, Polygon
+from tm_admin.access import Roles
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -175,7 +176,7 @@ class Generator(object):
         out = f"""
 import logging
 from datetime import timedelta
-from shapely.geometry import Polygon, Point, shape
+# from shapely.geometry import Polygon, Point, shape
 
 log = logging.getLogger(__name__)
         """
@@ -266,7 +267,7 @@ class {table.capitalize()}Table(object):
                             out += f"{k}: datetime = '{datetime.now()}', "
                         elif k1[:7] == 'public.':
                             defined = f"tm_admin.types_tm.{k1[7:].capitalize()}"
-                            # log.warning(f"SQL ENUM {k1}!!")
+                            log.warning(f"SQL ENUM {k1}!!")
                             default = eval(f"{defined}(1)")
                             out += f"{k}: {defined} =  {defined}.{default.name}, "
                             # out += f"{k}: int =  1, "
@@ -427,6 +428,7 @@ def main():
         #     log.info(f"Wrote {proto} to disk")
         #     file.close()
 
+        print(config)
         out = gen.createPyClass()
         py = config.replace('.yaml', '_class.py')
         with open(py, 'w') as file:
