@@ -25,7 +25,7 @@ import sys
 import os
 from sys import argv
 import tm_admin.types_tm
-from tm_admin.types_tm import Teamrole, Userrole, Roles
+from tm_admin.types_tm import Roles
 from codetiming import Timer
 from tm_admin.yamlfile import YamlFile
 import asyncio
