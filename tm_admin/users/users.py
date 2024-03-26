@@ -19,6 +19,10 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
+"""
+This class is used to import the auxilary tables into the primary table
+"""
+
 import argparse
 import logging
 import sys
@@ -30,7 +34,6 @@ import tm_admin.types_tm
 from tm_admin.types_tm import Userrole, Mappinglevel, Teammemberfunctions
 import concurrent.futures
 from cpuinfo import get_cpu_info
-from tm_admin.dbsupport import DBSupport
 from tm_admin.users.users_class import UsersTable
 from osm_rawdata.pgasync import PostgresClient
 from tm_admin.types_tm import Userrole
@@ -38,6 +41,7 @@ from tqdm import tqdm
 import tqdm.asyncio
 import asyncio
 from codetiming import Timer
+from tm_admin.dbsupport import DBSupport
 
 # Instantiate logger
 log = logging.getLogger(__name__)
@@ -115,6 +119,34 @@ class UsersDB(DBSupport):
         self.types = dir(tm_admin.types_tm)
         # super().__init__('users', dburi)
         super().__init__('users')
+
+    async def fixRoles(self,
+                       inpg: PostgresClient,
+                       outpg: PostgresClient,
+                       ):
+
+        """
+        Fix the roles after importing from TM.
+
+        Args:
+            inpg (PostgresClient): The input database
+            outpg (PostgresClient): The output database
+        """
+        # For some reason the user role doesn't import
+        # correctly, but it barely matters as this is
+        # now in the members column of the projects
+        # table. But we might as well fix this in the user
+        # table. Most are MAPPERS, so set that as the default.
+        sql = f"UPDATE users SET role = 'MAPPER'"
+        result = await outpg.execute(sql)
+        # Get the few users that are a project manager
+        sql = f"SELECT json_agg(tmp) FROM (SELECT id,role FROM users WHERE role>0) AS tmp;"
+        # print(sql)
+        result = await inpg.execute(sql)
+        admins = dict()
+        for entry in eval(result[0]['json_agg']):
+            sql = f"UPDATE users SET role = 'PROJECT_MANAGER' WHERE id={entry['id']}"
+            result = await outpg.execute(sql)
 
     async def mergeInterests(self,
                              inpg: PostgresClient,
@@ -306,6 +338,11 @@ class UsersDB(DBSupport):
 
         inpg = PostgresClient()
         await inpg.connect(inuri)
+
+        outpg = PostgresClient()
+        await outpg.connect(outuri)
+
+        await self.fixRoles(inpg, outpg)
 
         await self.mergeFavorites(inpg)
 
