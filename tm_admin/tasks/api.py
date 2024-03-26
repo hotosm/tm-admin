@@ -271,7 +271,7 @@ class TasksAPI(PGSupport):
                     data += f'" {v}", '
                 #asc = str(entry).replace("'", '"').replace("\\'", "'")
             sql = "UPDATE tasks SET history = '{\"history\": [%s]}' WHERE id=%d AND project_id=%d" % (data[:-2], task_id, project_id)
-            print(sql)
+            # print(sql)
             result = await self.execute(sql)
 
     async def appendHistory(self,
@@ -350,8 +350,8 @@ class TasksAPI(PGSupport):
             result = await self.execute(sql)
 
     async def mapAllAPI(self,
-                                    project_id: int,
-                                    ):
+                        project_id: int,
+                        ):
         """
         Map all tasks on a project. Can only be done by the project
         manager.
@@ -386,7 +386,7 @@ class TasksAPI(PGSupport):
 
         return False
 
-    async def resetBadImageryAllAPI(self):
+    async def resetBadImagery(self):
         """
         Set all bad imagery tasks as ready for mapping.
 

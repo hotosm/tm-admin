@@ -32,13 +32,14 @@ import tm_admin.types_tm
 import geojson
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamrole
+from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty
 from tm_admin.projects.projects_class import ProjectsTable
 from tm_admin.tasks.tasks_class import TasksTable
 from shapely import wkb, get_coordinates
 from tm_admin.pgsupport import PGSupport
 from osm_rawdata.pgasync import PostgresClient
 import re
+from tm_admin.access import Roles
 # from progress import Bar, PixelBar
 from tqdm import tqdm
 import tqdm.asyncio
@@ -63,11 +64,11 @@ class ProjectsAPI(PGSupport):
         Returns:
             (ProjectsAPI): An instance of this class
         """
-        self.allowed_roles = [
-            Teamrole.TEAM_MAPPER,
-            Teamrole.TEAM_VALIDATOR,
-            Teamrole.TEAM_MANAGER,
-        ]
+        # self.allowed_roles = [
+        #     Teamrole.MAPPER,
+        #     Teamrole.VALIDATOR,
+        #     Teamrole.MANAGER,
+        # ]
         from tm_admin.users.api import UsersAPI
         self.users = None
         self.tasks = None
@@ -122,7 +123,8 @@ class ProjectsAPI(PGSupport):
         #data = await self.getColumns(['id', 'teams'], where)
         # The role is in a list of dicts in a jsonb column.
 
-        sql = f"SELECT jsonb_path_query(teams, '$.teams[*] ? (@.team_id[*] == {team_id})') AS results FROM projects WHERE id = {project_id};"
+        sql = f"SELECT jsonb_path_query(members, '$.members[*] ? (@.team_id[*] == {team_id})') AS results FROM projects WHERE id = {project_id};"
+        # print(sql)
         results = await self.execute(sql)
 
         # There should only be one item in the results. Since it's a jsonb column
@@ -131,7 +133,7 @@ class ProjectsAPI(PGSupport):
         if len(results) > 0:
             if results[0]['results'][0] == '{':
                 tmp1 = eval(results[0]['results'])
-                tmp2 = f"Teamrole.{tmp1['role']}"
+                tmp2 = f"Roles.{tmp1['role']}"
                 role = eval(tmp2)
                 return role
 

@@ -40,17 +40,14 @@ from tm_admin.users.user_stats_class import UserstatsTable
 from shapely import wkb, get_coordinates
 from tm_admin.pgsupport import PGSupport
 import typing
-#if typing.TYPE_CHECKING:
-#    from tm_admin.projects.api import ProjectsAPI
-#    from tm_admin.tasks.api import TasksAPI
 import tm_admin
 import re
-# from progress import Bar, PixelBar
 from tqdm import tqdm
 import tqdm.asyncio
 from codetiming import Timer
 import asyncio
 from http import HTTPStatus
+from tm_admin.access import Roles
 
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
