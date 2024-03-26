@@ -30,7 +30,7 @@ from codetiming import Timer
 from tm_admin.yamlfile import YamlFile
 import asyncio
 from rbac import RBAC, RBACConfigurationError, RBACAuthorizationError
-from enum import IntEnum, StrEnum
+from enum import IntEnum
 # This is only used for debugging output during development
 import json
 
