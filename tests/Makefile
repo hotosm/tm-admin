@@ -51,6 +51,9 @@ tmtestdata:
 	-@ogr2ogr /tmp/tm.sql PG:'dbname=$(DB)' -sql "SELECT * FROM messages LIMIT 10"
 	-@grep "INSERT INTO" /tmp/tm.sql | sed -e s/'"public"."sql_statement"'/messages/ > tmmessages.sql
 
+lint:
+	-@pylint test_*.py
+
 import:
 	-for i in $(SQL); do \
 		echo "Importing $${i} into testdata"; \
@@ -59,6 +62,7 @@ import:
 
 check:
 	for test in $(TESTS); do \
-	    ./$${test} -v; \
+         echo "Running test $${test}..."; \
+	    ./$${test} ; \
 	done
 force:
