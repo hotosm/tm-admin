@@ -241,16 +241,6 @@ been added as *favorite_projects*. Same with the *user_interests* and
 has been removed as it's possible to just query the database for users
 with or without email addresses.
 
-The *users* tables also absorbed the team_members table, adding these
-columns to the *users* table as a jsonb array. This lets a user
-have different functions or activity across multiple projects, which
-is currently not supported by TM.
-
-* join_request_notifications
-* team
-* active
-* function
-
 #### Projects Table
 
 There's a lot of project related tables.
@@ -288,7 +278,7 @@ From **project_priority_areas** tables
 
 From **project_teams** table
 
-* Add *team_id*, *team_role* to *teams* jsonb column.
+* Add *team_id*, *team_role* to *member* jsonb column.
 
 #### Organizations Table
 
@@ -345,7 +335,10 @@ column.
 Currently in the Tasking Manager there is an index into the history
 table, which no longer exists. So the details of the issue are merged
 with the issues jsob column. THe only two columns still in use is
-issue and count
+issue and count.
+
+In the Tasking Manager, there is a task status of *BADIMAGERY*, which
+has been moved to the *Mapping_issue* enum, which is more appropriate.
 
 ##### Task Invalidation History Table
 
