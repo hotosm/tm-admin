@@ -287,3 +287,38 @@ In this example, the mapper is trying to create a campaign, but lacks
 the proper permissions to do so. In this case a False is returned.
 
     await acl.check('campaigns', Roles.MAPPER, Operation.CREATE)
+
+## Access Permissions
+
+### Users Table
+
+Currently TM requires a user to be an ADMIN (or project manager)
+to change a users mapping level or role. All other operations
+effecting the user's profile, like changing to expert mode, they
+can make themselves.
+
+Anyone that is logged in can view a user's statistics on the mapping
+progress in TM.
+
+### Organizations Table
+
+For TM, only the ADMIN (or project manager) can create or modify an
+organization profile. While not implemented yet in FMTM, the plan is
+that there will be an organization manager to do this.
+
+### Projects Table
+
+For TM, only an ADMIN can create, modify, or delete a project. The
+ADMIN can also change the project featured status. The project admin
+can also send a message to all the users on a project. (this needs to
+be confirmed). Any logged in user can view public projects and
+statistics.
+
+### Task Table
+
+This is the most complicated table usage, being a core part of any
+Tasking. Access to changing this table is a mix of MAPPER, VALIDATOR,
+or ADMIN. A User can lock or unlock a task for mapping, list all the
+tasks in a project, and view task statistics.
+
+Only the ADMIN can delete tasks from a project.
