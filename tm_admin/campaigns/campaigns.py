@@ -27,13 +27,12 @@ from sys import argv
 from datetime import datetime
 from dateutil.parser import parse
 import tm_admin.types_tm
-from tm_admin.types_tm import Userrole, Mappinglevel, Teammemberfunctions
+from tm_admin.types_tm import Roles, Mappinglevel, Teammemberfunctions
 import concurrent.futures
 from cpuinfo import get_cpu_info
 from tm_admin.dbsupport import DBSupport
 from tm_admin.users.users_class import UsersTable
 from osm_rawdata.pgasync import PostgresClient
-from tm_admin.types_tm import Userrole
 from tqdm import tqdm
 import tqdm.asyncio
 from codetiming import Timer

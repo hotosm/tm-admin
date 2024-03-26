@@ -31,12 +31,11 @@ from sys import argv
 from datetime import datetime
 from dateutil.parser import parse
 import tm_admin.types_tm
-from tm_admin.types_tm import Userrole, Mappinglevel, Teammemberfunctions
+from tm_admin.types_tm import Roles, Mappinglevel, Teammemberfunctions
 import concurrent.futures
 from cpuinfo import get_cpu_info
 from tm_admin.users.users_class import UsersTable
 from osm_rawdata.pgasync import PostgresClient
-from tm_admin.types_tm import Userrole
 from tqdm import tqdm
 import tqdm.asyncio
 import asyncio
@@ -155,7 +154,7 @@ class UsersDB(DBSupport):
         result = await inpg.execute(sql)
         admins = dict()
         for entry in eval(result[0]['json_agg']):
-            sql = f"UPDATE users SET role = 'USER_READ_ONLY' WHERE id={entry['id']}"
+            sql = f"UPDATE users SET role = 'READ_ONLY' WHERE id={entry['id']}"
             result = await outpg.execute(sql)
 
     async def mergeInterests(self,

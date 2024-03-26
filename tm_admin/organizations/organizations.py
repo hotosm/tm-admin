@@ -77,7 +77,7 @@ class OrganizationsDB(DBSupport):
         pbar = tqdm.tqdm(result)
         for record in result:
             sql = f" UPDATE organizations SET managers = managers||{record['user_id']} WHERE id={record['organisation_id']};"
-            # print(sql)
+            print(sql)
             await self.pg.execute(sql)
 
 async def main():

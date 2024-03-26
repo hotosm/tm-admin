@@ -31,7 +31,7 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamrole, Userrole
+from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Roles
 from tm_admin.projects.projects_class import ProjectsTable
 from shapely import wkb, get_coordinates
 from tm_admin.dbsupport import DBSupport

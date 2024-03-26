@@ -267,7 +267,7 @@ class {table.capitalize()}Table(object):
                             out += f"{k}: datetime = '{datetime.now()}', "
                         elif k1[:7] == 'public.':
                             defined = f"tm_admin.types_tm.{k1[7:].capitalize()}"
-                            log.warning(f"SQL ENUM {k1}!!")
+                            # log.warning(f"SQL ENUM {k1}!!")
                             default = eval(f"{defined}(1)")
                             out += f"{k}: {defined} =  {defined}.{default.name}, "
                             # out += f"{k}: int =  1, "

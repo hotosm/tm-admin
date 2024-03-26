@@ -33,7 +33,7 @@ import geojson
 from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
-from tm_admin.types_tm import Editors, Permissions, Userrole, Mappinglevel, Teamrole, Taskstatus, Projectstatus
+from tm_admin.types_tm import Editors, Permissions, Roles, Mappinglevel, Taskstatus, Projectstatus
 from tm_admin.projects.projects_class import ProjectsTable
 from tm_admin.users.users_class import UsersTable
 from tm_admin.users.user_stats_class import UserstatsTable
@@ -50,6 +50,8 @@ from tqdm import tqdm
 import tqdm.asyncio
 from codetiming import Timer
 import asyncio
+from http import HTTPStatus
+
 # The number of threads is based on the CPU cores
 info = get_cpu_info()
 cores = info["count"] * 2
@@ -128,11 +130,11 @@ class UsersAPI(PGSupport):
             user_id (int): The user's ID
 
         Returns:
-            (Userrole): The user's role
+            (Roles): The user's role
         """
         result = await self.getColumns(['role'], {"id": user_id})
 
-        return eval(f"Userrole.{result[0]['role']}")
+        return eval(f"Roles.{result[0]['role']}")
 
     async def getBlocked(self,
                   user_id: int,
@@ -148,8 +150,8 @@ class UsersAPI(PGSupport):
         """
         result = await self.getColumns(['role'], {"id": user_id})
 
-        role = eval(f"Userrole.{result[0]['role']}")
-        if role == Userrole.USER_READ_ONLY:
+        role = eval(f"Roles.{result[0]['role']}")
+        if role == Roles.READ_ONLY:
             return True
         else:
             return False
@@ -226,7 +228,7 @@ class UsersAPI(PGSupport):
                             count: int,
                             username: str = None,
                             user_id: int = None,
-                            role: Userrole = None,
+                            role: Roles = None,
                             level: Mappinglevel = None,
                             ):
         """
@@ -238,7 +240,7 @@ class UsersAPI(PGSupport):
             count (int): The number of entries in the page
             username (str): The partial user name
             user_id (int): The user ID
-            role (Userrole): The user's role
+            role (Roles): The user's role
             level (Mappinglevel): The users mapping level
 
         Returns:

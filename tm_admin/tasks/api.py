@@ -349,27 +349,70 @@ class TasksAPI(PGSupport):
             # print(sql)
             result = await self.execute(sql)
 
-    async def markAllMapped(self):
+    async def mapAllAPI(self,
+                                    project_id: int,
+                                    ):
         """
+        Map all tasks on a project. Can only be done by the project
+        manager.
 
         Args:
             
         Returns:
             
         """
-        log.warning(f"markAllMapped(): unimplemented!")
+        # FIXME use Access() class
+        log.warning(f"mapAllAPI(): unimplemented!")
 
         return False
 
-    async def resetBadImagery(self):
+    async def validateAllAPI(self,
+                                    project_id: int,
+                                    flip: bool,
+                                    ):
         """
+        Validate or invalidate all tasks on a project. Can only be done
+        by the project manager.
 
         Args:
+            project_id (id): The project ID
+            flip: Invalidate all tasks
             
         Returns:
             
         """
-        log.warning(f"resetBadImagery(): unimplemented!")
+        # FIXME use Access() class
+        log.warning(f"validateAllAPI(): unimplemented!")
+
+        return False
+
+    async def resetBadImageryAllAPI(self):
+        """
+        Set all bad imagery tasks as ready for mapping.
+
+        Args:
+
+        Returns:
+
+        """
+        # FIXME use Access() class,
+        log.warning(f"resetBadImageryAllAPI(): unimplemented!")
+
+        return False
+
+    async def resetAllAPI(self,
+                                      project_id: int,
+                                      ):
+        """
+        Reset all tasks on project back to ready, preserving history.
+
+        Args:
+
+        Returns:
+
+        """
+        # FIXME use Access() class,
+        log.warning(f"resetAllAPI(): unimplemented!")
 
         return False
 
@@ -384,6 +427,21 @@ class TasksAPI(PGSupport):
         log.warning(f"undoMapping(): unimplemented!")
 
         return False
+
+    async def permittedUser(self,
+                            user_id: int,
+                            project_id: int,
+                            ):
+        """
+        Is user action permitted on project.
+
+        # FIXME: See if team role is project manager
+
+        # FIXME: See if user role is project manager
+
+        # FIXME: See if user is org manager
+
+        """
 
 async def main():
     """This main function lets this class be run standalone by a bash script."""

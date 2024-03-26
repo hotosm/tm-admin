@@ -30,7 +30,6 @@ from datetime import datetime
 from dateutil.parser import parse
 import tm_admin.types_tm
 import geojson
-from cpuinfo import get_cpu_info
 from shapely.geometry import shape
 from shapely import centroid
 from tm_admin.types_tm import Mappingtypes, Projectstatus, Taskcreationmode, Editors, Permissions, Projectpriority, Projectdifficulty, Teamrole
@@ -46,13 +45,9 @@ import tqdm.asyncio
 from codetiming import Timer
 import asyncio
 from shapely import wkb, wkt
-import typing
 import tm_admin
-#if typing.TYPE_CHECKING:
-#    from tm_admin.users.api import UsersAPI
-#    from tm_admin.tasks.api import TasksAPI
-#    from tm_admin.projects.api import ProjectsAPI
-# The number of threads is based on the CPU cores
+
+from cpuinfo import get_cpu_info
 info = get_cpu_info()
 cores = info["count"] * 2
 
