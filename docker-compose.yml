@@ -1,0 +1,60 @@
+# Copyright (c) 2022, 2023 Humanitarian OpenStreetMap Team
+# This file is part of tm-admin.
+#
+#     tm-admin is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     tm-admin is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with tm-admin.  If not, see <https:#www.gnu.org/licenses/>.
+#
+
+version: "3"
+
+networks:
+  net:
+    name: tm-admin
+
+services:
+  tm-admin:
+    image: "ghcr.io/hotosm/tm-admin:${TAG_OVERRIDE:-ci}"
+    build:
+      target: ci
+    container_name: tm-admin
+    volumes:
+      # Mount local package
+      - ./tm_admin:/usr/local/lib/python3.10/site-packages/tm_admin
+      # Mount local tests
+      - ./tests:/data/tests
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - net
+    restart: "unless-stopped"
+    command: "pytest"
+
+  db:
+    image: "postgis/postgis:14-3.4-alpine"
+    container_name: tm-admin-db
+    environment:
+      - POSTGRES_USER=tm
+      - POSTGRES_PASSWORD=dummycipassword
+      - POSTGRES_DB=tmadmin
+    ports:
+      - "5439:5432"
+    networks:
+      - net
+    restart: "unless-stopped"
+    healthcheck:
+      test: pg_isready -U ${TM_DB_USER:-tm} -d ${TM_DB_NAME:-tmadmin}
+      start_period: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 3
