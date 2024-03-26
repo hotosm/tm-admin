@@ -6,4 +6,4 @@
     - user_id:
         - int64
     - role:
-        - public.userroles
+        - public.roles

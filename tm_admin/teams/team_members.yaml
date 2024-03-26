@@ -12,4 +12,4 @@
     - active:
         - bool
 #    - role:
-#        - public.teamroles
+#        - public.roles
