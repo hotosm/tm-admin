@@ -137,6 +137,16 @@
     - TEAM_VALIDATOR
     - TEAM_MANAGER
 
+- roles:
+    - READ_ONLY
+    - SUPER_ADMIN
+    - FIELD_ADMIN
+    - ORGANIZATION_ADMIN
+    - PROJECT_MANAGER
+    - ASSOCIATE_MANAGER
+    - VALIDATOR
+    - MAPPER
+
 - teammemberfunctions:
     - MANAGER
     - MEMBER
@@ -197,3 +207,4 @@
 - sort_directions:
     - ASC
     - DESC
+
